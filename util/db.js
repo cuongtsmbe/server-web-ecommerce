@@ -33,8 +33,7 @@ module.exports = {
             connection.connect();
             connection.query(`INSERT INTO ${table} SET ?`, data, function(error, results, fields) {
                 if (error) throw error;
-                console.log("had insert row: " + results.insertId);
-                resolve(results.insertId);
+                resolve(results);
             });
 
             connection.end();
@@ -51,7 +50,19 @@ module.exports = {
 
             connection.end();
         });
-    }
+    },
+    delete: function(table, con) {
+        return new Promise(function(resolve, reject) {
+            var connection = mysql.createConnection(config.mysql);
+            connection.connect();
+            connection.query(`DELETE FROM ${table} WHERE ?`, con, function(error, results, fields) {
+                if (error) throw error;
+                resolve(results);
+            });
+
+            connection.end();
+        });
+    },
 
 
 };

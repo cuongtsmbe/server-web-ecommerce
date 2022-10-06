@@ -5,8 +5,8 @@ const TABLE_KH="khachhang";
 const TABLE_SP="sanpham";
 module.exports={
     //Xem chi tiết đơn hàng 
-    //get information customer
-    //get chi tiet san pham trong hoa don
+    //1 get information customer
+    //2 get chi tiet san pham trong hoa don
     getDetails:async function(condition){
         var con={
             id_hoadon:condition.id
@@ -30,21 +30,21 @@ module.exports={
 
             };
 
-            var ListProductDetails=await db.load(`SELECT 
-                cthd.id_sanpham as Ma_san_pham,cthd.id_hoadon as Ma_hoa_don,
-                cthd.so_luong as So_luong_mua,cthd.Don_gia_khi_mua,
-                ${TABLE}.tong_tien,${TABLE}.ngay_tao,sp.ten_sp as Ten_san_pham,sp.hinh_anh 
-                FROM ${TABLE_CTHD} cthd
-                INNER JOIN ${TABLE} ON cthd.id_hoadon=${TABLE}.id
-                INNER JOIN ${TABLE_SP} sp ON sp.id=cthd.id_sanpham
-                WHERE cthd.id_hoadon=?`,con.id_hoadon);
-           
-            result.data=ListProductDetails
+        var ListProductDetails=await db.load(`SELECT 
+            cthd.id_sanpham as Ma_san_pham,cthd.id_hoadon as Ma_hoa_don,
+            cthd.so_luong as So_luong_mua,cthd.Don_gia_khi_mua,
+            ${TABLE}.tong_tien,${TABLE}.ngay_tao,sp.ten_sp as Ten_san_pham,sp.hinh_anh 
+            FROM ${TABLE_CTHD} cthd
+            INNER JOIN ${TABLE} ON cthd.id_hoadon=${TABLE}.id
+            INNER JOIN ${TABLE_SP} sp ON sp.id=cthd.id_sanpham
+            WHERE cthd.id_hoadon=?`,con.id_hoadon);
+        
+        result.data=ListProductDetails
 
         return result;
     },
     //Xem danh sách đơn hóa đơn  
-    getList:async function(condition){
+    getList: function(condition){
         var sql=`SELECT 
         HD.id as Ma_don_hang,HD.ngay_tao as Ngay_dat,KH.ten_kh as Ten_khach_hang,HD.tong_tien as Tong_tien,
         HD.id_nhanvien ,HD.trang_thai as Trang_thai 
@@ -62,10 +62,10 @@ module.exports={
         }else {
             sql=sql.concat(` HD.trang_thai=? AND HD.ngay_tao BETWEEN ? AND ? LIMIT ?`);
         }
-        var listOrders=await db.load(sql,args);
+        var listOrders= db.load(sql,args);
         return listOrders;
     },
-    //update order
+    //update trang thai hoa don
     update:function(condition,value){
         var result= db.load(`UPDATE ${TABLE}
         SET trang_thai=?
