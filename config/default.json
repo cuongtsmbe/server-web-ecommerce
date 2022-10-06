@@ -1,0 +1,11 @@
+{
+    "mysql": {
+        "host": "localhost",
+        "user": "root",
+        "password": "",
+        "database": "laptop"
+    },
+    "hash": 8,
+    "limitOrders":3,
+    "limitSuppliers":3
+}
