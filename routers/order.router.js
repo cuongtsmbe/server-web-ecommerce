@@ -10,6 +10,9 @@ module.exports = {
 
     //lay danh sach hoa don
     getListOrders:async function(req,res,next){
+        if(req.query.tenkh==undefined){
+            req.query.tenkh='';
+        }
         var condition={
             Ten_KH      :`%${req.query.tenkh}%`,     
             dateStart   :req.query.startdate,
@@ -17,7 +20,9 @@ module.exports = {
             trangThai   :req.query.trangthai,
             limit       :config.limitOrders
         };
+        
         var result= await orderModel.getList(condition);
+
         res.json({
             status:200,
             data:result

@@ -44,7 +44,7 @@ module.exports={
         return result;
     },
     //Xem danh sách đơn hóa đơn  
-    getList:function(condition){
+    getList:async function(condition){
         var sql=`SELECT 
         HD.id as Ma_don_hang,HD.ngay_tao as Ngay_dat,KH.ten_kh as Ten_khach_hang,HD.tong_tien as Tong_tien,
         HD.id_nhanvien ,HD.trang_thai as Trang_thai 
@@ -52,14 +52,17 @@ module.exports={
         INNER JOIN ${TABLE} HD ON KH.id=HD.id_khachhang
         WHERE `;
         var args=[condition.Ten_KH,condition.trangThai,condition.dateStart,condition.dateEnd,condition.limit];
-        if(condition.trangThai==-1){
-            sql=sql.concat(`HD.ngay_tao BETWEEN ? AND ? LIMIT ?`);
+        if(condition.trangThai==-1 && condition.dateStart!=undefined && condition.dateEnd!=undefined){
+            sql=sql.concat(` HD.ngay_tao BETWEEN ? AND ? LIMIT ?`);
             //delete trangthai
             args.splice(1,1);
-        }else{
-            sql=sql.concat(`HD.trang_thai=? AND HD.ngay_tao BETWEEN ? AND ? LIMIT ?`);
+        }else if(condition.dateStart==undefined || condition.dateEnd==undefined){
+            sql=sql.concat(`1`);
+            args.splice(1,args.length);
+        }else {
+            sql=sql.concat(` HD.trang_thai=? AND HD.ngay_tao BETWEEN ? AND ? LIMIT ?`);
         }
-        var listOrders=db.load(sql,args);
+        var listOrders=await db.load(sql,args);
         return listOrders;
     },
     //update order

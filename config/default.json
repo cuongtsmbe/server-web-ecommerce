@@ -6,6 +6,6 @@
         "database": "laptop"
     },
     "hash": 8,
-    "limitOrders":3,
+    "limitOrders":15,
     "limitSuppliers":3
 }
