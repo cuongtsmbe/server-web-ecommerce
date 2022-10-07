@@ -8,5 +8,6 @@
     "hash": 8,
     "limitOrders":2,
     "limitSuppliers":3,
-    "limitProducts":5
+    "limitProducts":5,
+    "limitCategories":5
 }

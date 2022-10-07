@@ -13,7 +13,7 @@ app.use(bodyParser.json())
 require("./routers/order.router").orderRouters(app);
 require("./routers/supplier.router").supplierRouters(app);
 require("./routers/product.router").productRouters(app);
-
+require("./routers/category.router").categoryRouters(app);
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
