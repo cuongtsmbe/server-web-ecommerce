@@ -10,8 +10,6 @@ module.exports = {
                 if (error) throw error;
                 resolve(results);
             });
-        
-
             connection.end();
         });
     },
