@@ -2,23 +2,31 @@ const orderModel = require("../models/order.model");
 const config     = require("../config/default.json");
 module.exports = {
     orderRouters:function(app){
-        app.get('/admin/order',this.getListOrders);
+        app.get('/admin/order',this.setDefault,this.getListOrders);
         app.get('/admin/order/:id',this.getOrderDetails);
         app.put('/admin/order/:id',this.updateStatus);
-        app.post('/admin/order',this.addNew);
+        app.post('/admin/order',this.addNewOrder);
     },
-
-    //lay danh sach hoa don
-    getListOrders:async function(req,res,next){
+    //set default 
+    setDefault: function(req,res,next){
         if(req.query.tenkh==undefined){
             req.query.tenkh='';
         }
+        if(req.query.page==undefined){
+            req.query.page=1;
+        }
+        next();
+    },
+    //lay danh sach hoa don
+    getListOrders:async function(req,res,next){
+      
         var condition={
             Ten_KH      :`%${req.query.tenkh}%`,     
             dateStart   :req.query.startdate,
             dateEnd     :req.query.enddate,
             trangThai   :req.query.trangthai,
-            limit       :config.limitOrders
+            limit       :config.limitOrders,
+            offset      :(req.query.page-1)*config.limitOrders
         };
         
         var result= await orderModel.getList(condition);
@@ -42,23 +50,26 @@ module.exports = {
     },
     //cap nhat trang thai don hang
     updateStatus:async function(req,res,next){
+        var response={
+            status:201,
+            message:""
+        };
+
         var value={ trang_thai:req.body.Trang_thai  }
         var condition={ id:req.params.id    }
         var result=await orderModel.update(condition,value);
+        
         if(result.changedRows==0){
-            res.json({
-                        status:201,
-                        message:"update khong thanh cong"
-                    })
+            response.status=201;
+            response.message="update khong thanh cong";
         }else{
-            res.json({
-                        status:200,
-                        message:"update thanh cong"
-                    })
+            response.status=200;
+            response.message="update thanh cong";
         }
+        res.json(response);
     },
     //app new order
-    addNew:async function(req,res,next){
+    addNewOrder:async function(req,res,next){
 
 
     }

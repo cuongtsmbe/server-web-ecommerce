@@ -15,11 +15,11 @@ module.exports = {
             connection.end();
         });
     },
-    get: function(table,limit) {
+    get: function(table,limit,offset) {
         return new Promise(function(resolve, reject) {
             var connection = mysql.createConnection(config.mysql);
             connection.connect();
-            connection.query(`SELECT * from ${table} LIMIT ?`,limit, function(error, results, fields) {
+            connection.query(`SELECT * from ${table} LIMIT ? OFFSET ?`,[limit,offset], function(error, results, fields) {
                 if (error) throw error;
                 resolve(results);
             });

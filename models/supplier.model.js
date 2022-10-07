@@ -5,10 +5,10 @@ module.exports={
    get: function(condition){
          var result;
          if(condition.ten_ncc==undefined){
-            result   = db.get(TABLE,condition.limit);
+            result   = db.get(TABLE,condition.limit,condition.offset);
          }else{
-            var args=[condition.ten_ncc,condition.limit];
-            result   = db.load(`select * from ${TABLE} where ten_ncc LIKE ? LIMIT ? `,args);
+            var args=[condition.ten_ncc,condition.limit,condition.offset];
+            result   = db.load(`select * from ${TABLE} where ten_ncc LIKE ? LIMIT ? OFFSET ?  `,args);
          }
 
         return result;
@@ -21,5 +21,8 @@ module.exports={
    },
    delete:function(condition){
        return db.delete(TABLE,condition);
+   },
+   getOneByID:function(condition){
+      return db.load(`SELECT * from ${TABLE} WHERE id=?`,condition.id);
    }
 }

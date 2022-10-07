@@ -51,16 +51,16 @@ module.exports={
         FROM (SELECT kh.id,kh.ten_kh FROM ${TABLE_KH} kh WHERE kh.ten_kh LIKE ?) as KH
         INNER JOIN ${TABLE} HD ON KH.id=HD.id_khachhang
         WHERE `;
-        var args=[condition.Ten_KH,condition.trangThai,condition.dateStart,condition.dateEnd,condition.limit];
+        var args=[condition.Ten_KH,condition.trangThai,condition.dateStart,condition.dateEnd,condition.limit,condition.offset];
         if(condition.trangThai==-1 && condition.dateStart!=undefined && condition.dateEnd!=undefined){
-            sql=sql.concat(` HD.ngay_tao BETWEEN ? AND ? LIMIT ?`);
+            sql=sql.concat(` HD.ngay_tao BETWEEN ? AND ? LIMIT ? OFFSET ?`);
             //delete trangthai
             args.splice(1,1);
         }else if(condition.dateStart==undefined || condition.dateEnd==undefined){
             sql=sql.concat(`1`);
             args.splice(1,args.length);
         }else {
-            sql=sql.concat(` HD.trang_thai=? AND HD.ngay_tao BETWEEN ? AND ? LIMIT ?`);
+            sql=sql.concat(` HD.trang_thai=? AND HD.ngay_tao BETWEEN ? AND ? LIMIT ? OFFSET ?`);
         }
         var listOrders= db.load(sql,args);
         return listOrders;
