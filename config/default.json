@@ -10,5 +10,6 @@
     "limitSuppliers":3,
     "limitProducts":5,
     "limitCategories":5,
-    "limitStaff":2
+    "limitStaff":2,
+    "limitCustomer":2
 }
