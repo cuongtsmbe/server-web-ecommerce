@@ -45,13 +45,24 @@ module.exports={
     },
     //Xem danh sách đơn hóa đơn  
     getList: function(condition){
+        var args=[condition.trangThai,condition.dateStart,condition.dateEnd,condition.limit,condition.offset];
         var sql=`SELECT 
         HD.id as Ma_don_hang,HD.ngay_tao as Ngay_dat,KH.ten_kh as Ten_khach_hang,HD.tong_tien as Tong_tien,
         HD.id_nhanvien ,HD.trang_thai as Trang_thai 
-        FROM (SELECT kh.id,kh.ten_kh FROM ${TABLE_KH} kh WHERE kh.ten_kh LIKE ?) as KH
-        INNER JOIN ${TABLE} HD ON KH.id=HD.id_khachhang
-        WHERE `;
-        var args=[condition.Ten_KH,condition.trangThai,condition.dateStart,condition.dateEnd,condition.limit,condition.offset];
+        FROM (SELECT kh.id,kh.ten_kh FROM ${TABLE_KH} kh WHERE `
+        if(condition.GetByName==true){
+            sql=sql.concat( `kh.ten_kh LIKE ?`);
+            args.unshift(condition.Ten_KH);//add value at begin array
+        }else{
+            sql=sql.concat( `kh.id=?`);
+            args.unshift(condition.ID_KH);
+        }
+        sql=sql.concat(
+            `) as KH
+            INNER JOIN ${TABLE} HD ON KH.id=HD.id_khachhang
+            WHERE `
+        );
+       
         if(condition.trangThai==-1 && condition.dateStart!=undefined && condition.dateEnd!=undefined){
             sql=sql.concat(` HD.ngay_tao BETWEEN ? AND ? LIMIT ? OFFSET ?`);
             //delete trangthai
