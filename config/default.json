@@ -11,5 +11,6 @@
     "limitProducts":5,
     "limitCategories":5,
     "limitStaff":2,
-    "limitCustomer":2
+    "limitCustomer":2,
+    "limitPermission":2
 }

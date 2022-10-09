@@ -2,7 +2,7 @@ const supplierModel = require("../models/supplier.model");
 const config     = require("../config/default.json");
 module.exports = {
     supplierRouters:function(app){
-        app.get('/admin/supplier/view'      ,this.setDefault , this.get);
+        app.get('/admin/supplier/list'      ,this.setDefault , this.get);
         app.post('/admin/supplier/add'      ,this.add);
         app.put('/admin/supplier/edit/:id'  ,this.update);
         app.delete('/admin/supplier/delete/:id',this.delete);

@@ -16,6 +16,8 @@ require("./routers/product.router").productRouters(app);
 require("./routers/category.router").categoryRouters(app);
 require("./routers/staff.router").staffRouters(app);
 require("./routers/customer.router").customerRouters(app);
+require("./routers/permission.router").permissionRouters(app);
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
