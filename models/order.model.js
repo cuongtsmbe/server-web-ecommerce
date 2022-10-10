@@ -91,6 +91,26 @@ module.exports={
         WHERE id_khachhang=${condition.ID_KH} AND HD.trang_thai=? AND HD.ngay_tao BETWEEN ? AND ?`;
         var listOrders= db.load(sql,args);
         return listOrders;
+    },
+    //Them hoa don (table:HOADON)
+    addOrder:function(value){
+        return db.insert(TABLE,value);
+    },
+    //them chi tiet hoa don
+    addOrderDetails:function(value){
+        var sql='';
+        sql=`
+            INSERT INTO ${TABLE_CTHD} (id_sanpham,Don_gia_khi_mua,id_hoadon,so_luong)
+            VALUES
+        `;
+        for (var i = 0; i < value.Danh_sach_san_pham.length; i++) {
+            sql=sql.concat(` (${value.Danh_sach_san_pham[i].id_san_pham},${value.Danh_sach_san_pham[i].Price},${value.id_hoadon},${value.Danh_sach_san_pham[i].So_luong})`);
+            if(i!=value.Danh_sach_san_pham.length-1){
+                sql=sql.concat(',');
+            }
+        }
+        var result = db.load(sql);
+        return result;
     }
 
 }
