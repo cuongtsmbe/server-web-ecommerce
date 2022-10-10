@@ -2,11 +2,12 @@ const orderModel = require("../models/order.model");
 const config     = require("../config/default.json");
 module.exports = {
     orderRouters:function(app){
-        app.get('/admin/order'                  ,this.setDefaultCustomerName,this.getListOrders);
-        app.get('/admin/order/customer/:id'     ,this.setDefaultCustomerId,this.getListOrders);
-        app.get('/admin/order/:id'              ,this.getOrderDetails);
-        app.put('/admin/order/:id'              ,this.updateStatus);
-        app.post('/admin/order'                 ,this.addNewOrder);
+        app.get('/admin/order'                              ,this.setDefaultCustomerName,this.getListOrders);
+        app.get('/admin/order/customer/:id'                 ,this.setDefaultCustomerId,this.getListOrders);
+        app.get('/admin/order/customer/totalMonney/:id'     ,this.setDefaultCustomerId,this.getTotalMonneyOrders);
+        app.get('/admin/order/:id'                          ,this.getOrderDetails);
+        app.put('/admin/order/:id'                          ,this.updateStatus);
+        app.post('/admin/order'                             ,this.addNewOrder);
     },
     //set default name customer
     setDefaultCustomerName: function(req,res,next){
@@ -27,7 +28,7 @@ module.exports = {
         }
         next();
     },
-    //lay danh sach hoa don
+    //lay danh sach hoa don va tong tien khach da chi
     getListOrders:async function(req,res,next){
         if(res.locals.GetByName==true){
             var condition={
@@ -92,6 +93,21 @@ module.exports = {
     //app new order
     addNewOrder:async function(req,res,next){
 
+
+    },
+    //get total monney orders of customer by ID
+    getTotalMonneyOrders:async function(req,res,next){
+        var condition={
+            ID_KH       :req.params.id,     
+            dateStart   :req.query.startdate,
+            dateEnd     :req.query.enddate,
+            trangThai   :req.query.trangthai
+        };
+        var result=await orderModel.getTotalMonneyByIdCustomer(condition);
+        res.json({
+            status:200,
+            data:result
+        });
 
     }
 }

@@ -82,6 +82,15 @@ module.exports={
         SET trang_thai=?
         WHERE id=?`,[value.trang_thai,condition.id]);
         return result;
+    },
+    //lay tong tien tat ca hoa don ma khachhang mua tu startdate -> enddate
+    getTotalMonneyByIdCustomer:function(condition){
+        var args=[condition.trangThai,condition.dateStart,condition.dateEnd];
+        var sql=`SELECT id_khachhang,SUM(tong_tien) AS TotalItemsOrdered 
+        FROM ${TABLE} HD
+        WHERE id_khachhang=${condition.ID_KH} AND HD.trang_thai=? AND HD.ngay_tao BETWEEN ? AND ?`;
+        var listOrders= db.load(sql,args);
+        return listOrders;
     }
 
 }
