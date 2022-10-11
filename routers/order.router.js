@@ -142,6 +142,7 @@ module.exports = {
         if(resultCreateHD.affectedRows==0){
             response.message="Create don hang khong thanh cong.";
         }else{
+            //3
             var valueChiTiet={
                 Danh_sach_san_pham:     arrProduct,
                 id_hoadon:              valueHD.id       

@@ -181,9 +181,6 @@ module.exports = {
     },
     //cap nhat danh sach danh muc can quan ly cho id_permission
     //1.chuyen ListIDDanhMuc tu string '[1,2,3]' -> array
-        //1.1 split ',' string ->['[1','2','3]']
-        //1.2 split 1.1 -> ['1','2','3']
-        //1.3 cover string -> number : [1,2,3]
     //2.xoa danh muc quan ly cũ
     //3.add danh sach danh muc quan ly mới 
     updateDanhMuc:async function(req,res,next){
@@ -193,12 +190,7 @@ module.exports = {
         };
         
         //1
-        var arrIdDanhMuc=req.body.ListIDDanhMuc.split(',');
-        arrIdDanhMuc[0]=arrIdDanhMuc[0].split('[')[1];//tach '[1'
-        arrIdDanhMuc[arrIdDanhMuc.length-1]=arrIdDanhMuc[arrIdDanhMuc.length-1].split(']')[0];//tach '10]'
-        for(var i=0;i<arrIdDanhMuc.length;i++){
-            arrIdDanhMuc[i]=parseInt(arrIdDanhMuc[i],10);
-        }
+        var arrIdDanhMuc=JSON.parse(req.body.ListIDDanhMuc);
         //2
         var condition={
             id_quyen:req.params.id
