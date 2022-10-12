@@ -4,7 +4,8 @@
 /node_modules
 /.pnp
 .pnp.js
-
+/models/_cart.model.js
+/routers/_cart.router.js
 # testing
 /coverage
 

@@ -5,6 +5,10 @@ module.exports={
     getOneByID:function(condition){
         return db.load(`SELECT * from ${TABLE} WHERE id=?`,condition.id);
     },
+    getAll:function(){
+        var result   = db.load(`select id,ten_tl as ten_the_loai from ${TABLE}`);
+        return result;
+    },
     getList: function(condition){
         var result;
         condition.ten_tl=`%${condition.ten_tl}%`;

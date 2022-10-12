@@ -9,8 +9,10 @@
     "limitOrders":10,
     "limitSuppliers":3,
     "limitProducts":5,
+    "limitProductsClient":10,
     "limitCategories":5,
     "limitStaff":2,
     "limitCustomer":2,
-    "limitPermission":2
+    "limitPermission":2,
+    "MAX":100000000
 }
