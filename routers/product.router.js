@@ -4,11 +4,11 @@ const categoryModel=require("../models/category.model");
 const config     = require("../config/default.json");
 module.exports = {
     productRouters:function(app){
-        app.get('/admin/product/list'      ,this.setDefault,this.get);
-        app.get('/admin/product/details/:id',this.getOneByID);
-        app.post('/admin/product/add'      ,this.add);
-        app.put('/admin/product/edit/:id'  ,this.update);
-        app.delete('/admin/product/delete/:id',this.delete);
+        app.get('/admin/product/list'           ,this.setDefault,this.get);
+        app.get('/admin/product/details/:id'    ,this.getOneByID);
+        app.post('/admin/product/add'           ,this.add);
+        app.put('/admin/product/edit/:id'       ,this.update);
+        app.delete('/admin/product/delete/:id'  ,this.delete);
     },
     //set default 
     setDefault: function(req,res,next){

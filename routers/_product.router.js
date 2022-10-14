@@ -1,11 +1,9 @@
 const productModel = require("../models/product.model");
-const supplierModel=require("../models/supplier.model");
-const categoryModel=require("../models/category.model");
 const config     = require("../config/default.json");
 module.exports = {
     productRoutersClient:function(app){
-        app.get('/product/list'      ,this.setDefault,this.get);
-        app.get('/product/details/:id',this.getOneByID);
+        app.get('/product/list'         ,this.setDefault,this.get);
+        app.get('/product/details/:id'  ,this.getOneByID);
     },
     //set default 
     setDefault: function(req,res,next){
