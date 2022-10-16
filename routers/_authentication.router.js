@@ -188,7 +188,9 @@ module.exports = {
             res.json({
                 status:200,
                 message:"Login success.",
-                username:value.username
+                username:value.username,
+                name:customer.ten_kh,
+                email:customer.email
             });
         
           });
