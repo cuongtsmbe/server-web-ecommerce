@@ -14,5 +14,6 @@
     "limitStaff":2,
     "limitCustomer":2,
     "limitPermission":2,
-    "MAX":100000000
+    "MAX":100000000,
+    "crypto_salt":16
 }

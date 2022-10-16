@@ -2,10 +2,6 @@ const db = require('../util/db');
 const TABLE="khachhang";
 
 module.exports={
-    getOneByID:function(condition){
-        var sql=`select id as Ma_kh,ten_kh,ten_dangnhap,email,dia_chi,phone,ngay_tao,ngay_sua,trangthai `;
-        return db.load(sql.concat(` from ${TABLE} WHERE id= ?`),condition.id);
-    },
     //get danh sach khach hang 
     //1. neu khong search : username+ten khach hang
     //2. neu co search    : username+ten khach hang
@@ -32,7 +28,7 @@ module.exports={
        return result;
     },
     getOne:function(condition){
-        var sql=`select id as Ma_kh,ten_kh,ten_dangnhap,email,dia_chi,phone,ngay_tao,ngay_sua,trangthai `;
+        var sql=`select id as Ma_kh,ten_kh,ten_dangnhap,email,dia_chi,phone,ngay_tao,ngay_sua,trangthai,mat_khau,salt `;
         return db.load(sql.concat(` from ${TABLE} WHERE ?`),condition);
     },
     add:function(value){

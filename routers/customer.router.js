@@ -1,5 +1,7 @@
 const config     = require("../config/default.json");
 const customerModel = require("../models/customer.model");
+const crypto=require('crypto');
+
 module.exports = {
     customerRouters:function(app){
         app.get('/admin/customer/list'          ,this.setDefault,this.getList);
@@ -76,13 +78,16 @@ module.exports = {
     }
     ,
     //them khach hang
-    //1. kiem tra username da ton tai. 
+    //0. random salt for password
+    //1. kiem tra username da ton tai.
+    //2. hash password và thêm customer mới  
     add:async function(req,res,next){
         var response={
             status:201,
             message:""
         };
-        
+        //0
+        var salt = crypto.randomBytes(config.crypto_salt).toString("hex");
         var value={
             ten_kh :req.body.ten_kh,
             ten_dangnhap  :req.body.ten_dangnhap,
@@ -90,21 +95,33 @@ module.exports = {
             email :req.body.email,
             dia_chi    :req.body.dia_chi,
             phone   :req.body.phone,
-            trangthai:1
+            trangthai:1,
+            salt:salt
         };
+        //1
         var customer=await customerModel.getOne({ten_dangnhap:value.ten_dangnhap});
 
         if(customer.length==1){
             response.message="username da ton tai.";
+            res.json(response);
+            return false;
         }else{
-            var result=await customerModel.add(value);
-            if(result.affectedRows!=0){
-                response.message=`Them nhan vien thanh cong . insertId: ${result.insertId}`;
-            }else{
-                response.message=`Them nhan vien khong thanh cong . failed`;
-            }
+            //2
+            crypto.pbkdf2(req.body.password, salt, 310000, 32, 'sha256',async function(err, hashedPassword) {
+                value.mat_khau=hashedPassword.toString("hex");
+                var result=await customerModel.add(value);
+                if(result.affectedRows!=0){
+                    //3
+                    req.session.user = value.ten_dangnhap;
+                    response.message=`Them thanh cong . insertId: ${result.insertId}`;
+                }else{
+                    response.message=`Them khong thanh cong . `;
+                }
+                res.json(response);
+            }); 
+
         }
-        res.json(response);
+        
     },
     //get thong tin khach hang theo ID
     getOneByID:async function(req,res,next){
@@ -112,6 +129,8 @@ module.exports = {
                 id:req.params.id
             };
             var customer=await customerModel.getOne(condition);
+            delete customer.mat_khau;
+            delete customer.salt;
             res.json({
                 status:200,
                 data:customer
@@ -129,7 +148,6 @@ module.exports = {
         var value={
             ten_kh :req.body.ten_kh,
             ten_dangnhap  :req.body.ten_dangnhap,
-            mat_khau   :req.body.mat_khau,
             email :req.body.email,
             dia_chi    :req.body.dia_chi,
             phone   :req.body.phone,

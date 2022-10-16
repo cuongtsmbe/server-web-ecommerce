@@ -3,6 +3,7 @@ const session = require('express-session')
 const app = express()
 const port = 3000
 var bodyParser = require('body-parser')
+
 var cors=require('cors');
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -16,7 +17,6 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: false }
 }));
-
 
 
 //admin routers
@@ -33,7 +33,7 @@ require("./routers/permission.router").permissionRouters(app);
 require("./routers/_category.router").categoryClientRouters(app);
 require("./routers/_product.router").productRoutersClient(app);
 require("./routers/_cart.router").CartRoutersClient(app);
-
+require("./routers/_authentication.router").AuthenticateClientRouters(app);
 
 
 app.listen(port, () => {

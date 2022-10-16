@@ -41,7 +41,7 @@ module.exports = function Cart(cart) {
         this.totalPrice -= this.items[id].price;
         delete this.items[id];
     };
-
+    //return array detail product,quantity,price
     this.getItems = function() {
         var arr = [];
         for (var id in this.items) {
