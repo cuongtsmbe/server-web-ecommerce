@@ -1,15 +1,17 @@
 const customerModel = require("../models/customer.model");
+const tokenModel = require("../models/token.model");
 const config    =require("../config/default.json");
 const crypto=require('crypto');
 const passwordValidator = require('password-validator');
 const validator = require('validator');
-const mdwAuth=require("../mdw/_authentication.mdw");
 const str2ab = require('string-to-arraybuffer');
+const jwt = require("jsonwebtoken");
 module.exports = {
     AuthenticateClientRouters:function(app){
         app.post('/authenticate/register/local'             ,this.validateRegister,this.register);
         app.post('/authenticate/login/local'                ,this.loginLocal);
         app.get('/authenticate/logout'                      ,this.logout);
+        app.post('/authenticate/statusToken'                ,this.statusToken);
     },
     //1.setting validate password
     //2.validate password
@@ -75,7 +77,7 @@ module.exports = {
             return false;
         }
         //7
-        if(!mdwAuth.isVietnamesePhoneNumber(req.body.phone.trim())){
+        if(!this.isVietnamesePhoneNumber(req.body.phone.trim())){
             response.error="phone";
             response.errorMessage   ="Phone khong hop le.";
             res.json(response);
@@ -84,25 +86,17 @@ module.exports = {
         next();
     },
    
-    //dang ki tai khoan
+    //REGISTER
     //trim : xóa khoảng trắng đầu và cuối
-    //0.kiem tra is login
-    //0.1 random salt
+    //0 random salt
     //1.kiểm tra username có tồn tại
-    //2.hash password và thêm vào DB nếu thoãn mãn
-    //3.save username in session
+    //2.hash password và thêm vào DB nếu thoa mãn
     register:async function(req,res,next){
         var response={
             status:201,
             message:""
         };
         //0
-        if(req.session.user){
-            response.message="User is login.";
-            res.json(response);
-            return false;
-        }
-        //0.1
         var salt = crypto.randomBytes(config.crypto_salt).toString("hex");
         var value={
             ten_kh          :req.body.ten_kh.trim(),
@@ -126,8 +120,6 @@ module.exports = {
                 value.mat_khau=hashedPassword.toString("hex");
                 var result=await customerModel.add(value);
                 if(result.affectedRows!=0){
-                    //3
-                    req.session.user = value.ten_dangnhap;
                     response.message=`dang ki thanh cong . insertId: ${result.insertId}`;
                 }else{
                     response.message=`danh ki khong thanh cong . `;
@@ -137,28 +129,19 @@ module.exports = {
         }
        
     },
-    //login local
-    //1.kiem tra user có đang login không
-    //2.kiem tra username có tồn tại chưa
-    //3.kiểm tra password(chua hash) với password của customer trên DB 
-    //4.save session khi login success
+
+    //LOGIN LOCAL
     loginLocal:async function(req,res,next){
         var response={
             status:201,
             message:""
         };
-        //1
-        if(req.session.user){
-            response.message="User is login.";
-            res.json(response);
-            return false;
-        }
         
         var value={
             username:req.body.username.trim(),
             password:req.body.password 
         };
-        //2
+        //kiem tra username có tồn tại chưa
         var customer=await customerModel.getOne({ten_dangnhap:value.username});
         
         if(0==customer.length){
@@ -167,8 +150,8 @@ module.exports = {
             return false;
         }
         customer=customer[0];
-        //3
-        crypto.pbkdf2(value.password,customer.salt, 310000,32, 'sha256', function(err, hashedPassword) {
+        //3.kiểm tra password(chua hash) với password của customer trên DB 
+        crypto.pbkdf2(value.password,customer.salt, 310000,32, 'sha256',async function(err, hashedPassword) {
             if (err) {
                 res.json({
                     status:500,
@@ -183,34 +166,150 @@ module.exports = {
                 res.json(response);
                 return false;
             }
-             //4
-            req.session.user=value.username;
-            res.json({
-                status:200,
-                message:"Login success.",
-                username:value.username,
-                name:customer.ten_kh,
-                email:customer.email
-            });
-        
-          });
+             //4.Create and assign token,exp: để token luôn khác nhau trong DB
+            try{
+                var payload={
+                            id: customer.Ma_kh,
+                            username:customer.ten_dangnhap,
+                            user_permission:true,
+                            user_type:'CUSTOMER',
+                            exp: Math.floor(Date.now() / 1000) + (60 * 60),
+                        };
+                //nếu tài khoản bị block thì gắn permission là false
+                if(customer.trangthai==-1){
+                    payload.user_permission=false;
+                }
+
+                //create AccessToken AND refreshToken
+                const AccessToken = jwt.sign(payload, config.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
+                const refreshToken = jwt.sign(payload, config.TOKEN_SECRET_REFRESHTOKEN,{ expiresIn:"30d" });
+                
+                //add refreshToken to DB
+                var result =await tokenModel.add({
+                    username:customer.ten_dangnhap,
+                    refreshToken:refreshToken
+                });
+                if(result.affectedRows!=0){
+                    throw new Error('insert refreshToken false.');
+                }
+
+                //reponse
+                res.header("auth-token", AccessToken).send({
+                    status:200,
+                    message:"Login success.",
+                    user:{
+                        username:value.username,
+                        name:customer.ten_kh,
+                        email:customer.email,
+                        AccessToken:AccessToken,
+                        refreshToken:refreshToken
+                    }
+                
+                });  
+            }catch(err){
+                res.status(500).json({
+                    message:"server error.Login again",
+                    error:err
+                })
+            }      
+        });
     },
-    //logout
-    //1.Check if the session is exist
-    //2.destroy session
+    //LOGOUT
+    //1. delete token có trong DB
     logout:function(req, res, next){
         var response={
             status:201,
             message:""
         };
+      
+        var token = req.body.user.refreshToken;
+        if(!token){
+            response.message="success";
+            res.json(response);
+            return true;
+        }
         //1
-        if(req.session.user) {
-            //2
-            req.session.destroy();
-            response.message="Logout success.";
+        result = tokenModel.delete({refreshToken:token});
+
+        if(result.affectedRows==0){
+            response.message="delete refreshToken fail.";
         }else{
-            response.message="Please login.";
+            response.message="success.";
         }
         res.json(response);
-    }
+    },
+
+    
+    //regex: supporting +84, 84, 0084, or 0 as the prefix:
+    //e.g: 0084957507468 | +84957507468 | 84957507468 | 0957507468 
+    isVietnamesePhoneNumber:function(number) {
+        return /((^(\+84|84|0|0084){1})(3|5|7|8|9))+([0-9]{8})$/.test(number);
+    },
+    
+
+    //STATUS ACCESSTOKEN AND REFRESHTOKEN
+    //logic: 
+    //Nếu refreshToken không hợp lệ ( thì set refreshToken null tại FE để tránh delete 2 lần gây response sai ở logout )  cho vào login 
+    //Nếu AccessToken false nhưng refreshToken OK thì FE => gọi refreshToken để lấy Accesstoken mới 
+    //Nếu  AccessToken OK và refreshToken OK thì FE => không cho phép vào trang login
+    statusToken:async function(req,res,next){
+        var response={
+            message_accessToken:"",
+            message_refreshToken:""
+        };
+
+        //kiểm tra  refreshToken
+        try{
+            var refreshToken=req.body.user.refreshToken;
+            if(!refreshToken){
+                res.json({message_refreshToken:"refreshToken false"});
+                return ;
+            }        
+            //ktra resfreshToken match với DB
+            var result=await tokenModel.getOneRefreshToken({refreshToken:refreshToken});
+            
+            if(result.length==0){
+                res.json({message_refreshToken:"refreshToken false"});
+                return ;
+            }
+            const verified = jwt.verify(refreshToken, config.TOKEN_SECRET_REFRESHTOKEN); 
+            reponse.message_refreshToken="refreshToken OK";
+        }catch(err){
+
+            //Xóa refreshToken kết hạn trong DB
+            if(err== 'jwt expired'){
+                await tokenModel.delete({refreshToken:refreshToken});
+            }
+            //verified bị bất kì lỗi gì đều cho phép login lại
+            res.json({message_refreshToken:"refreshToken false"});
+            return ;
+
+        } 
+
+
+        //kiểm tra  AccessToken
+        try{
+            var AccessToken=req.body.user.AccessToken;
+            if(!AccessToken){
+                    reponse.message_accessToken='AccessToken false';
+            };
+            const verified = jwt.verify(refreshToken, config.TOKEN_SECRET_ACCESSTOKEN); 
+            //AccessToken hợp lệ
+            reponse.message_accessToken="AccessToken OK";
+        }catch(err){
+            reponse.message_accessToken='AccessToken false';
+        }
+
+        
+        res.json(response);
+    },
+
 }
+/**** 
+    Tham khảo : 
+    https://www.loginradius.com/blog/engineering/guest-post/how-to-implement-jwt-authentication-in-deno/ 
+    https://www.passportjs.org/tutorials/password/session/
+    https://www.codementor.io/@manashkumarchakrobortty/authentication-and-authorization-in-node-js-19brdvhsyw
+    https://viblo.asia/q/cau-hoi-ve-cach-luu-refresh-token-va-quy-trinh-cua-token-va-refresh-token-eVKBMWVd5kW
+
+****/

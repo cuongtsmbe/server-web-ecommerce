@@ -12,18 +12,27 @@ module.exports={
         condition.ten_kh=`%${condition.ten_kh}%`;
         condition.username=`%${condition.username}%`;
         var sql=`select id as Ma_kh,ten_kh,ten_dangnhap,email,dia_chi,phone,ngay_tao,ngay_sua,trangthai `;
+
         if(condition.ten_kh=='%%' && condition.username=='%%'){
+
             var args=[condition.limit,condition.offset];
             result   = db.load(sql.concat(` from ${TABLE} LIMIT ? OFFSET ?  `),args);
+
         }else if(condition.ten_kh!='%%' && condition.username!='%%'){
+
             var args=[condition.username,condition.ten_kh,condition.limit,condition.offset];
             result   = db.load(sql.concat(` from ${TABLE} where ten_dangnhap LIKE ? AND ten_kh LIKE ? LIMIT ? OFFSET ? `),args);
+        
         }else if(condition.ten_kh!='%%'){
+
            var args=[condition.ten_kh,condition.limit,condition.offset];
            result   = db.load(sql.concat(` from ${TABLE} where ten_kh LIKE ? LIMIT ? OFFSET ? `),args);
+        
         }else if(condition.username!='%%'){
+
             var args=[condition.username,condition.limit,condition.offset];
            result   = db.load(sql.concat(` from ${TABLE} where ten_dangnhap LIKE ? LIMIT ? OFFSET ? `),args);
+        
         }
        return result;
     },

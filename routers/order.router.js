@@ -1,6 +1,5 @@
 const config     = require("../config/default.json");
 const orderModel = require("../models/order.model");
-const productModel = require("../models/product.model");
 
 module.exports = {
     orderRouters:function(app){

@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/mdw/_auth.mdw.js
 /.pnp
 .pnp.js
 # testing
