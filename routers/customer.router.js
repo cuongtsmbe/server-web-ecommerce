@@ -47,7 +47,6 @@ module.exports = {
         var empty=0;
         if(req.body.ten_kh==undefined || req.body.ten_kh==''){empty=1;}
         if(req.body.ten_dangnhap==undefined || req.body.ten_dangnhap==''){empty=1;}
-        if(req.body.mat_khau==undefined || req.body.mat_khau==''){empty=1;}
         if(req.body.phone==undefined || req.body.phone==''){empty=1;}
         if(req.body.dia_chi==undefined || req.body.dia_chi==''){empty=1;}
         if(req.body.email==undefined || req.body.email==''){empty=1;}
@@ -60,7 +59,7 @@ module.exports = {
         }
 
     },
-    //kiem tra du lieu vao cua trang thai (danh cho supdate)
+    //kiem tra du lieu vao cua trang thai (danh cho update)
     checkTrangthai:function(req,res,next){
         var response={
             status:201,

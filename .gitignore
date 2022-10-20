@@ -2,8 +2,8 @@
 
 # dependencies
 /node_modules
-/mdw/_auth.mdw.js
 /.pnp
+/mdw
 .pnp.js
 # testing
 /coverage

@@ -10,8 +10,9 @@ module.exports = {
     AuthenticateClientRouters:function(app){
         app.post('/authenticate/register/local'             ,this.validateRegister,this.register);
         app.post('/authenticate/login/local'                ,this.loginLocal);
-        app.get('/authenticate/logout'                      ,this.logout);
+        app.post('/authenticate/logout'                      ,this.logout);
         app.post('/authenticate/statusToken'                ,this.statusToken);
+        app.post('/authenticate/refreshToken'               ,this.getAccessToken);
     },
     //1.setting validate password
     //2.validate password
@@ -303,6 +304,52 @@ module.exports = {
         
         res.json(response);
     },
+    //refreshToken : get new accesstoken
+    getAccessToken:async function(req,res,next){
+         //kiểm tra  refreshToken
+         try{
+            var refreshToken=req.body.user.refreshToken;
+
+            if(!refreshToken){
+                res.status(401).json({message_refreshToken:"refreshToken false"});
+                return ;
+            }        
+            //ktra resfreshToken match với DB
+            var result=await tokenModel.getOneRefreshToken({refreshToken:refreshToken});
+            
+            if(result.length==0){
+                res.status(401).json({message_refreshToken:"refreshToken false"});
+                return ;
+            }
+
+            //verified resfreshToken 
+            const verified = jwt.verify(refreshToken, config.TOKEN_SECRET_REFRESHTOKEN);  
+            
+            //create AccessToken
+            var payload={
+                id: verified.id,
+                username:verified.username,
+                user_permission:verified.user_permission,
+                user_type:verified.user_type,
+                exp: Math.floor(Date.now() / 1000) + (60 * 60),
+            };
+            const AccessToken = jwt.sign(payload, config.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
+            
+            //send accessToken
+            res.status(200).json({
+                AccessToken:AccessToken
+            });
+        }catch(err){
+
+            //Xóa refreshToken kết hạn trong DB
+            if(err== 'jwt expired'){
+                await tokenModel.delete({refreshToken:refreshToken});
+            }
+            res.json({message_refreshToken:"refreshToken false"});
+            return ;
+
+        } 
+    }
 
 }
 /**** 
