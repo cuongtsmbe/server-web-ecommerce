@@ -5,12 +5,13 @@ module.exports = {
     customerRouters:function(app){
         app.get('/customer/:id'                     ,this.getOneByID);
         app.put('/customer/editPassword/:id'        ,this.checkPasswordInput,this.editPassWord);
+        app.put('/customer/update/:id'              ,this.checkInput,this.update);
 
     },
      //get thong tin khach hang theo ID
      getOneByID:async function(req,res,next){
         var condition={
-            id:req.params.id
+            id: req.user.id
         };
         var customer=await customerModel.getOne(condition);
         delete customer.mat_khau;
@@ -20,6 +21,54 @@ module.exports = {
             data:customer
         });
     },
+    //kiem tra du lieu them vao khong duoc empty
+    checkInput:function(req,res,next){
+        var response={
+            status:201,
+            message:""
+        };
+
+        var empty=0;
+        if(req.body.ten_kh==undefined || req.body.ten_kh==''){empty=1;}
+        if(req.body.phone==undefined || req.body.phone==''){empty=1;}
+        if(req.body.dia_chi==undefined || req.body.dia_chi==''){empty=1;}
+        if(req.body.email==undefined || req.body.email==''){empty=1;}
+        
+        if(empty==1){
+            response.message="Du lieu khong day du.";
+            res.json(response);
+        }else{
+            next();
+        }
+
+    },
+     //edit thong tin khach hang
+     update:async function(req,res,next){
+        var response={
+            status:201,
+            message:""
+        };
+        var condition={
+            id: req.user.id
+        };
+        var value={
+            ten_kh :req.body.ten_kh,
+            email :req.body.email,
+            dia_chi    :req.body.dia_chi,
+            phone   :req.body.phone
+        };
+
+        var result=await customerModel.update(condition,value);
+        if(result.affectedRows==0){
+            response.status=201;
+            response.message="update thong tin khong thanh cong";      
+        }else{
+            response.status=200;
+            response.message="update thong tin thanh cong";  
+        }
+        res.json(response);
+    },
+
      //kiem tra password 
      checkPasswordInput:function(req,res,next){
         var response={
@@ -44,7 +93,7 @@ module.exports = {
             message:""
         };
         var condition={
-            id:req.params.id,
+            id: req.user.id
         };
         var value={
             oldPassword: req.body.oldPassword,
