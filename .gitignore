@@ -4,7 +4,6 @@
 /node_modules
 /.pnp
 /mdw
-/routers/authentication.router.js
 .pnp.js
 # testing
 /coverage

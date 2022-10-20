@@ -256,6 +256,7 @@ module.exports = {
     
 
     //STATUS ACCESSTOKEN AND REFRESHTOKEN
+    //dễ dang hơn cho FE khi chặn người dùng đến trang login
     //logic: 
     //Nếu refreshToken không hợp lệ ( thì set refreshToken null tại FE để tránh delete 2 lần gây response sai ở logout )  cho vào login 
     //Nếu AccessToken false nhưng refreshToken OK thì FE => gọi refreshToken để lấy Accesstoken mới 

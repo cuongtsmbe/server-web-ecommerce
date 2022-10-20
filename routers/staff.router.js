@@ -36,7 +36,7 @@ module.exports = {
 
         if(empty==1){
             response.status=205;
-            response.message="Thieu password.";
+            response.message="Thieu password OR username.";
             res.json(response);
         }else{
             next();
