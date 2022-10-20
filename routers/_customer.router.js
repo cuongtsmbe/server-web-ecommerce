@@ -3,9 +3,9 @@ const crypto=require('crypto');
 
 module.exports = {
     customerRouters:function(app){
-        app.get('/customer/:id'                     ,this.getOneByID);
-        app.put('/customer/editPassword/:id'        ,this.checkPasswordInput,this.editPassWord);
-        app.put('/customer/update/:id'              ,this.checkInput,this.update);
+        app.get('/customer/details'             ,this.getOneByID);
+        app.put('/customer/editPassword'        ,this.checkPasswordInput,this.editPassWord);
+        app.put('/customer/update'              ,this.checkInput,this.update);
 
     },
      //get thong tin khach hang theo ID
@@ -24,7 +24,7 @@ module.exports = {
     //kiem tra du lieu them vao khong duoc empty
     checkInput:function(req,res,next){
         var response={
-            status:201,
+            status:202,
             message:""
         };
 
@@ -72,14 +72,15 @@ module.exports = {
      //kiem tra password 
      checkPasswordInput:function(req,res,next){
         var response={
-            status:201,
+            status:400,
             message:""
         };
 
         var empty=0;
-        if(req.body.mat_khau==undefined || req.body.mat_khau==''){empty=1;}   
+        if(req.body.oldPassword==undefined || req.body.oldPassword==''){empty=1;}   
+        if(req.body.newPassword==undefined || req.body.newPassword==''){empty=1;}  
         if(empty==1){
-            response.message="Du lieu khong day du.";
+            response.message="Chua nhap OldPassword hoac NewPassword.";
             res.json(response);
         }else{
             next();
@@ -102,6 +103,7 @@ module.exports = {
         //get customer by ID 
         var customer=await customerModel.getOne(condition);
         if(customer.length==0){
+            response.status=503;
             response.message="Edit password false.";
             res.json(response);
             return false;
@@ -125,6 +127,7 @@ module.exports = {
 
                 //Old password wrong
                 if(customerOldPw.length==0){
+                    response.status=501;
                     response.message="old password wrong.";
                     res.json(response);
                     return false;
@@ -137,7 +140,7 @@ module.exports = {
                     var result=await customerModel.update(condition,{mat_khau:newPasswordHash});
 
                     if(result.affectedRows==0){
-                        response.status=201;
+                        response.status=502;
                         response.message="update password khong thanh cong";      
                     }else{
                         response.status=200;
