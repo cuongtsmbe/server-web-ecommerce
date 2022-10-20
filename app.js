@@ -34,7 +34,7 @@ require("./routers/_category.router").categoryClientRouters(app);
 require("./routers/_product.router").productRoutersClient(app);
 require("./routers/_cart.router").CartRoutersClient(app);
 require("./routers/_authentication.router").AuthenticateClientRouters(app);
-
+require("./routers/_order.router").orderRoutersClient(app);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
