@@ -6,6 +6,11 @@ module.exports={
         var sql=`select id as Ma_nhan_vien,id_quyen,ten_nv,phone,ten_dangnhap,email,ngay_tao,ngay_sua `;
         return db.load(sql.concat(` from ${TABLE} WHERE id= ?`),condition.id);
     },
+    //lấy danh sách staff theo condition
+    getByCondition:function(condition){
+        var sql=`select id as Ma_nhan_vien,id_quyen,ten_nv,phone,ten_dangnhap,email,ngay_tao,ngay_sua `;
+        return db.load(sql.concat(` from ${TABLE} WHERE ?`),condition);
+    },
     getList: function(condition){
         var result;
         condition.ten_nv=`%${condition.ten_nv}%`;

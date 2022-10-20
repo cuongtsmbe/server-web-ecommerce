@@ -117,12 +117,19 @@ module.exports = {
             res.json(response);
         }else{
             //2
-            crypto.pbkdf2(req.body.password, value.salt, 310000, 32, 'sha256',async function(err, hashedPassword) {
+            crypto.pbkdf2(value.mat_khau, value.salt, 310000, 32, 'sha256',async function(err, hashedPassword) {
+                if(err){
+                    response.status=500;
+                    response.message="server error";
+                    res.json(response);
+                    return false;
+                }
                 value.mat_khau=hashedPassword.toString("hex");
                 var result=await customerModel.add(value);
                 if(result.affectedRows!=0){
                     response.message=`dang ki thanh cong . insertId: ${result.insertId}`;
                 }else{
+                    response.status=205;
                     response.message=`danh ki khong thanh cong . `;
                 }
                 res.json(response);
