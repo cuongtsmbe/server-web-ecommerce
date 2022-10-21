@@ -3,7 +3,7 @@ const session = require('express-session')
 const app = express()
 const port = 3000
 var bodyParser = require('body-parser')
-
+var auth_mdw=require("./mdw/_auth.mdw")
 var cors=require('cors');
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -18,6 +18,8 @@ app.use(session({
   cookie: { secure: false }
 }));
 
+//Authorization middleware 
+app.use(auth_mdw.loggedIn);
 
 //admin routers
 require("./routers/order.router").orderRouters(app);
@@ -27,7 +29,7 @@ require("./routers/category.router").categoryRouters(app);
 require("./routers/staff.router").staffRouters(app);
 require("./routers/customer.router").customerRouters(app);
 require("./routers/permission.router").permissionRouters(app);
-
+require("./routers/authentication.router").AuthenticateRouters(app);
 
 //client routers 
 require("./routers/_category.router").categoryClientRouters(app);

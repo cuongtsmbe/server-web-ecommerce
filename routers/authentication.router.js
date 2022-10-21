@@ -4,7 +4,7 @@ const crypto=require('crypto');
 const str2ab = require('string-to-arraybuffer');
 const jwt = require("jsonwebtoken");
 module.exports = {
-    AuthenticateClientRouters:function(app){
+    AuthenticateRouters:function(app){
         app.post('/admin/authenticate/login/local'                ,this.loginLocal);
         app.post('/admin/authenticate/refreshToken'               ,this.getAccessToken);
         app.post('/admin/authenticate/statusToken'                ,this.statusToken);
@@ -61,7 +61,7 @@ module.exports = {
                 const refreshToken = jwt.sign(payload, config.TOKEN_SECRET_REFRESHTOKEN,{ expiresIn:"1d" });
                 
                 //reponse
-                res.header("Authorization", AccessToken).send({
+                res.header("auth-token", AccessToken).send({
                     status:200,
                     message:"Login success.",
                     user:{

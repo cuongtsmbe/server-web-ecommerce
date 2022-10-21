@@ -11,6 +11,10 @@ module.exports={
         result   = db.get(TABLE,condition.limit,condition.offset);
        return result;
     },
+    //lấy danh sách ID danh mục mà ID quyền có quyền truy cập
+    getIDDanhMucByIDquyen:function(condition){
+        return db.load(`SELECT id_danhmuc from ${TABLE_PERMISSION_ITEM} WHERE id_quyen=?`,condition.id);
+    },
     //lay danh sach danh muc mà quyền đó có thể truy cập 
     getDetails: function(condition){
         var sql =`
