@@ -119,21 +119,50 @@ module.exports = {
         }else{
             //2
             crypto.pbkdf2(value.mat_khau, value.salt, 310000, 32, 'sha256',async function(err, hashedPassword) {
+                
                 if(err){
                     response.status=500;
                     response.message="server error";
                     res.json(response);
                     return false;
                 }
+
+                var obj={
+                    status: 201,
+                    message:"",
+                    user:{
+                        name:value.ten_kh,
+                        username:value.ten_dangnhap,
+                        AccessToken:null,
+                        refreshToken:null
+                    }
+                }
                 value.mat_khau=hashedPassword.toString("hex");
                 var result=await customerModel.add(value);
                 if(result.affectedRows!=0){
-                    response.message=`dang ki thanh cong . insertId: ${result.insertId}`;
+                    var payload={
+                        id: null,
+                        username:value.ten_dangnhap,
+                        user_permission:true,
+                        user_type:'CUSTOMER',
+                        iat: Math.floor(Date.now() / 1000) + (60 * 60),
+                    };
+                    //create token 
+                    const AccessToken = jwt.sign(payload, config.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
+                    const refreshToken = jwt.sign(payload, config.TOKEN_SECRET_REFRESHTOKEN,{ expiresIn:"30d" });
+
+                    obj.message=`dang ki thanh cong . insertId: ${result.insertId}`;
+                    
+                    payload.id=result.insertId;
+                    
+                    obj.user.AccessToken=AccessToken;
+                    obj.user.refreshToken=refreshToken;
+
                 }else{
-                    response.status=205;
-                    response.message=`danh ki khong thanh cong . `;
+                    obj.status=205;
+                    obj.message=`danh ki khong thanh cong . `;
                 }
-                res.json(response);
+                res.json(obj);
             }); 
         }
        
@@ -198,7 +227,7 @@ module.exports = {
                     username:customer.ten_dangnhap,
                     refreshToken:refreshToken
                 });
-                
+
                 if(result.affectedRows==0){
                     throw new Error('insert refreshToken false.');
                 }
