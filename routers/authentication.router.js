@@ -35,7 +35,7 @@ module.exports = {
             if (err) {
                 res.json({
                     status:500,
-                    message:"Server error.Login again"
+                    message:"Server error."
                 });            
                 return false;
             }
@@ -61,7 +61,7 @@ module.exports = {
                 const refreshToken = jwt.sign(payload, config.TOKEN_SECRET_REFRESHTOKEN,{ expiresIn:"1d" });
                 
                 //reponse
-                res.header("auth-token", AccessToken).send({
+                res.json({
                     status:200,
                     message:"Login success.",
                     user:{
@@ -75,8 +75,8 @@ module.exports = {
                 });  
             }catch(err){
                 res.status(500).json({
-                    message:"server error.Login again",
-                    error:err
+                    status:500,
+                    message:"server error."
                 })
             }      
         });

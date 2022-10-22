@@ -202,7 +202,7 @@ module.exports = {
                 }
 
                 //reponse
-                res.header("auth-token", AccessToken).send({
+                res.json({
                     status:200,
                     message:"Login success.",
                     user:{
@@ -216,7 +216,8 @@ module.exports = {
                 });  
             }catch(err){
                 res.status(500).json({
-                    message:"server error.Login again",
+                    status:500,
+                    message:"server error.",
                     error:err
                 })
             }      
@@ -240,6 +241,7 @@ module.exports = {
         result = tokenModel.delete({refreshToken:token});
 
         if(result.affectedRows==0){
+            response.status="400";
             response.message="delete refreshToken fail.";
         }else{
             response.message="success.";

@@ -31,7 +31,7 @@ module.exports={
             }
             const verified = jwt.verify(token, config.TOKEN_SECRET_ACCESSTOKEN); 
 
-            //account blocked(customer) / don't have permission(admin)
+            //account blocked(customer)
             if(verified.user_permission===false){
                 return res.status(401).send("Unauthorized!");
             }
@@ -45,7 +45,7 @@ module.exports={
 
                 //status is login : không được gọi đến register Or login
                 if(req_url.includes("/authenticate/register/local") || req_url.includes("/authenticate/login/local") ){
-                    return res.status(404).send("is login");
+                    return res.json({message: "is login"});
                 }
 
             }
@@ -55,7 +55,7 @@ module.exports={
                 }
                 //khong thể vào trang login hay yêu cầu refreshToken khi đang login
                 if(req_url.includes("/admin/authenticate/refreshToken") || req_url.includes("/admin/authenticate/login/local") ){
-                    return res.status(404).send("is login");
+                    return res.json({message: "is login"});
                 }
 
                 //lấy danh sách các thư mục mà quyền đó có thể truy cập 
