@@ -1,14 +1,14 @@
 const config     = require("../config/default.json");
 const customerModel = require("../models/customer.model");
 const crypto=require('crypto');
-
+const LINK = require("../util/links.json");
 module.exports = {
     customerRouters:function(app){
-        app.get('/admin/customer/list'          ,this.setDefault,this.getList);
-        app.post('/admin/customer/add'          ,this.checkInput,this.add);
-        app.get('/admin/customer/:id'           ,this.getOneByID);
-        app.put('/admin/customer/edit/:id'      ,this.checkInput,this.checkTrangthai,this.update);
-        app.delete('/admin/customer/delete/:id' ,this.delete);
+        app.get(    LINK.ADMIN.CUSTOMER_GET_LIST            ,this.setDefault,this.getList);
+        app.post(   LINK.ADMIN.CUSTOMER_ADD                 ,this.checkInput,this.add);
+        app.get(    LINK.ADMIN.CUSTOMER_GET_INFO            ,this.getOneByID);
+        app.put(    LINK.ADMIN.CUSTOMER_EDIT_INFO           ,this.checkInput,this.checkTrangthai,this.update);
+        app.delete( LINK.ADMIN.CUSTOMER_DELETE              ,this.delete);
     },
     setDefault:function(req,res,next){
         if(req.query.ten==undefined){

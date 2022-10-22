@@ -7,13 +7,14 @@ const validator = require('validator');
 const str2ab = require('string-to-arraybuffer');
 const jwt = require("jsonwebtoken");
 const mdw = require("../mdw/mdw");
+const LINK = require("../util/links.json");
 module.exports = {
     AuthenticateClientRouters:function(app){
-        app.post('/authenticate/register/local'             ,this.validateRegister,this.register);
-        app.post('/authenticate/login/local'                ,this.loginLocal);
-        app.post('/authenticate/logout'                      ,this.logout);
-        app.post('/authenticate/statusToken'                ,this.statusToken);
-        app.post('/authenticate/refreshToken'               ,this.getAccessToken);
+        app.post(LINK.CLIENT.AUTHENTICATE_REGISTER_LOCAL                ,this.validateRegister,this.register);
+        app.post(LINK.CLIENT.AUTHENTICATE_LOGIN_LOCAL                   ,this.loginLocal);
+        app.post(LINK.CLIENT.AUTHENTICATE_LOGOUT                        ,this.logout);
+        app.post(LINK.CLIENT.AUTHENTICATE_STATUSTOKEN                   ,this.statusToken);
+        app.post(LINK.CLIENT.AUTHENTICATE_REFRESHTOKEN                  ,this.getAccessToken);
     },
     //1.setting validate password
     //2.validate password
@@ -154,7 +155,7 @@ module.exports = {
                     obj.message=`dang ki thanh cong . insertId: ${result.insertId}`;
                     
                     payload.id=result.insertId;
-                    
+
                     obj.user.AccessToken=AccessToken;
                     obj.user.refreshToken=refreshToken;
 

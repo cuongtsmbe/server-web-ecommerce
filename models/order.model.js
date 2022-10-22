@@ -43,7 +43,7 @@ module.exports={
 
         return result;
     },
-    //Xem danh sách đơn hóa đơn  
+    //Xem danh sách hóa đơn  
     getList: function(condition){
         var args=[condition.trangThai,condition.dateStart,condition.dateEnd,condition.limit,condition.offset];
         var sql=`SELECT 

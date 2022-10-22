@@ -1,14 +1,15 @@
 const config     = require("../config/default.json");
 const permissionModel = require("../models/permission.model");
+const LINK = require("../util/links.json");
 module.exports = {
     permissionRouters:function(app){
-        app.get('/admin/permission/list'                    ,this.setDefault,this.getList);
-        app.get('/admin/permission/details/:id'             ,this.getOneByID);
-        app.post('/admin/permission/add'                    ,this.checkInput,this.add);
-        app.post('/admin/permission/addDanhMuc/:id'         ,this.checkDanhMuc,this.addDanhMuc);
-        app.delete('/admin/permission/delete/:id'           ,this.delete);
-        app.delete('/admin/permission/deleteDanhMuc/:id'    ,this.deleteDanhMuc);
-        app.put('/admin/permission/capnhat/:id'             ,this.checkDanhMuc,this.updateDanhMuc);
+        app.get(    LINK.ADMIN.PERMISSION_GET_LIST                      ,this.setDefault,this.getList);
+        app.get(    LINK.ADMIN.PERMISSION_GET_DETAILS                   ,this.getOneByID);
+        app.post(   LINK.ADMIN.PERMISSION_ADD                           ,this.checkInput,this.add);
+        app.post(   LINK.ADMIN.PERMISSION_ADD_DANHMUC                   ,this.checkDanhMuc,this.addDanhMuc);
+        app.delete( LINK.ADMIN.PERMISSION_DELETE                        ,this.delete);
+        app.delete( LINK.ADMIN.PERMISSION_DELETE_DANHMUC                ,this.deleteDanhMuc);
+        app.put(    LINK.ADMIN.PERMISSION_UPDATE_DANHMUC                ,this.checkDanhMuc,this.updateDanhMuc);
     },
     //set default 
     setDefault: function(req,res,next){

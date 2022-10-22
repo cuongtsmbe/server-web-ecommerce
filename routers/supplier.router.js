@@ -1,11 +1,12 @@
 const supplierModel = require("../models/supplier.model");
 const config     = require("../config/default.json");
+const LINK = require("../util/links.json");
 module.exports = {
     supplierRouters:function(app){
-        app.get('/admin/supplier/list'      ,this.setDefault , this.get);
-        app.post('/admin/supplier/add'      ,this.add);
-        app.put('/admin/supplier/edit/:id'  ,this.update);
-        app.delete('/admin/supplier/delete/:id',this.delete);
+        app.get(    LINK.ADMIN.SUPPLIER_GET_LIST        ,this.setDefault , this.get);
+        app.post(   LINK.ADMIN.SUPPLIER_ADD             ,this.add);
+        app.put(    LINK.ADMIN.SUPPLIER_EDIT            ,this.update);
+        app.delete( LINK.ADMIN.SUPPLIER_DELETE          ,this.delete);
     },
     //set default 
     setDefault: function(req,res,next){

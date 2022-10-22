@@ -1,11 +1,12 @@
 //session sẽ bị undefiled nếu viết cấu trúc như các file khác trong router
 const cartModel         =require("../models/_cart.model");
 const productModel      =require("../models/product.model");
+const LINK = require("../util/links.json");
 module.exports = {
     
     CartRoutersClient:function(app){
         //lay danh sach san pham co trong cart
-         app.get('/cart',function(req,res,next){
+         app.get(LINK.CLIENT.CART_GET   ,function(req,res,next){
             if (!req.session.cart) {
                 return res.json ({
                     status:200,
@@ -27,7 +28,8 @@ module.exports = {
 
 
         //them vao gio hang 
-        app.post('/cart/add/:id',async function(req,res,next){
+
+        app.post(LINK.CLIENT.CART_ADD_PRODUCT ,async function(req,res,next){
             var productId = req.params.id;
             var condition={
                 id:productId
@@ -47,7 +49,7 @@ module.exports = {
         });
  
         //giảm số lượng sản phẩm trong giỏ hàng theo ID
-        app.post('/cart/reduce/:id',async function(req,res,next){
+        app.post(LINK.CLIENT.CART_REDUCE_PRODUCT,async function(req,res,next){
             var productId = req.params.id;
             var condition={
                 id:productId
@@ -68,7 +70,7 @@ module.exports = {
         });
 
          //xóa sản phẩm theo ID 
-        app.delete('/cart/remove/:id',function(req,res,next){
+        app.delete(LINK.CLIENT.CART_REMOVE_ITEM_PRODUCT,function(req,res,next){
             var productId = req.params.id;
             var cart = new cartModel(req.session.cart ? req.session.cart : {});
     

@@ -3,11 +3,12 @@ const config    =require("../config/default.json");
 const crypto=require('crypto');
 const str2ab = require('string-to-arraybuffer');
 const jwt = require("jsonwebtoken");
+const LINK = require("../util/links.json");
 module.exports = {
     AuthenticateRouters:function(app){
-        app.post('/admin/authenticate/login/local'                ,this.loginLocal);
-        app.post('/admin/authenticate/refreshToken'               ,this.getAccessToken);
-        app.post('/admin/authenticate/statusToken'                ,this.statusToken);
+        app.post(LINK.ADMIN.AUTHENTICATE_LOGIN_LOCAL                ,this.loginLocal);
+        app.post(LINK.ADMIN.AUTHENTICATE_REFRESHTOKEN               ,this.getAccessToken);
+        app.post(LINK.ADMIN.AUTHENTICATE_STATUSTOKEN                ,this.statusToken);
     },
     //LOGIN ADMIN LOCAL
     loginLocal:async function(req,res,next){

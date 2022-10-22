@@ -3,13 +3,14 @@ const staffModel = require("../models/staff.model");
 const permissionModel= require("../models/permission.model");
 const passwordValidator = require('password-validator');
 const crypto=require('crypto');
+const LINK = require("../util/links.json");
 module.exports = {
     staffRouters:function(app){
-        app.get('/admin/staff/list'          ,this.setDefault,this.getListStaff);
-        app.post('/admin/staff/add'          ,this.checkInput,this.checkPasswordAndUsername,this.add);
-        app.put('/admin/staff/edit/:id'      ,this.checkInput,this.update);
-        app.get('/admin/staff/:id'           ,this.getOneByID);
-        app.delete('/admin/staff/delete/:id' ,this.delete);
+        app.get(    LINK.ADMIN.STAFF_GET_LIST           ,this.setDefault,this.getListStaff);
+        app.post(   LINK.ADMIN.STAFF_ADD                ,this.checkInput,this.checkPasswordAndUsername,this.add);
+        app.put(    LINK.ADMIN.STAFF_EDIT               ,this.checkInput,this.update);
+        app.get(    LINK.ADMIN.STAFF_GET_DETAILS        ,this.getOneByID);
+        app.delete( LINK.ADMIN.STAFF_DELETE             ,this.delete);
     },
     setDefault:function(req,res,next){
         if(req.query.search==undefined){

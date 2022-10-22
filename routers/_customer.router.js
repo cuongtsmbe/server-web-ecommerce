@@ -1,11 +1,12 @@
 const customerModel = require("../models/customer.model");
 const crypto=require('crypto');
+const LINK = require("../util/links.json");
 
 module.exports = {
     customerRouters:function(app){
-        app.get('/customer/details'             ,this.getOneByID);
-        app.put('/customer/editPassword'        ,this.checkPasswordInput,this.editPassWord);
-        app.put('/customer/update'              ,this.checkInput,this.update);
+        app.get(LINK.CLIENT.CUSTOMER_GET_INFO               ,this.getOneByID);
+        app.put(LINK.CLIENT.CUSTOMER_EDIT_PASSWORD          ,this.checkPasswordInput,this.editPassWord);
+        app.put(LINK.CLIENT.CUSTOMER_EDIT_INFO              ,this.checkInput,this.update);
 
     },
      //get thong tin khach hang theo ID

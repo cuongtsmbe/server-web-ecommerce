@@ -1,9 +1,10 @@
 const productModel = require("../models/product.model");
 const config     = require("../config/default.json");
+const LINK = require("../util/links.json");
 module.exports = {
     productRoutersClient:function(app){
-        app.get('/product/list'         ,this.setDefault,this.get);
-        app.get('/product/details/:id'  ,this.getOneByID);
+        app.get(LINK.CLIENT.PRODUCT_GET_LIST        ,this.setDefault,this.get);
+        app.get(LINK.CLIENT.PRODUCT_GET_DETAILS     ,this.getOneByID);
     },
     //set default 
     setDefault: function(req,res,next){

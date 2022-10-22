@@ -2,13 +2,14 @@ const productModel = require("../models/product.model");
 const supplierModel=require("../models/supplier.model");
 const categoryModel=require("../models/category.model");
 const config     = require("../config/default.json");
+const LINK = require("../util/links.json");
 module.exports = {
     productRouters:function(app){
-        app.get('/admin/product/list'           ,this.setDefault,this.get);
-        app.get('/admin/product/details/:id'    ,this.getOneByID);
-        app.post('/admin/product/add'           ,this.add);
-        app.put('/admin/product/edit/:id'       ,this.update);
-        app.delete('/admin/product/delete/:id'  ,this.delete);
+        app.get(    LINK.ADMIN.PRODUCT_GET_LIST             ,this.setDefault,this.get);
+        app.get(    LINK.ADMIN.PRODUCT_GET_DETAILS          ,this.getOneByID);
+        app.post(   LINK.ADMIN.PRODUCT_ADD                  ,this.add);
+        app.put(    LINK.ADMIN.PRODUCT_EDIT                 ,this.update);
+        app.delete( LINK.ADMIN.PRODUCT_DELETE               ,this.delete);
     },
     //set default 
     setDefault: function(req,res,next){

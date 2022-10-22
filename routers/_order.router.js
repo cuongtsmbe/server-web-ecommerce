@@ -1,11 +1,11 @@
 const config     = require("../config/default.json");
 const orderModel = require("../models/order.model");
-
+const LINK = require("../util/links.json");
 module.exports = {
     orderRoutersClient:function(app){
-        app.get('/history/order/customer'                 ,this.setDefaultPage,this.getListOrders);
-        app.get('/history/order/customer/totalMonney'     ,this.getTotalMonneyOrders);
-        app.get('/history/order/details/:id'                  ,this.getOrderDetails);
+        app.get( LINK.CLIENT.ORDER_GET_HISTORY                  ,this.setDefaultPage,this.getListOrders);
+        app.get( LINK.CLIENT.ORDER_GET_TOTALMONNEY              ,this.getTotalMonneyOrders);
+        app.get( LINK.CLIENT.ORDER_GET_DETAILS                  ,this.getOrderDetails);
     },
     //set default page
     setDefaultPage: function(req,res,next){

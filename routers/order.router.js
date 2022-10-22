@@ -1,14 +1,14 @@
 const config     = require("../config/default.json");
 const orderModel = require("../models/order.model");
-
+const LINK = require("../util/links.json");
 module.exports = {
     orderRouters:function(app){
-        app.get('/admin/order'                              ,this.setDefaultCustomerName,this.getListOrders);
-        app.get('/admin/order/customer/:id'                 ,this.setDefaultCustomerId,this.getListOrders);
-        app.get('/admin/order/customer/totalMonney/:id'     ,this.setDefaultCustomerId,this.getTotalMonneyOrders);
-        app.get('/admin/order/:id'                          ,this.getOrderDetails);
-        app.put('/admin/order/:id'                          ,this.updateStatus);
-        app.post('/admin/order/createOrder'                 ,this.checkDetailOrder,this.addNewOrder);
+        app.get(    LINK.ADMIN.ORDER_GET_LIST                            ,this.setDefaultCustomerName,this.getListOrders);
+        app.get(    LINK.ADMIN.ORDER_GET_ORDER_BY_CUSTOMER_ID            ,this.setDefaultCustomerId,this.getListOrders);
+        app.get(    LINK.ADMIN.ORDER_GET_TOTALMONNEY_BY_CUSTOMER_ID      ,this.setDefaultCustomerId,this.getTotalMonneyOrders);
+        app.get(    LINK.ADMIN.ORDER_GET_DETAILS                         ,this.getOrderDetails);
+        app.put(    LINK.ADMIN.ORDER_UPDATE_STATUS                       ,this.updateStatus);
+        app.post(   LINK.ADMIN.ORDER_CREATE                              ,this.checkDetailOrder,this.addNewOrder);
     },
     //set default name customer
     setDefaultCustomerName: function(req,res,next){

@@ -1,11 +1,12 @@
 const categoryModel = require("../models/category.model");
 const config     = require("../config/default.json");
+const LINK = require("../util/links.json");
 module.exports = {
     categoryRouters:function(app){
-        app.get('/admin/category/list'          ,this.setDefault,this.getListCategory);
-        app.post('/admin/category/add'          ,this.add);
-        app.put('/admin/category/edit/:id'      ,this.update);
-        app.delete('/admin/category/delete/:id' ,this.delete);
+        app.get(    LINK.ADMIN.CATEGORY_GET_LIST            ,this.setDefault,this.getListCategory);
+        app.post(   LINK.ADMIN.CATEGORY_ADD                 ,this.add);
+        app.put(    LINK.ADMIN.CATEGORY_EDIT                ,this.update);
+        app.delete( LINK.ADMIN.CATEGORY_DELETE              ,this.delete);
     },
     setDefault:function(req,res,next){
         if(req.query.search==undefined){
