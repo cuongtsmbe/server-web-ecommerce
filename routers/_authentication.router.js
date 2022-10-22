@@ -6,6 +6,7 @@ const passwordValidator = require('password-validator');
 const validator = require('validator');
 const str2ab = require('string-to-arraybuffer');
 const jwt = require("jsonwebtoken");
+const mdw = require("../mdw/mdw");
 module.exports = {
     AuthenticateClientRouters:function(app){
         app.post('/authenticate/register/local'             ,this.validateRegister,this.register);
@@ -78,7 +79,7 @@ module.exports = {
             return false;
         }
         //7
-        if(!this.isVietnamesePhoneNumber(req.body.phone.trim())){
+        if(!mdw.isVietnamesePhoneNumber(req.body.phone.trim())){
             response.error="phone";
             response.errorMessage   ="Phone khong hop le.";
             res.json(response);
@@ -151,7 +152,7 @@ module.exports = {
         };
         //kiem tra username có tồn tại chưa
         var customer=await customerModel.getOne({ten_dangnhap:value.username});
-        
+
         if(0==customer.length){
             response.message="Incorrect username or password .";
             res.json(response);
@@ -181,7 +182,7 @@ module.exports = {
                             username:customer.ten_dangnhap,
                             user_permission:true,
                             user_type:'CUSTOMER',
-                            exp: Math.floor(Date.now() / 1000) + (60 * 60),
+                            iat: Math.floor(Date.now() / 1000) + (60 * 60),
                         };
                 //nếu tài khoản bị block thì gắn permission là false
                 if(customer.trangthai==-1){
@@ -197,7 +198,8 @@ module.exports = {
                     username:customer.ten_dangnhap,
                     refreshToken:refreshToken
                 });
-                if(result.affectedRows!=0){
+                
+                if(result.affectedRows==0){
                     throw new Error('insert refreshToken false.');
                 }
 
@@ -215,6 +217,7 @@ module.exports = {
                 
                 });  
             }catch(err){
+                console.log(err);
                 res.status(500).json({
                     status:500,
                     message:"server error.",
@@ -250,12 +253,7 @@ module.exports = {
     },
 
     
-    //regex: supporting +84, 84, 0084, or 0 as the prefix:
-    //e.g: 0084957507468 | +84957507468 | 84957507468 | 0957507468 
-    isVietnamesePhoneNumber:function(number) {
-        return /((^(\+84|84|0|0084){1})(3|5|7|8|9))+([0-9]{8})$/.test(number);
-    },
-    
+   
 
     //STATUS ACCESSTOKEN AND REFRESHTOKEN
     //dễ dang hơn cho FE khi chặn người dùng đến trang login

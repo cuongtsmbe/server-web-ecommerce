@@ -37,11 +37,8 @@ module.exports = {
         if(empty==1){
             response.status=205;
             response.message="Thieu password OR username.";
-            res.json(response);
-        }else{
-            next();
+            return res.json(response);
         }
-
         //validate password
 
         // Create a schema
@@ -57,12 +54,12 @@ module.exports = {
         .is().not().oneOf(['Passw0rd', 'Password123','Qwerty123','Password1']); // Blacklist these values
         //2
         if(!schema.validate(password)){
-            res.json({
+            return res.json({
                 status:208,
                 error:"password",
                 errorValidate:schema.validate(password, { details: true })
             });
-            return false;
+
         }
 
         next();
@@ -82,7 +79,7 @@ module.exports = {
         if(empty==1){
             response.message=210;
             response.message="Du lieu khong day du.";
-            res.json(response);
+            return res.json(response);
         }else{
             next();
         }
@@ -132,22 +129,22 @@ module.exports = {
 
             response.status=211;
             response.message="Id quyen khong thoa man";
-            res.json(response);
+            return res.json(response);
 
         }else if(staff.length!=0){
 
             response.status=215;
             response.message="Username exist";
-            res.json(response);
-
+            return res.json(response);
+           
         }else{
             //2
             crypto.pbkdf2(value.mat_khau, value.salt, 310000, 32, 'sha256',async function(err, hashedPassword) {
                 if(err){
                     response.status=500;
                     response.message="server error";
-                    res.json(response);
-                    return false;
+                    return res.json(response);
+                
                 }
                 value.mat_khau=hashedPassword.toString("hex"); 
                 //3
@@ -158,7 +155,7 @@ module.exports = {
                     response.status=212;
                     response.message=`Them nhan vien khong thanh cong .`;
                 }
-                res.json(response);
+                return res.json(response);
             }); 
            
         }

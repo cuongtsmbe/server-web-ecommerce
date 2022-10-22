@@ -5,7 +5,7 @@ module.exports={
     //Authorization middleware 
     loggedIn:async function (req, res, next) {
         let token = req.header('Authorization');
-        let req_url = req.baseUrl+req.route.path;
+        let req_url = req.originalUrl;
         //không có Token có thể vào các đường dẫn
         if(!token && (
                 req_url.includes("/authenticate/register/local") 
@@ -21,6 +21,7 @@ module.exports={
             || req_url.includes("/admin/authenticate/statusToken")
         ) ){
             next();
+            return ;
         }
         if (!token) return res.status(401).send("Access Denied");
     

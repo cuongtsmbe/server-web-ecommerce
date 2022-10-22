@@ -8,7 +8,7 @@ module.exports={
     },
     //lấy danh sách staff theo condition
     getByCondition:function(condition){
-        var sql=`select id as Ma_nhan_vien,id_quyen,ten_nv,phone,ten_dangnhap,email,ngay_tao,ngay_sua `;
+        var sql=`select id as Ma_nhan_vien,mat_khau,salt,id_quyen,ten_nv,phone,ten_dangnhap,email,ngay_tao,ngay_sua `;
         return db.load(sql.concat(` from ${TABLE} WHERE ?`),condition);
     },
     getList: function(condition){

@@ -54,7 +54,7 @@ module.exports = {
                             username:staff.ten_dangnhap,
                             user_permission:staff.id_quyen,
                             user_type:'ADMIN',
-                            exp: Math.floor(Date.now() / 1000) + (60 * 60),
+                            iat: Math.floor(Date.now() / 1000) + (60 * 60),
                         };
                 //create AccessToken AND refreshToken
                 const AccessToken = jwt.sign(payload, config.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
