@@ -5,6 +5,7 @@ const port = 3000
 var bodyParser = require('body-parser')
 var auth_mdw=require("./mdw/_auth.mdw")
 var cors=require('cors');
+require('express-async-errors');
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
@@ -37,6 +38,15 @@ require("./routers/_product.router").productRoutersClient(app);
 require("./routers/_cart.router").CartRoutersClient(app);
 require("./routers/_authentication.router").AuthenticateClientRouters(app);
 require("./routers/_order.router").orderRoutersClient(app);
+
+app.use((req, res, next) => {
+  res.status(404).send("Sorry can't find that!")
+})
+
+app.use((err, req, res, next) => {
+  console.error(err.stack)
+  res.status(500).send('Something broke!')
+})
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
