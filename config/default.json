@@ -10,6 +10,8 @@
     "limitSuppliers":3,
     "limitProducts":5,
     "limitProductsClient":10,
+    "limitProductRelevant":30,
+    "limitProductTopSale":15,
     "limitCategories":5,
     "limitStaff":2,
     "limitCustomer":2,

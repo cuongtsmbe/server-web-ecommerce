@@ -3,8 +3,11 @@ const config     = require("../config/default.json");
 const LINK = require("../util/links.json");
 module.exports = {
     productRoutersClient:function(app){
-        app.get(LINK.CLIENT.PRODUCT_GET_LIST        ,this.setDefault,this.get);
-        app.get(LINK.CLIENT.PRODUCT_GET_DETAILS     ,this.getOneByID);
+        app.get(LINK.CLIENT.PRODUCT_GET_LIST                        ,this.setDefault,this.get);
+        app.get(LINK.CLIENT.PRODUCT_GET_DETAILS                     ,this.getOneByID);
+        app.get(LINK.CLIENT.PRODUCT_GET_LIST_TOPSALE_BY_THELOAI     ,this.getListTopSaleByTheloai);
+        app.get(LINK.CLIENT.PRODUCT_GET_LIST_RELEVANT               ,this.getListProductRelevant);
+        app.get(LINK.CLIENT.PRODUCT_GET_LIST_TOPSALE_MOST           ,this.getListMostTopSale);
     },
     //set default 
     setDefault: function(req,res,next){
@@ -78,5 +81,93 @@ module.exports = {
             status:200,
             data:detailProduct
         });
+    },
+    //lấy sản phẩm bán chạy nhất theo thể loại 
+    getListTopSaleByTheloai:async function(req,res,next){
+        var condition={
+            idtheloai:Number(req.params.idtheloai),
+            limitTopSale:Number(req.params.limit)
+        }
+
+        if (isNaN(condition.idtheloai) || isNaN(condition.limitTopSale)) {
+            return res.json({
+                status:404,
+                message:"id thể loại và limit phải là number ."
+            });
+        
+        }
+        if(condition.limitTopSale>=config.limitProductTopSale){
+            return res.json({
+                status:404,
+                message:`limit < ${config.limitProductTopSale} .`
+            });
+        }
+        var result= await productModel.getListTopSale(condition);
+
+        res.json({
+            status:200,
+            total:result.length,
+            data:result
+        })
+
+    },
+    //lấy danh sách sản phẩm có liên quan với id product.
+    getListProductRelevant:async function(req,res,next){
+        var condition={
+            idtheloai:Number(req.params.idtheloai),
+            limit:Number(req.params.limit),
+            IDProduct:Number(req.params.idProduct),
+        }
+
+        if (isNaN(condition.idtheloai) || isNaN(condition.limit) || isNaN(condition.IDProduct)) {
+            return res.json({
+                status:404,
+                message:"id thể loại và limit và IDProduct phải là number ."
+            });
+        
+        }
+        if(condition.limit>=config.limitProductRelevant){
+            return res.json({
+                status:404,
+                message:`limit < ${config.limitProductRelevant} .`
+            });
+        }
+        var result = await productModel.getListRelevant(condition);
+
+        res.json({
+            status:200,
+            total:result.length,
+            data:result
+        })
+
+    },
+    //lấy danh sách sản phẩm bán chạy nhất 
+    getListMostTopSale:async function(req,res,next){
+        var condition={
+            idtheloai:null,
+            limitTopSale:Number(req.params.limit)
+        }
+
+        if (isNaN(condition.limitTopSale)) {
+            return res.json({
+                status:404,
+                message:"limit phải là number ."
+            });
+        
+        }
+        if(condition.limitTopSale>=config.limitProductTopSale){
+            return res.json({
+                status:404,
+                message:`limit < ${config.limitProductTopSale} .`
+            });
+        }
+        var result= await productModel.getListTopSale(condition);
+
+        res.json({
+            status:200,
+            total:result.length,
+            data:result
+        })
     }
+
 };

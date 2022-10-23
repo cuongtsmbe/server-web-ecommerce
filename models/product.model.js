@@ -53,5 +53,25 @@ module.exports={
         sql=sql.concat(`LIMIT ? OFFSET ?`);
         result=db.load(sql,args);
         return result;
+   },
+   //Lấy top sản phẩm bán chạy 
+   //0.Lấy sản phẩm bán chạy nhất 
+   //1.Lấy sản phẩm bán chạy nhất theo id thể loại
+   getListTopSale:function(condition){
+        var sql="";
+        if(condition.idtheloai === null){
+        //0
+        sql=`SELECT * FROM ${TABLE}  ORDER BY sl_da_ban DESC LIMIT ${condition.limitTopSale}`;
+        }else{
+        //1
+        sql=`SELECT * FROM ${TABLE} WHERE id_the_loai= ? ORDER BY sl_da_ban DESC LIMIT ${condition.limitTopSale}`;
+        }
+        return db.load(sql,condition.idtheloai);
+   },
+   //lấy danh sách sản phẩm có liên quan
+   getListRelevant:function(condition){
+    var sql=`SELECT * FROM ${TABLE} WHERE id_the_loai= ${condition.idtheloai} AND id!=${condition.IDProduct}  LIMIT ${condition.limit}`;
+    return db.load(sql);
    }
+
 }

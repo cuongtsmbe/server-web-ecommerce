@@ -1,77 +1,126 @@
 {
     "CLIENT": {
         "AUTHENTICATE_REGISTER_LOCAL":"/authenticate/register/local" ,
+
         "AUTHENTICATE_LOGIN_LOCAL"   :"/authenticate/login/local",
+
         "AUTHENTICATE_LOGOUT"   :"/authenticate/logout",
+
         "AUTHENTICATE_STATUSTOKEN"   :"/authenticate/statusToken",
+
         "AUTHENTICATE_REFRESHTOKEN"   :"/authenticate/refreshToken",
 
         "CART_GET":"/cart" ,
+
         "CART_ADD_PRODUCT"   :"/cart/add/:id",
+
         "CART_REDUCE_PRODUCT"   :"/cart/reduce/:id",
+
         "CART_REMOVE_ITEM_PRODUCT"   :"/cart/remove/:id",
 
         "CATEGORY_GET_LIST"  : "/listcategories",
 
         "CUSTOMER_GET_INFO"  : "/customer/details",
+
         "CUSTOMER_EDIT_PASSWORD"  : "/customer/editPassword",
+
         "CUSTOMER_EDIT_INFO"  : "/customer/update",
         
         "ORDER_GET_HISTORY"  : "/history/order/customer",
+
         "ORDER_GET_TOTALMONNEY"  : "/history/order/customer/totalMonney",
+
         "ORDER_GET_DETAILS"  : "/history/order/details/:id",
 
         "PRODUCT_GET_LIST"  : "/product/list",
-        "PRODUCT_GET_DETAILS"  : "/product/details/:id"
+
+        "PRODUCT_GET_DETAILS"  : "/product/details/:id",
+
+        "PRODUCT_GET_LIST_TOPSALE_BY_THELOAI"  : "/product/topsale/:idtheloai/:limit",
+
+        "PRODUCT_GET_LIST_TOPSALE_MOST" : "/product/topsale/:limit",
+        
+        "PRODUCT_GET_LIST_RELEVANT":"/product/relevant/:idtheloai/:idProduct/:limit"
     },
 
     "ADMIN": {
         
         "AUTHENTICATE_LOGIN_LOCAL"   :"/admin/authenticate/login/local",
+
         "AUTHENTICATE_STATUSTOKEN"   :"/admin/authenticate/statusToken",
+
         "AUTHENTICATE_REFRESHTOKEN"   :"/admin/authenticate/refreshToken",
 
         "CATEGORY_GET_LIST"  : "/admin/category/list",
+
         "CATEGORY_ADD"  : "/admin/category/add",
+
         "CATEGORY_EDIT"  : "/admin/category/edit/:id",
+
         "CATEGORY_DELETE"  : "/admin/category/delete/:id",
 
         "CUSTOMER_GET_LIST"  : "/admin/customer/list",
+
         "CUSTOMER_ADD"  : "/admin/customer/add",
+
         "CUSTOMER_GET_INFO"  : "/admin/customer/:id",
+
         "CUSTOMER_EDIT_INFO"  : "/admin/customer/edit/:id",
+
         "CUSTOMER_DELETE"  : "/admin/customer/delete/:id",
 
         "ORDER_GET_LIST"  : "/admin/order",
+
         "ORDER_GET_ORDER_BY_CUSTOMER_ID"  : "/admin/order/customer/:id",
+
         "ORDER_GET_TOTALMONNEY_BY_CUSTOMER_ID"  : "/admin/order/customer/totalMonney/:id",
+
         "ORDER_GET_DETAILS"  : "/admin/order/:id",
+
         "ORDER_UPDATE_STATUS"  : "/admin/order/:id",
+
         "ORDER_CREATE"  : "/admin/order/createOrder",
 
         "PERMISSION_GET_LIST"  : "/admin/permission/list",
+
         "PERMISSION_GET_DETAILS"  : "/admin/permission/details/:id",
+
         "PERMISSION_ADD"  : "/admin/permission/add",
+
         "PERMISSION_ADD_DANHMUC"  : "/admin/permission/addDanhMuc/:id",
+
         "PERMISSION_DELETE"  : "/admin/permission/delete/:id",
+
         "PERMISSION_DELETE_DANHMUC"  : "/admin/permission/deleteDanhMuc/:id",
+
         "PERMISSION_UPDATE_DANHMUC"  : "/admin/permission/capnhat/:id",
 
         "PRODUCT_GET_LIST"  : "/admin/product/list",
+
         "PRODUCT_GET_DETAILS"  : "/admin/product/details/:id",
+
         "PRODUCT_ADD"  : "/admin/product/add",
+
         "PRODUCT_EDIT"  : "/admin/product/edit/:id",
+
         "PRODUCT_DELETE"  : "/admin/product/delete/:id",
 
         "STAFF_GET_LIST"  : "/admin/staff/list",
+
         "STAFF_ADD"  : "/admin/staff/add",
+
         "STAFF_EDIT"  : "/admin/staff/edit/:id",
+
         "STAFF_GET_DETAILS"  : "/admin/staff/:id",
+
         "STAFF_DELETE"  : "/admin/staff/delete/:id",
 
         "SUPPLIER_GET_LIST"  : "/admin/supplier/list",
+
         "SUPPLIER_ADD"  : "/admin/supplier/add",
+        
         "SUPPLIER_EDIT"  : "/admin/supplier/edit/:id",
+
         "SUPPLIER_DELETE"  : "/admin/supplier/delete/:id"
         
     }
