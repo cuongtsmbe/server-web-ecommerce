@@ -87,7 +87,7 @@ module.exports = {
     getAccessToken:async function(req,res,next){
          //kiểm tra  refreshToken
          try{
-            var refreshToken=req.body.user.refreshToken;
+            var refreshToken=JSON.parse(req.body.user).refreshToken;
 
             if(!refreshToken){
                 res.status(401).json({message_refreshToken:"refreshToken false"});
@@ -103,7 +103,7 @@ module.exports = {
                 username:verified.username,
                 user_permission:verified.user_permission,
                 user_type:verified.user_type,
-                exp: Math.floor(Date.now() / 1000) + (60 * 60),
+                iat: Math.floor(Date.now() / 1000) + (60 * 60),
             };
             const AccessToken = jwt.sign(payload, config.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
             
@@ -129,7 +129,7 @@ module.exports = {
 
         //kiểm tra  refreshToken
         try{
-            var refreshToken=req.body.user.refreshToken;
+            var refreshToken=JSON.parse(req.body.user).refreshToken;
             if(!refreshToken){
                 res.json({message_refreshToken:"refreshToken false"});
                 return ;
@@ -145,7 +145,7 @@ module.exports = {
         } 
         //kiểm tra  AccessToken
         try{
-            var AccessToken=req.body.user.AccessToken;
+            var AccessToken=JSON.parse(req.body.user).AccessToken;
             if(!AccessToken){
                     reponse.message_accessToken='AccessToken false';
             };

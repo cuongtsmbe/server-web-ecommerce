@@ -135,7 +135,8 @@ module.exports = {
             tong_tien:              req.body.Tong_tien,
             ngay_tao:               req.body.Ngay_tao,
             id_nhanvien:            req.body.ID_nhanvien,
-            trang_thai:             req.body.Trang_thai    
+            trang_thai:             req.body.Trang_thai,
+            phuong_thuc_thanh_toan: req.body.phuong_thuc_thanh_toan,   
         }
         var resultCreateHD=await orderModel.addOrder(valueHD);
         if(resultCreateHD.affectedRows==0){

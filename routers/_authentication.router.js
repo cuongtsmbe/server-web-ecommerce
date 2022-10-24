@@ -205,7 +205,7 @@ module.exports = {
                 res.json(response);
                 return false;
             }
-             //4.Create and assign token,exp: để token luôn khác nhau trong DB
+             //4.Create and assign token,iat: để token luôn khác nhau trong DB
             try{
                 var payload={
                             id: customer.Ma_kh,
@@ -264,7 +264,7 @@ module.exports = {
             message:""
         };
       
-        var token = req.body.user.refreshToken;
+        var token = JSON.parse(req.body.user).refreshToken;
         if(!token){
             response.message="success";
             res.json(response);
@@ -299,7 +299,7 @@ module.exports = {
 
         //kiểm tra  refreshToken
         try{
-            var refreshToken=req.body.user.refreshToken;
+            var refreshToken=JSON.parse(req.body.user).refreshToken;
             if(!refreshToken){
                 res.json({message_refreshToken:"refreshToken false"});
                 return ;
@@ -328,7 +328,7 @@ module.exports = {
 
         //kiểm tra  AccessToken
         try{
-            var AccessToken=req.body.user.AccessToken;
+            var AccessToken=JSON.parse(req.body.user).AccessToken;
             if(!AccessToken){
                     reponse.message_accessToken='AccessToken false';
             };
@@ -346,8 +346,8 @@ module.exports = {
     getAccessToken:async function(req,res,next){
          //kiểm tra  refreshToken
          try{
-            var refreshToken=req.body.user.refreshToken;
-
+            var refreshToken=JSON.parse(req.body.user).refreshToken;
+     
             if(!refreshToken){
                 res.status(401).json({message_refreshToken:"refreshToken false"});
                 return ;
@@ -369,7 +369,7 @@ module.exports = {
                 username:verified.username,
                 user_permission:verified.user_permission,
                 user_type:verified.user_type,
-                exp: Math.floor(Date.now() / 1000) + (60 * 60),
+                iat: Math.floor(Date.now() / 1000) + (60 * 60),
             };
             const AccessToken = jwt.sign(payload, config.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
             
@@ -378,7 +378,7 @@ module.exports = {
                 AccessToken:AccessToken
             });
         }catch(err){
-
+            console.log(err);
             //Xóa refreshToken kết hạn trong DB
             if(err== 'jwt expired'){
                 await tokenModel.delete({refreshToken:refreshToken});

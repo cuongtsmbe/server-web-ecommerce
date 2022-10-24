@@ -32,6 +32,8 @@
 
         "ORDER_GET_DETAILS"  : "/history/order/details/:id",
 
+        "ORDER_THANHTOAN"   : "/order/thanhtoan",
+
         "PRODUCT_GET_LIST"  : "/product/list",
 
         "PRODUCT_GET_DETAILS"  : "/product/details/:id",
