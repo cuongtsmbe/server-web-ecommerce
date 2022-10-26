@@ -7,7 +7,10 @@ module.exports = {
             var connection = mysql.createConnection(config.mysql);
             connection.connect();
             connection.query(sql,condition, function(error, results, fields) {
-                if (error) throw error;
+                if (error) {
+                    console.log(error); 
+                    return resolve([]);
+                };
                 resolve(results);
             });
             connection.end();
@@ -18,7 +21,10 @@ module.exports = {
             var connection = mysql.createConnection(config.mysql);
             connection.connect();
             connection.query(`SELECT * from ${table} LIMIT ? OFFSET ?`,[limit,offset], function(error, results, fields) {
-                if (error) throw error;
+                if (error) {
+                    console.log(error); 
+                    return resolve([]);
+                };
                 resolve(results);
             });
 
@@ -30,7 +36,10 @@ module.exports = {
             var connection = mysql.createConnection(config.mysql);
             connection.connect();
             connection.query(`INSERT INTO ${table} SET ?`, data, function(error, results, fields) {
-                if (error) throw error;
+                if (error) {
+                    console.log(error); 
+                    return resolve([]);
+                };
                 resolve(results);
             });
 
@@ -42,7 +51,10 @@ module.exports = {
             var connection = mysql.createConnection(config.mysql);
             connection.connect();
             connection.query(`select * from ${table} where ?`, condition, function(error, results, fields) {
-                if (error) throw error;
+                if (error) {
+                    console.log(error); 
+                    return resolve([]);
+                };
                 resolve(results);
             });
 
@@ -54,7 +66,10 @@ module.exports = {
             var connection = mysql.createConnection(config.mysql);
             connection.connect();
             connection.query(`DELETE FROM ${table} WHERE ?`, con, function(error, results, fields) {
-                if (error) throw error;
+                if (error) {
+                    console.log(error); 
+                    return resolve([]);
+                };
                 resolve(results);
             });
 

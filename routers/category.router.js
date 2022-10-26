@@ -12,7 +12,7 @@ module.exports = {
         if(req.query.search==undefined){
             req.query.search='';
         }
-        if(req.query.page==undefined){
+        if(req.query.page==undefined || req.query.page<=0){
             req.query.page=1;
         }
         next();

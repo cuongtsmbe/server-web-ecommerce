@@ -11,7 +11,7 @@ module.exports = {
     //set default page
     setDefaultPage: function(req,res,next){
         res.locals.GetByName=false;
-        if(req.query.page==undefined){
+        if(req.query.page==undefined || req.query.page<=0){
             req.query.page=1;
         }
         next();

@@ -29,7 +29,7 @@ module.exports = {
         }
         next();
     },
-    //lay danh sach hoa don va tong tien khach da chi
+    //lay danh sach hoa don 
     getListOrders:async function(req,res,next){
         if(res.locals.GetByName==true){
             var condition={
@@ -136,7 +136,7 @@ module.exports = {
             ngay_tao:               req.body.Ngay_tao,
             id_nhanvien:            req.body.ID_nhanvien,
             trang_thai:             req.body.Trang_thai,
-            phuong_thuc_thanh_toan: req.body.phuong_thuc_thanh_toan,   
+            phuong_thuc_thanh_toan: req.body.phuong_thuc_thanh_toan===undefined ? 1 : req.body.phuong_thuc_thanh_toan 
         }
         var resultCreateHD=await orderModel.addOrder(valueHD);
         if(resultCreateHD.affectedRows==0){

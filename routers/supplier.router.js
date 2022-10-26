@@ -13,7 +13,7 @@ module.exports = {
         if(req.query.ten_ncc==undefined){
             req.query.ten_ncc=``;
         }
-        if(req.query.page==undefined){
+        if(req.query.page==undefined || req.query.page<=0){
             req.query.page=1;
         }
         next();

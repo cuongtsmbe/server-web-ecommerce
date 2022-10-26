@@ -47,8 +47,8 @@ module.exports={
     getList: function(condition){
         var args=[condition.trangThai,condition.dateStart,condition.dateEnd,condition.limit,condition.offset];
         var sql=`SELECT 
-        HD.id as Ma_don_hang,HD.ngay_tao as Ngay_dat,KH.ten_kh as Ten_khach_hang,HD.tong_tien as Tong_tien,
-        HD.id_nhanvien ,HD.trang_thai as Trang_thai 
+        HD.id as Ma_don_hang,HD.ngay_tao as Ngay_dat,HD.id_khachhang,KH.ten_kh as Ten_khach_hang,HD.tong_tien as Tong_tien,
+        HD.id_nhanvien ,HD.trang_thai as Trang_thai,phuong_thuc_thanh_toan
         FROM (SELECT kh.id,kh.ten_kh FROM ${TABLE_KH} kh WHERE `
         if(condition.GetByName==true){
             sql=sql.concat( `kh.ten_kh LIKE ?`);
@@ -67,10 +67,13 @@ module.exports={
             sql=sql.concat(` HD.ngay_tao BETWEEN ? AND ? LIMIT ? OFFSET ?`);
             //delete trangthai
             args.splice(1,1);
-        }else if(condition.dateStart==undefined || condition.dateEnd==undefined){
-            sql=sql.concat(`1`);
-            args.splice(1,args.length);
-        }else {
+        }else if(condition.trangThai==-1 && (condition.dateStart==undefined || condition.dateEnd==undefined)){
+            sql=sql.concat(`1 LIMIT ? OFFSET ?`);
+            args.splice(1,3);//delete trang thai,dateStart,dateEnd
+        }else if(condition.trangThai!=-1 && (condition.dateStart==undefined || condition.dateEnd==undefined)){
+            sql=sql.concat(`HD.trang_thai=? LIMIT ? OFFSET ?`);
+            args.splice(2,2);//delete dateStart,dateEnd
+        }else{
             sql=sql.concat(` HD.trang_thai=? AND HD.ngay_tao BETWEEN ? AND ? LIMIT ? OFFSET ?`);
         }
         var listOrders= db.load(sql,args);

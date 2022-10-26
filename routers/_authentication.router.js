@@ -141,23 +141,44 @@ module.exports = {
                 value.mat_khau=hashedPassword.toString("hex");
                 var result=await customerModel.add(value);
                 if(result.affectedRows!=0){
-                    var payload={
-                        id: null,
-                        username:value.ten_dangnhap,
-                        user_permission:true,
-                        user_type:'CUSTOMER',
-                        iat: Math.floor(Date.now() / 1000) + (60 * 60),
-                    };
-                    //create token 
-                    const AccessToken = jwt.sign(payload, config.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
-                    const refreshToken = jwt.sign(payload, config.TOKEN_SECRET_REFRESHTOKEN,{ expiresIn:"30d" });
+                    try{
+                        var payload={
+                            id: null,
+                            username:value.ten_dangnhap,
+                            user_permission:true,
+                            user_type:'CUSTOMER',
+                            iat: Math.floor(Date.now() / 1000) + (60 * 60),
+                        };
+                        //create token 
+                        const AccessToken = jwt.sign(payload, config.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
+                        const refreshToken = jwt.sign(payload, config.TOKEN_SECRET_REFRESHTOKEN,{ expiresIn:"30d" });
 
-                    obj.message=`dang ki thanh cong . insertId: ${result.insertId}`;
-                    
-                    payload.id=result.insertId;
+                        //add refreshToken to DB
+                        var result =await tokenModel.add({
+                            username:value.ten_dangnhap,
+                            refreshToken:refreshToken
+                        });
 
-                    obj.user.AccessToken=AccessToken;
-                    obj.user.refreshToken=refreshToken;
+                        if(result.affectedRows==0){
+                            throw new Error('insert refreshToken false.');
+                        }
+
+                        obj.message=`dang ki thanh cong . insertId: ${result.insertId}`;
+                        
+                        payload.id=result.insertId;
+
+                        obj.user.AccessToken=AccessToken;
+                        obj.user.refreshToken=refreshToken;
+
+                    }catch(err){
+                        console.log(err);
+                        res.status(500).json({
+                            status:500,
+                            message:"server error.",
+                            error:err
+                        })
+                        return ;
+                    }    
 
                 }else{
                     obj.status=205;

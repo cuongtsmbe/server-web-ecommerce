@@ -20,10 +20,12 @@ app.use(session({
 }));
 
 //Authorization middleware 
-app.use(auth_mdw.loggedIn);
+console.log("close mdw");
+//app.use(auth_mdw.loggedIn);
 
 //admin routers
 require("./routers/order.router").orderRouters(app);
+require("./routers/phieunhap.router").PhieuNhapRouters(app);
 require("./routers/supplier.router").supplierRouters(app);
 require("./routers/product.router").productRouters(app);
 require("./routers/category.router").categoryRouters(app);
@@ -44,7 +46,7 @@ app.use((req, res, next) => {
 })
 
 app.use((err, req, res, next) => {
-  console.error(err.stack)
+  console.log(err.stack)
   res.status(500).send('Something broke!')
 })
 
