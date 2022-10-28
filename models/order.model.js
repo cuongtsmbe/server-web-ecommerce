@@ -114,6 +114,10 @@ module.exports={
         }
         var result = db.load(sql);
         return result;
+    },
+    //delete hóa đon by ID 
+    deleteHDByID:function(condition){
+        return db.delete(TABLE,condition);
     }
 
 }

@@ -123,7 +123,19 @@
         
         "SUPPLIER_EDIT"  : "/admin/supplier/edit/:id",
 
-        "SUPPLIER_DELETE"  : "/admin/supplier/delete/:id"
+        "SUPPLIER_DELETE"  : "/admin/supplier/delete/:id",
+
+        "PHIEUNHAP_GET_LIST_BY_IDNCC" : "/admin/phieunhap/list/:id",
+
+        "PHIEUNHAP_GET_DETAILS_BY_ID" : "/admin/phieunhap/details/:id",
+
+        "PHIEUNHAP_GET_LIST_BY_TIME"    : "/admin/phieunhap/condition/time",
+
+        "PHIEUNHAP_GET_TOTALMONEY_BY_TIME" : "/admin/phieunhap/totalMoney",
+
+        "PHIEUNHAP_CREATE"  : "/admin/phieunhap/create",
+
+        "PHIEUNHAP_UPDATESTATUS_BY_ID"  : "/admin/phieunhap/updateStatus/:id" 
         
     }
     

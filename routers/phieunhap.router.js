@@ -4,10 +4,12 @@ const supplierModel =require("../models/supplier.model");
 const LINK = require("../util/links.json");
 module.exports = {
     PhieuNhapRouters:function(app){
-        app.get(   "/admin/phieunhap/list/:id"                          ,this.setDefaultPage,this.setDefaultTrangThai,this.ListPhieuNhapByIDNCC);
-        app.get(   "/admin/phieunhap/Condition/time"                         ,this.setDefaultPage,this.setDefaultTrangThai,this.ListPhieuNhapByTime);
-        app.get(    "/admin/phieunhap/totalMoney"               ,this.setDefaultTrangThai,this.getToTalMonneyByTime);
-        app.put(   "/admin/phieunhap/updateStatus/:id"                  ,this.updateStatus);
+        app.get(   LINK.ADMIN.PHIEUNHAP_GET_LIST_BY_IDNCC            ,this.setDefaultPage,this.setDefaultTrangThai,this.ListPhieuNhapByIDNCC);
+        app.get(   LINK.ADMIN.PHIEUNHAP_GET_DETAILS_BY_ID            ,this.getDetailsPhieuNhapByID);
+        app.get(   LINK.ADMIN.PHIEUNHAP_GET_LIST_BY_TIME             ,this.setDefaultPage,this.setDefaultTrangThai,this.ListPhieuNhapByTime);
+        app.get(   LINK.ADMIN.PHIEUNHAP_GET_TOTALMONEY_BY_TIME       ,this.setDefaultTrangThai,this.getToTalMonneyByTime);
+        app.post(  LINK.ADMIN.PHIEUNHAP_CREATE                       ,this.addPhieuNhap);
+        app.put(   LINK.ADMIN.PHIEUNHAP_UPDATESTATUS_BY_ID           ,this.updateStatus);
     },
     setDefaultPage: function(req,res,next){
         if(req.query.page==undefined||req.query.page==null||req.query.page<=0){
@@ -100,6 +102,80 @@ module.exports = {
             status:200,
             data:result
         });
+    },
+    //xem chi tiết phiếu nhập theo ID phiếu nhâp
+    getDetailsPhieuNhapByID:async function(req,res,next){
+           
+        var IDPhieuNhap=req.params.id;
 
+        var condition={
+            IDPhieuNhap
+        };
+
+        var phieunhap=await phieuNhapModel.getPhieuNhapByID(condition);
+
+        if(phieunhap.length==0){
+            return res.json({
+                status:401,
+                message:`Khong tim thay phieu nhap theo id ${condition.IDPhieuNhap}`
+            });
+        }
+        var CTPN=await phieuNhapModel.getProductInCTPN(condition);
+        
+        res.json({
+            status:200,
+            phieunhap:phieunhap[0],
+            CTPN
+        });
+    },
+    //create phiêu nhập 
+    //1 cover string to json
+    //2 add to table phieunhap
+    //3 add to ctphieunhap
+    addPhieuNhap:async function(req,res,next){
+        var response={
+            status:201,
+            message:""
+        };
+        //1
+        var arrProduct=JSON.parse(req.body.Danh_sach_san_pham);
+        //2
+        var valuePN={
+            id              :         Date.now(),//id phieu nhap by milliseconds 
+            id_ncc          :         req.body.id_ncc,
+            id_nv           :         req.body.id_nv,
+            tong_tien       :         req.body.Tong_tien,
+            ngay_tao        :         req.body.Ngay_tao,
+            trangthai       :         req.body.Trang_thai,
+            ghichu          :         req.body.Ghi_chu
+        }
+        var resultCreatePN=await phieuNhapModel.addPhieuNhap(valuePN);
+
+        if(resultCreatePN.affectedRows==0){
+            response.status=501;
+            response.message="Create phieu nhap khong thanh cong.";
+        }else{
+            //3
+            var valueChiTiet={
+                Danh_sach_san_pham  :     arrProduct,
+                id_phieunhap        :     valuePN.id       
+            };
+            var result=await phieuNhapModel.addPhieuNhapDetails(valueChiTiet);
+
+            //result.length ==0 là khi insert không được(lỗi truy vấn VD:khóa ngoại ) -> load function return []
+            //result.affectedRows do insert query trả về object
+
+            if(result.length==0 || result.affectedRows==0){
+                //4. delete phieu nhap nếu . thêm chi tiết phiếu nhập không thành công
+                await phieuNhapModel.deletePNByID({id:valuePN.id});
+                response.status=502;
+                response.message="Create PN fail. Lưu ý có thể:  sai thong tin danh sach san pham.";
+                
+            }else{
+                response.message="Create order success.";
+            }
+        }
+        res.json(response);
     }
+
 }

@@ -139,6 +139,7 @@ module.exports = {
             phuong_thuc_thanh_toan: req.body.phuong_thuc_thanh_toan===undefined ? 1 : req.body.phuong_thuc_thanh_toan 
         }
         var resultCreateHD=await orderModel.addOrder(valueHD);
+        
         if(resultCreateHD.affectedRows==0){
             response.message="Create don hang khong thanh cong.";
         }else{
@@ -148,7 +149,13 @@ module.exports = {
                 id_hoadon:              valueHD.id       
             };
             var resultCreateDetailsOrder=await orderModel.addOrderDetails(valueChiTiet);
-            if(resultCreateDetailsOrder.affectedRows==0){
+
+            // length == 0 error sql thì load return []
+            // affectedRows khi đã chạy vô insert thành công 
+            if(resultCreateDetailsOrder.length==0 || resultCreateDetailsOrder.affectedRows==0){
+                //xóa đơn hàng fail
+                await orderModel.deleteHDByID({id:valueHD.id});
+
                 response.message="Create don hang khong thanh cong.";
             }else{
                 response.message="Create order success.";
