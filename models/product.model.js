@@ -1,6 +1,7 @@
 const db = require('../util/db');
 const TABLE="sanpham";
-
+const mysql = require('mysql');
+const config = require("./../config/default.json");
 module.exports={
    get: function(condition){
          var result;
@@ -28,6 +29,8 @@ module.exports={
    getOneByID:function(condition){
         return db.getOneByCondition(TABLE,condition);
    },
+
+
    //lấy danh sách sản phẩm với nhiều điều kiện
    getListByCondition:function(condition){
         var result;
@@ -54,6 +57,8 @@ module.exports={
         result=db.load(sql,args);
         return result;
    },
+
+
    //Lấy top sản phẩm bán chạy 
    //0.Lấy sản phẩm bán chạy nhất 
    //1.Lấy sản phẩm bán chạy nhất theo id thể loại
@@ -68,10 +73,91 @@ module.exports={
         }
         return db.load(sql,condition.idtheloai);
    },
+
+
    //lấy danh sách sản phẩm có liên quan
    getListRelevant:function(condition){
     var sql=`SELECT * FROM ${TABLE} WHERE id_the_loai= ${condition.idtheloai} AND id!=${condition.IDProduct}  LIMIT ${condition.limit}`;
     return db.load(sql);
+   },
+
+
+
+   //update so luong danh sach san pham(order,phieu nhap)
+   //action: INS,DES
+   //1.tăng số lượng sản phẩm trong kho
+   //2.tăng số lượng bán , giảm số lượng tồn kho (create order)
+   updateSoluong:async function(value,action){
+    //get list product from DB
+    var sql_get='';
+    sql_get=`select * from ${TABLE} where `;
+    for (var i = 0; i < value.Danh_sach_san_pham.length; i++) {
+        sql_get=sql_get.concat(`id=${value.Danh_sach_san_pham[i].id_san_pham}`);
+        if(i!=value.Danh_sach_san_pham.length-1){
+            sql_get=sql_get.concat(' OR ');
+        }
+    }
+
+    var result_get = await db.load(sql_get);
+
+    //Stop update nếu : có 1 ID sản phẩm không tồn tại trong DB
+    if(result_get.length!=value.Danh_sach_san_pham.length){
+
+        var ListIDProductInResultGet=[];
+        for (var i = 0; i < result_get.length; i++) {
+            ListIDProductInResultGet.push(result_get[i].id);
+        }
+
+        var ListIDProductNoExist=[];
+        for (var i = 0; i < value.Danh_sach_san_pham.length; i++) {
+
+            //ID SP trong value không tồn tại trong ListIDProductInResultGet
+            if(false==ListIDProductInResultGet.includes(value.Danh_sach_san_pham[i].id_san_pham)){
+                ListIDProductNoExist.push(value.Danh_sach_san_pham[i].id_san_pham);
+            }
+
+        }
+
+        return {
+            status:404,
+            ListIDProductNoExist
+        };
+    }
+    //1
+    if(action==='INS'){
+        for (var i = 0; i < result_get.length; i++) {
+            result_get[i].so_luong=result_get[i].so_luong+value.Danh_sach_san_pham[i].So_luong;
+        }
+    }
+    //2
+    if(action==='DES'){
+
+        for (var i = 0; i < result_get.length; i++) {
+            result_get[i].so_luong=result_get[i].so_luong-value.Danh_sach_san_pham[i].So_luong;
+            result_get[i].sl_da_ban=result_get[i].sl_da_ban+value.Danh_sach_san_pham[i].So_luong;
+        }
+
+    }
+
+    var connection = mysql.createConnection(config.mysql);
+        connection.connect();
+    var sql_update=``;
+
+    for (var i = 0; i <result_get.length; i++) {
+        sql_update=`UPDATE ${TABLE} SET so_luong=${result_get[i].so_luong},sl_da_ban=${result_get[i].sl_da_ban} where sanpham.id=${result_get[i].id} ; `;
+        connection.query(sql_update, function(error, results, fields) {
+                if (error) {
+                    console.log(error); 
+                };
+        });
+    }
+    connection.end();
+
+    return {
+        status:200,
+        message:"update success"
+    };
+
    }
 
 }

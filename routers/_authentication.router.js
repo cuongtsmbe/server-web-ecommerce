@@ -21,8 +21,7 @@ module.exports = {
     //3.validate email
     //4.validate Ten khach hang
     //5.validate username
-    //6.validate Address
-    //7.validate phone
+    //6.validate phone
     validateRegister:function(req,res,next){
         //1
         // Create a schema
@@ -72,14 +71,8 @@ module.exports = {
             res.json(response);
             return false;
         }
+        
         //6
-        if(0==req.body.dia_chi.trim().length){
-            response.error="address";
-            response.errorMessage   ="Địa chỉ không được để trống.";
-            res.json(response);
-            return false;
-        }
-        //7
         if(!mdw.isVietnamesePhoneNumber(req.body.phone.trim())){
             response.error="phone";
             response.errorMessage   ="Phone khong hop le.";

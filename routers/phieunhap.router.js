@@ -2,6 +2,8 @@ const config     = require("../config/default.json");
 const phieuNhapModel = require("../models/phieunhap.model");
 const supplierModel =require("../models/supplier.model");
 const LINK = require("../util/links.json");
+const productModel = require("../models/product.model");
+
 module.exports = {
     PhieuNhapRouters:function(app){
         app.get(   LINK.ADMIN.PHIEUNHAP_GET_LIST_BY_IDNCC            ,this.setDefaultPage,this.setDefaultTrangThai,this.ListPhieuNhapByIDNCC);
@@ -172,6 +174,15 @@ module.exports = {
                 response.message="Create PN fail. Lưu ý có thể:  sai thong tin danh sach san pham.";
                 
             }else{
+                //5.tăng số lượng sản phẩm trong kho
+                var valueChiTiet={
+                    Danh_sach_san_pham:     arrProduct      
+                };
+                var resultUpdate= await productModel.updateSoluong(valueChiTiet,'INS');
+                //có 1 sản phẩm sai ID 
+                if(404==resultUpdate.status){
+                    return res.json(resultUpdate);
+                }
                 response.message="Create order success.";
             }
         }

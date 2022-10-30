@@ -20,7 +20,6 @@ app.use(session({
 }));
 
 //Authorization middleware 
-
 app.use(auth_mdw.loggedIn);
 
 //admin routers

@@ -1,5 +1,6 @@
 const config     = require("../config/default.json");
 const orderModel = require("../models/order.model");
+const productModel = require("../models/product.model");
 const LINK = require("../util/links.json");
 module.exports = {
     orderRouters:function(app){
@@ -139,7 +140,7 @@ module.exports = {
             phuong_thuc_thanh_toan: req.body.phuong_thuc_thanh_toan===undefined ? 1 : req.body.phuong_thuc_thanh_toan 
         }
         var resultCreateHD=await orderModel.addOrder(valueHD);
-        
+
         if(resultCreateHD.affectedRows==0){
             response.message="Create don hang khong thanh cong.";
         }else{
@@ -158,6 +159,15 @@ module.exports = {
 
                 response.message="Create don hang khong thanh cong.";
             }else{
+                //giảm số lượng sản phẩm trong kho
+                var valueChiTiet={
+                    Danh_sach_san_pham:     arrProduct      
+                };
+                var resultUpdate= await productModel.updateSoluong(valueChiTiet,'DES');
+                //có 1 sản phẩm sai ID 
+                if(404==resultUpdate.status){
+                    return res.json(resultUpdate);
+                }
                 response.message="Create order success.";
             }
         }
@@ -178,5 +188,6 @@ module.exports = {
             data:result
         });
 
-    }
+    },
+
 }
