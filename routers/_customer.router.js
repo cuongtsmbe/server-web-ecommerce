@@ -15,8 +15,8 @@ module.exports = {
             id: req.user.id
         };
         var customer=await customerModel.getOne(condition);
-        delete customer.mat_khau;
-        delete customer.salt;
+        delete customer[0].mat_khau;
+        delete customer[0].salt;
         res.status(200).json({
             status:200,
             data:customer

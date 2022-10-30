@@ -39,6 +39,7 @@ require("./routers/_product.router").productRoutersClient(app);
 require("./routers/_cart.router").CartRoutersClient(app);
 require("./routers/_authentication.router").AuthenticateClientRouters(app);
 require("./routers/_order.router").orderRoutersClient(app);
+require("./routers/_customer.router").customerRouters(app);
 
 app.use((req, res, next) => {
   res.status(404).send("Sorry can't find that!")
