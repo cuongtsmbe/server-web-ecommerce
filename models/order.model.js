@@ -116,6 +116,7 @@ module.exports={
         return result;
     },
     //delete hóa đon by ID 
+    //chỉ xóa khi cố lỗi khi tạo chi tiết đơn hàng
     deleteHDByID:function(condition){
         return db.delete(TABLE,condition);
     }
