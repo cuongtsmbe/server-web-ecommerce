@@ -1,10 +1,11 @@
 const express = require('express')
 const session = require('express-session')
 const app = express()
-const port = 3000
+const port = 3001
 var bodyParser = require('body-parser')
 var auth_mdw=require("./mdw/_auth.mdw")
 var cors=require('cors');
+
 require('express-async-errors');
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -18,6 +19,8 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: false }
 }));
+
+
 
 //Authorization middleware 
 app.use(auth_mdw.loggedIn);

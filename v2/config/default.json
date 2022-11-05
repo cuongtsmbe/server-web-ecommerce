@@ -1,0 +1,24 @@
+{
+    "mysql": {
+        "host": "localhost",
+        "user": "root",
+        "password": "",
+        "database": "laptop"
+    },
+    "hash": 8,
+    "limitOrders":10,
+    "limitSuppliers":3,
+    "limitPhieuNhap":3,
+    "limitProducts":5,
+    "limitProductsClient":10,
+    "limitProductRelevant":30,
+    "limitProductTopSale":15,
+    "limitCategories":5,
+    "limitStaff":2,
+    "limitCustomer":2,
+    "limitPermission":2,
+    "MAX":100000000,
+    "crypto_salt":16,
+    "TOKEN_SECRET_ACCESSTOKEN":"17.10.2022.14:19PM.AT.E403",
+    "TOKEN_SECRET_REFRESHTOKEN":"20.20.2022.1:10AM.AT.HOME"
+}

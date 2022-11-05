@@ -6,7 +6,7 @@ const passwordValidator = require('password-validator');
 const validator = require('validator');
 const str2ab = require('string-to-arraybuffer');
 const jwt = require("jsonwebtoken");
-const mdw = require("../mdw/mdw");
+const mdw = require("../mdw/valid.mdw");
 const LINK = require("../util/links.json");
 module.exports = {
     AuthenticateClientRouters:function(app){
