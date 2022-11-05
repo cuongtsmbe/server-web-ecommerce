@@ -43,6 +43,12 @@ module.exports={
 
         return result;
     },
+    //lấy danh sách sản phẩm đã mua theo id  hóa đơn 
+    getproductsInDetail:function(condition){
+        var sql=`select id_sanpham from ${TABLE_CTHD} where ? `;
+        var listOrders= db.load(sql,condition);
+        return listOrders;
+    },
     //Xem danh sách hóa đơn  
     getList: function(condition){
         var args=[condition.trangThai,condition.dateStart,condition.dateEnd,condition.limit,condition.offset];
