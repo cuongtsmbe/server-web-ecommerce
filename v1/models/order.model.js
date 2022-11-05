@@ -33,7 +33,7 @@ module.exports={
         var ListProductDetails=await db.load(`SELECT 
             cthd.id_sanpham as Ma_san_pham,cthd.id_hoadon as Ma_hoa_don,
             cthd.so_luong as So_luong_mua,cthd.Don_gia_khi_mua,
-            ${TABLE}.tong_tien,${TABLE}.ngay_tao,sp.ten_sp as Ten_san_pham,sp.hinh_anh 
+            ${TABLE}.ngay_tao,sp.ten_sp as Ten_san_pham,sp.hinh_anh 
             FROM ${TABLE_CTHD} cthd
             INNER JOIN ${TABLE} ON cthd.id_hoadon=${TABLE}.id
             INNER JOIN ${TABLE_SP} sp ON sp.id=cthd.id_sanpham
