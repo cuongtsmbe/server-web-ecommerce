@@ -31,6 +31,18 @@ module.exports = {
 
         app.post(LINK.CLIENT.CART_ADD_PRODUCT ,async function(req,res,next){
             var productId = req.params.id;
+            
+            var value ={
+                sl:req.params.sl ? req.params.sl : 1
+            };
+
+            if(parseInt(value.sl)<=0){
+                return res.json({
+                    status:204,
+                    message: "so luong phai > 0"
+                });
+            }
+            
             var condition={
                 id:productId
             };
@@ -43,9 +55,12 @@ module.exports = {
                 return false;
             }
             var cart = new cartModel(req.session.cart ? req.session.cart : {});
-            cart.add(product[0], productId);
+            cart.add(product[0], productId,parseInt(value.sl));
             req.session.cart = cart;
-            res.redirect('/cart');
+            res.json({
+                status:200,
+                message: "chuyen den /cart"
+            });
         });
  
         //giảm số lượng sản phẩm trong giỏ hàng theo ID
@@ -66,7 +81,10 @@ module.exports = {
             var cart = new cartModel(req.session.cart ? req.session.cart : {});
             cart.reduce(product[0], productId);
             req.session.cart = cart;
-            res.redirect('/cart');
+            res.json({
+                status:200,
+                message: "chuyen den /cart"
+            });
         });
 
          //xóa sản phẩm theo ID 
@@ -76,7 +94,10 @@ module.exports = {
     
             cart.remove(productId);
             req.session.cart = cart;
-            res.redirect('/cart');
+            res.json({
+                status:200,
+                message: "chuyen den /cart"
+            });
         });
     }
 }

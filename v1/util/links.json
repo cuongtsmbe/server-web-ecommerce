@@ -12,7 +12,7 @@
 
         "CART_GET":"/cart" ,
 
-        "CART_ADD_PRODUCT"   :"/cart/add/:id",
+        "CART_ADD_PRODUCT"   :"/cart/add/:id/:sl",
 
         "CART_REDUCE_PRODUCT"   :"/cart/reduce/:id",
 

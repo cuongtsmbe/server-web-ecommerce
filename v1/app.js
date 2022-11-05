@@ -11,7 +11,11 @@ require('express-async-errors');
 app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3001',
+  methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD','DELETE'],
+  credentials: true
+}));
 
 app.use(session({
   secret: 'banhang',
@@ -23,7 +27,7 @@ app.use(session({
 
 
 //Authorization middleware 
-app.use(auth_mdw.loggedIn);
+//app.use(auth_mdw.loggedIn);
 
 //admin routers
 require("./routers/order.router").orderRouters(app);

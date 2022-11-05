@@ -3,15 +3,15 @@ module.exports = function Cart(cart) {
     this.totalItems = cart.totalItems || 0;
     this.totalPrice = cart.totalPrice || 0;
     //them san pham vao gio hang
-    this.add = function(item, id) {
+    this.add = function(item, id, sl=1) {
         var cartItem = this.items[id];
         if (!cartItem) {
             cartItem = this.items[id] = {item: item, quantity: 0, price: 0};
         }
-        cartItem.quantity++;
+        cartItem.quantity=cartItem.quantity +sl ;
         cartItem.price = cartItem.item.don_gia * cartItem.quantity;
-        this.totalItems++;
-        this.totalPrice += cartItem.item.don_gia;
+        this.totalItems=this.totalItems+sl;
+        this.totalPrice = this.totalPrice+cartItem.item.don_gia * sl;
     };
     //1.giam so luong san pham trong gio hàng
     //2.số lượng sản phẩm =0 thì xóa khỏi giỏ hàng , còn !=0 thì trừ tiền và quantity
