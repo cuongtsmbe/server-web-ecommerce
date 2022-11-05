@@ -23,7 +23,7 @@ module.exports = {
                 ID_KH       :req.user.id,     
                 dateStart   :req.query.startdate,
                 dateEnd     :req.query.enddate,
-                trangThai   :req.query.trangthai,
+                trangThai   :req.query.trangthai ? req.query.trangthai : -1,
                 limit       :config.limitOrders,
                 offset      :(req.query.page-1)*config.limitOrders
             };
