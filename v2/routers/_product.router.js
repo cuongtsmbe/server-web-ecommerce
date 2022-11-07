@@ -3,6 +3,10 @@ const config     = require("../config/default.json");
 const LINK = require("../util/links.json");
 module.exports = {
     productRoutersClient:function(app){
+        app.use((req,res,next)=>{
+            res.locals.redisClientService=app.get("redisClientService");
+            next();
+        });
         app.get(LINK.CLIENT.PRODUCT_GET_LIST                        ,this.setDefault,this.get);
         app.get(LINK.CLIENT.PRODUCT_GET_DETAILS                     ,this.getOneByID);
         app.get(LINK.CLIENT.PRODUCT_GET_LIST_TOPSALE_BY_THELOAI     ,this.getListTopSaleByTheloai);
@@ -73,10 +77,23 @@ module.exports = {
   
     //xem chi tiet mot san pham theo ID 
     getOneByID:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService
         var condition={
             id:req.params.id
         };
-        var detailProduct=await productModel.getOneByID(condition);
+
+        var detailProduct = await redisClientService.jsonGet(`product:${condition.id}`);
+        
+        if(!detailProduct){
+           
+            detailProduct=await productModel.getOneByID(condition);
+            await redisClientService.jsonSet(`product:${condition.id}`,".",JSON.stringify(detailProduct));
+        
+        }else{
+            
+            detailProduct = JSON.parse(detailProduct);
+        }
+       
         res.json({
             status:200,
             data:detailProduct
@@ -84,6 +101,8 @@ module.exports = {
     },
     //lấy sản phẩm bán chạy nhất theo thể loại 
     getListTopSaleByTheloai:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService
+
         var condition={
             idtheloai:Number(req.params.idtheloai),
             limitTopSale:Number(req.params.limit)
@@ -102,7 +121,18 @@ module.exports = {
                 message:`limit < ${config.limitProductTopSale} .`
             });
         }
-        var result= await productModel.getListTopSale(condition);
+
+        var result = await redisClientService.jsonGet(`ListTopSaleByTheLoai`);
+        
+        if(!result){
+           
+            var result= await productModel.getListTopSale(condition);
+            await redisClientService.jsonSet(`ListTopSaleByTheLoai`,".",JSON.stringify(result));
+        
+        }else{
+        
+            result = JSON.parse(result);
+        }        
 
         res.json({
             status:200,
@@ -113,6 +143,8 @@ module.exports = {
     },
     //lấy danh sách sản phẩm có liên quan với id product.
     getListProductRelevant:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var condition={
             idtheloai:Number(req.params.idtheloai),
             limit:Number(req.params.limit),
@@ -132,8 +164,18 @@ module.exports = {
                 message:`limit < ${config.limitProductRelevant} .`
             });
         }
-        var result = await productModel.getListRelevant(condition);
-
+        var result = await redisClientService.jsonGet(`product:Relevant:${condition.IDProduct}`);
+        
+        if(!result){
+           
+            var result = await productModel.getListRelevant(condition);
+            await redisClientService.jsonSet(`product:Relevant:${condition.IDProduct}`,".",JSON.stringify(result));
+        
+        }else{
+        
+            result = JSON.parse(result);
+        }
+       
         res.json({
             status:200,
             total:result.length,
@@ -143,6 +185,8 @@ module.exports = {
     },
     //lấy danh sách sản phẩm bán chạy nhất 
     getListMostTopSale:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService
+
         var condition={
             idtheloai:null,
             limitTopSale:Number(req.params.limit)
@@ -161,7 +205,20 @@ module.exports = {
                 message:`limit < ${config.limitProductTopSale} .`
             });
         }
-        var result= await productModel.getListTopSale(condition);
+       
+
+        var result = await redisClientService.jsonGet(`ListTopSaleProducts`);
+        
+        if(!result){
+           
+            var result= await productModel.getListTopSale(condition);
+            await redisClientService.jsonSet(`ListTopSaleProducts`,".",JSON.stringify(result));
+        
+        }else{
+        
+            result = JSON.parse(result);
+        }        
+
 
         res.json({
             status:200,
