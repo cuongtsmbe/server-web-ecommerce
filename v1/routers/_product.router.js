@@ -71,11 +71,17 @@ module.exports = {
             price_end:      req.query.price_end,
             sort:           req.query.sort
         };
-        var result= await productModel.getListByCondition(condition);
+
+        var [countProducts,result]=await Promise.all([
+            productModel.CountListByCondition(condition),
+            productModel.getListByCondition(condition)
+           ]);
+
         res.json({
             status:200,
-            total:result.length,
-            data:result
+            datalength:result.length,
+            data:result,
+            countProductsNoLimit:countProducts[0]
         })
     },
   

@@ -29,7 +29,37 @@ module.exports={
    getOneByID:function(condition){
         return db.getOneByCondition(TABLE,condition);
    },
+    //đếm danh sách sản phẩm với nhiều điều kiện
+   CountListByCondition:function(condition){
+            var result;
+                condition.tensp     =   `%${condition.tensp}%`;
+                condition.manHinh   =   `%${condition.manHinh}%`;
+                condition.cpu       =   `%${condition.cpu}%`;
+                condition.ram       =   `%${condition.ram}%`;
+                condition.card      =   `%${condition.card}%`;
+                condition.oCung     =   `%${condition.oCung}%`;
 
+            var sql=`select count(*) AS count from ${TABLE} where ten_sp LIKE ? and manHinh LIKE ? and cpu LIKE ? and ram LIKE ? and card LIKE ? and oCung LIKE ? and don_gia BETWEEN ? AND ? `;
+            var args=[condition.tensp,condition.manHinh,condition.cpu,condition.ram,condition.card,condition.oCung,condition.price_start,condition.price_end];
+
+            //condition thuong hieu
+            if(condition.idthuonghieu.length != 0 ){
+                sql = sql.concat(" and ");
+                for(var i=0;i<condition.idthuonghieu.length;i++){
+                    args.push(condition.idthuonghieu[i]);
+                    sql=sql.concat(` id_thuong_hieu=? `);
+                    if(i!=condition.idthuonghieu.length-1){
+                        sql=sql.concat(" OR ")
+                    }
+                }
+            }
+            if(condition.idtheloai!=-1){
+                args.push(condition.idtheloai);
+                sql=sql.concat(` and id_the_loai=? `);
+            }
+            result=db.load(sql,args);
+            return result;
+   },
 
    //lấy danh sách sản phẩm với nhiều điều kiện
    getListByCondition:function(condition){
