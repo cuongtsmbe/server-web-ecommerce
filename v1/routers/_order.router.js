@@ -8,6 +8,7 @@ module.exports = {
         app.get( LINK.CLIENT.ORDER_GET_DETAILS                  ,this.getOrderDetails);
         app.get( LINK.CLIENT.ORDER_LIST_ID_PRODUCT              ,this.getProductInOrderDetails);
         app.post(LINK.CLIENT.ORDER_THANHTOAN                    ,this.ThanhToan);
+        app.put( LINK.CLIENT.ORDER_CHANGE_STATUS                ,this.changeStatusOrder);
     },
     //set default page
     setDefaultPage: function(req,res,next){
@@ -47,7 +48,7 @@ module.exports = {
             data:result
         })
     },
-    
+
     //get danh sach id san pham trong chi tiết đơn hàng 
     getProductInOrderDetails:async function(req,res,next){
         var condition={
@@ -136,6 +137,26 @@ module.exports = {
         //xóa giỏ hàng 
         delete req.session.cart;
 
+        res.json(response);
+    },
+     //cap nhat trang thai don hang
+    changeStatusOrder:async function(req,res,next){
+        var response={
+            status:201,
+            message:""
+        };
+
+        var value={ trang_thai:req.body.Trang_thai  }
+        var condition={ id:req.params.id    }
+        var result=await orderModel.update(condition,value);
+
+        if(result.changedRows==0){
+            response.status=201;
+            response.message="update khong thanh cong";
+        }else{
+            response.status=200;
+            response.message="update thanh cong";
+        }
         res.json(response);
     },
 }
