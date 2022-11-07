@@ -6,6 +6,7 @@ module.exports = {
         app.get( LINK.CLIENT.ORDER_GET_HISTORY                  ,this.setDefaultPage,this.getListOrders);
         app.get( LINK.CLIENT.ORDER_GET_TOTALMONNEY              ,this.getTotalMonneyOrders);
         app.get( LINK.CLIENT.ORDER_GET_DETAILS                  ,this.getOrderDetails);
+        app.get( LINK.CLIENT.ORDER_LIST_ID_PRODUCT              ,this.getProductInOrderDetails);
         app.post(LINK.CLIENT.ORDER_THANHTOAN                    ,this.ThanhToan);
     },
     //set default page
@@ -23,7 +24,7 @@ module.exports = {
                 ID_KH       :req.user.id,     
                 dateStart   :req.query.startdate,
                 dateEnd     :req.query.enddate,
-                trangThai   :req.query.trangthai,
+                trangThai   :req.query.trangthai ? req.query.trangthai : -1,
                 limit       :config.limitOrders,
                 offset      :(req.query.page-1)*config.limitOrders
             };
@@ -46,6 +47,19 @@ module.exports = {
             data:result
         })
     },
+    
+    //get danh sach id san pham trong chi tiết đơn hàng 
+    getProductInOrderDetails:async function(req,res,next){
+        var condition={
+            id_hoadon:req.params.idhoadon
+        }
+        var result=await orderModel.getproductsInDetail(condition);
+        res.json({
+            status:200,
+            data:result
+        })
+    },
+
     //get total monney orders of customer by ID
     getTotalMonneyOrders:async function(req,res,next){
         var condition={
