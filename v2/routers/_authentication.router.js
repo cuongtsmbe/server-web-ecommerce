@@ -19,7 +19,7 @@ module.exports = {
     //1.setting validate password
     //2.validate password
     //3.validate email
-    //4.validate Ten khach hang
+    //4.validate address,dia_chi
     //5.validate username
     //6.validate phone
     validateRegister:function(req,res,next){
@@ -58,11 +58,9 @@ module.exports = {
             return false;
         }
         //4
-        if(0==req.body.ten_kh.trim().length){
-            response.error="ten_kh";
-            response.errorMessage   ="tên không được để trống.";
-            res.json(response);
-            return false;
+        if(req.body.ten_kh || req.body.dia_chi){
+            req.body.ten_kh=" ";
+            req.body.dia_chi=" ";
         }
         //5
         if(0==req.body.username.trim().length){
@@ -142,6 +140,8 @@ module.exports = {
                             user_type:'CUSTOMER',
                             iat: Math.floor(Date.now() / 1000) + (60 * 60),
                         };
+                        payload.id=result.insertId;
+
                         //create token 
                         const AccessToken = jwt.sign(payload, config.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
                         const refreshToken = jwt.sign(payload, config.TOKEN_SECRET_REFRESHTOKEN,{ expiresIn:"30d" });
@@ -158,7 +158,6 @@ module.exports = {
 
                         obj.message=`dang ki thanh cong . insertId: ${result.insertId}`;
                         
-                        payload.id=result.insertId;
 
                         obj.user.AccessToken=AccessToken;
                         obj.user.refreshToken=refreshToken;
