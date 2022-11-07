@@ -12,7 +12,7 @@
 
         "CART_GET":"/cart" ,
 
-        "CART_ADD_PRODUCT"   :"/cart/add/:id",
+        "CART_ADD_PRODUCT"   :"/cart/add/:id/:sl",
 
         "CART_REDUCE_PRODUCT"   :"/cart/reduce/:id",
 
@@ -31,6 +31,8 @@
         "ORDER_GET_TOTALMONNEY"  : "/history/order/customer/totalMonney",
 
         "ORDER_GET_DETAILS"  : "/history/order/details/:id",
+
+        "ORDER_LIST_ID_PRODUCT" : "/order/products/:idhoadon",
 
         "ORDER_THANHTOAN"   : "/order/thanhtoan",
 
