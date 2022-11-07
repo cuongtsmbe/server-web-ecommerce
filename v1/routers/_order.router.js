@@ -148,6 +148,16 @@ module.exports = {
 
         var value={ trang_thai:req.body.Trang_thai  }
         var condition={ id:req.params.id    }
+
+        var details = await orderModel.getOrderByID(condition);
+
+        if(details.length==0 || details[0].trang_thai!=1){
+            return res.json({
+                status:202,
+                message:"ID hoa don khong dung OR trang thai don hang khong the Update."
+            });
+        }
+
         var result=await orderModel.update(condition,value);
 
         if(result.changedRows==0){
