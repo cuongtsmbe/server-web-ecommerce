@@ -21,7 +21,7 @@ module.exports = {
             req.query.idtheloai=-1;
         }
         if(req.query.idthuonghieu==undefined){
-            req.query.idthuonghieu=-1;
+            req.query.idthuonghieu=[];
         }
         if(req.query.manHinh==undefined){
             req.query.manHinh='';
@@ -44,6 +44,13 @@ module.exports = {
         if(req.query.price_end==undefined){
             req.query.price_end=config.MAX;
         }
+        //-1 : không sort
+        // 0 : sort bán chay
+        // 1 : giá cao -> thấp 
+        // 2 : giá thấp -> cao
+        if(req.query.sort==undefined){
+            req.query.sort=-1;
+        }
         
         next();
     },
@@ -61,7 +68,8 @@ module.exports = {
             card:           req.query.card,
             oCung:          req.query.oCung,
             price_start:    req.query.price_start,
-            price_end:      req.query.price_end
+            price_end:      req.query.price_end,
+            sort:           req.query.sort
         };
         var result= await productModel.getListByCondition(condition);
         res.json({
