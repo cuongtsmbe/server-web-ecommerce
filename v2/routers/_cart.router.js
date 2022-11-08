@@ -7,7 +7,8 @@ module.exports = {
     CartRoutersClient:function(app){
         //lay danh sach san pham co trong cart
          app.get(LINK.CLIENT.CART_GET   ,async function(req,res,next){
-            var redisClientService=app.get("redisClientService");
+            var redisClientService=res.locals.redisClientService;
+            
             var cartredis = await redisClientService.jsonGet(`cart:${req.user.id}`);
 
             if (!cartredis) {
@@ -34,7 +35,7 @@ module.exports = {
         //them vao gio hang 
 
         app.post(LINK.CLIENT.CART_ADD_PRODUCT ,async function(req,res,next){
-            var redisClientService=app.get("redisClientService");
+            var redisClientService=res.locals.redisClientService;
 
             var productId = req.params.id;
             
@@ -77,7 +78,7 @@ module.exports = {
  
         //giảm số lượng sản phẩm trong giỏ hàng theo ID
         app.post(LINK.CLIENT.CART_REDUCE_PRODUCT,async function(req,res,next){
-            var redisClientService=app.get("redisClientService");
+            var redisClientService=res.locals.redisClientService;
 
             var productId = req.params.id;
             var condition={
@@ -109,7 +110,7 @@ module.exports = {
 
          //xóa sản phẩm theo ID 
         app.delete(LINK.CLIENT.CART_REMOVE_ITEM_PRODUCT,async function(req,res,next){
-            var redisClientService=app.get("redisClientService");
+            var redisClientService=res.locals.redisClientService;
 
             var productId = req.params.id;
 
