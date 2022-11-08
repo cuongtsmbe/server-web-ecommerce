@@ -63,17 +63,34 @@ module.exports = {
 
     //get chi tiet hoa don : theo ID hoa don
     getOrderDetails:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var condition={
             id:req.params.id
         }
-        var result=await orderModel.getDetails(condition);
+
+        var orderdetails = await redisClientService.jsonGet(`getOrderDetails:${condition.id}`);
+
+        if(!orderdetails){
+            
+            orderdetails= await orderModel.getDetails(condition);
+            await redisClientService.jsonSet(`getOrderDetails:${condition.id}`,".",JSON.stringify(orderdetails));
+        
+        }else{
+            
+            orderdetails = JSON.parse(orderdetails);
+
+        }
+
         res.json({
             status:200,
-            data:result
+            data:orderdetails
         })
     },
     //cap nhat trang thai don hang
     updateStatus:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var response={
             status:201,
             message:""
@@ -89,6 +106,8 @@ module.exports = {
         }else{
             response.status=200;
             response.message="update thanh cong";
+            //delete in redis 
+            await redisClientService.del(`getOrderDetails:${condition.id}`);
         }
         res.json(response);
     },
