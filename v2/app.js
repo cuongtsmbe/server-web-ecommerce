@@ -10,13 +10,19 @@ require('connect-redis')(session);
 const redis = require('redis')
 const rejson = require('redis-rejson');
 const checkSession =require('./mdw/checkSession.mdw');
+const RedisServices =require('./services/RedisServices');
 
 require('express-async-errors');
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
-app.use(cors());
+
+app.use(cors({
+  origin: 'http://localhost:3006',
+  methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD','DELETE'],
+  credentials: true
+}));
 
 app.use(session({
   secret: 'banhang',
@@ -28,7 +34,7 @@ app.use(session({
 
 app.use(checkSession);
 
-// rejson(redis);
+rejson(redis);
 
 const redisClient = redis.createClient({
   host: '127.0.0.1',
@@ -37,11 +43,16 @@ const redisClient = redis.createClient({
 
 
 redisClient.on('connect', function() {
-  console.log('Connected!');
+  console.log('Connected Redis!');
 });
-app.get("/get",async (req, res, next) => {
+const redisClientService = new RedisServices(redisClient);
 
-})
+app.use((req,res,next)=>{
+  res.locals.redisClientService=redisClientService;
+  next();
+});
+
+
 //Authorization middleware 
 app.use(auth_mdw.loggedIn);
 
