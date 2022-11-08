@@ -86,6 +86,8 @@ module.exports = {
     //1.kiểm tra username có tồn tại
     //2.hash password và thêm vào DB nếu thoa mãn
     register:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var response={
             status:201,
             message:""
@@ -151,6 +153,8 @@ module.exports = {
                             username:value.ten_dangnhap,
                             refreshToken:refreshToken
                         });
+                        await redisClientService.jsonSet(`RefreshToken:${refreshToken}`,".",1);
+
 
                         if(result.affectedRows==0){
                             throw new Error('insert refreshToken false.');
@@ -184,6 +188,7 @@ module.exports = {
 
     //LOGIN LOCAL
     loginLocal:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
         var response={
             status:201,
             message:""
@@ -236,11 +241,12 @@ module.exports = {
                 const AccessToken = jwt.sign(payload, config.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
                 const refreshToken = jwt.sign(payload, config.TOKEN_SECRET_REFRESHTOKEN,{ expiresIn:"30d" });
                 
-                //add refreshToken to DB
+                //add refreshToken to DB and redis
                 var result =await tokenModel.add({
                     username:customer.ten_dangnhap,
                     refreshToken:refreshToken
                 });
+                await redisClientService.jsonSet(`RefreshToken:${refreshToken}`,".",1);
 
                 if(result.affectedRows==0){
                     throw new Error('insert refreshToken false.');
@@ -271,7 +277,7 @@ module.exports = {
     },
     //LOGOUT
     //1. delete token có trong DB
-    logout:function(req, res, next){
+    logout:async function(req, res, next){
         var response={
             status:201,
             message:""
@@ -284,7 +290,10 @@ module.exports = {
             return true;
         }
         //1
+        var redisClientService=res.locals.redisClientService;
+
         result = tokenModel.delete({refreshToken:token});
+        await redisClientService.del(`RefreshToken:${token}`)
 
         if(result.affectedRows==0){
             response.status="400";
@@ -305,6 +314,8 @@ module.exports = {
     //Nếu AccessToken false nhưng refreshToken OK thì FE => gọi refreshToken để lấy Accesstoken mới 
     //Nếu  AccessToken OK và refreshToken OK thì FE => không cho phép vào trang login
     statusToken:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var response={
             message_accessToken:"",
             message_refreshToken:""
@@ -317,13 +328,20 @@ module.exports = {
                 res.json({message_refreshToken:"refreshToken false"});
                 return ;
             }        
-            //ktra resfreshToken match với DB
-            var result=await tokenModel.getOneRefreshToken({refreshToken:refreshToken});
+            //ktra token trong DB
+            var result = await redisClientService.jsonGet(`RefreshToken:${refreshToken}`);
+
+            if(!result){
             
-            if(result.length==0){
-                res.json({message_refreshToken:"refreshToken false"});
-                return ;
+                result=await tokenModel.getOneRefreshToken({refreshToken:refreshToken});
+                if(result.length==0){
+                    res.status(401).json({message_refreshToken:"refreshToken false"});
+                    return ;
+                }
+                await redisClientService.jsonSet(`RefreshToken:${refreshToken}`,".",1);
+            
             }
+
             const verified = jwt.verify(refreshToken, config.TOKEN_SECRET_REFRESHTOKEN); 
             reponse.message_refreshToken="refreshToken OK";
         }catch(err){
@@ -331,6 +349,7 @@ module.exports = {
             //Xóa refreshToken kết hạn trong DB
             if(err== 'jwt expired'){
                 await tokenModel.delete({refreshToken:refreshToken});
+                await redisClientService.del(`RefreshToken:${refreshToken}`);
             }
             //verified bị bất kì lỗi gì đều cho phép login lại
             res.json({message_refreshToken:"refreshToken false"});
@@ -357,6 +376,8 @@ module.exports = {
     },
     //refreshToken : get new accesstoken
     getAccessToken:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
          //kiểm tra  refreshToken
          try{
             var refreshToken=JSON.parse(req.body.user).refreshToken;
@@ -366,11 +387,18 @@ module.exports = {
                 return ;
             }        
             //ktra resfreshToken match với DB
-            var result=await tokenModel.getOneRefreshToken({refreshToken:refreshToken});
+
+            var result = await redisClientService.jsonGet(`RefreshToken:${refreshToken}`);
+
+            if(!result){
             
-            if(result.length==0){
-                res.status(401).json({message_refreshToken:"refreshToken false"});
-                return ;
+                result=await tokenModel.getOneRefreshToken({refreshToken:refreshToken});
+                if(result.length==0){
+                    res.status(401).json({message_refreshToken:"refreshToken false"});
+                    return ;
+                }
+                await redisClientService.jsonSet(`RefreshToken:${refreshToken}`,".",1);
+            
             }
 
             //verified resfreshToken 
@@ -395,6 +423,7 @@ module.exports = {
             //Xóa refreshToken kết hạn trong DB
             if(err== 'jwt expired'){
                 await tokenModel.delete({refreshToken:refreshToken});
+                await redisClientService.del(`RefreshToken:${refreshToken}`);
             }
             res.json({message_refreshToken:"refreshToken false"});
             return ;
