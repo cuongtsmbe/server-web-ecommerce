@@ -81,7 +81,9 @@ module.exports = {
             status:200,
             datalength:result.length,
             data:result,
-            countProductsNoLimit:countProducts[0]
+            countProductsNoLimit:countProducts[0],
+            PageCurrent:req.query.page,
+            TotalPage:Math.ceil(1.0*countProducts[0].count/condition.limit)
         })
     },
   
