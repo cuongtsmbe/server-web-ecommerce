@@ -89,6 +89,8 @@ module.exports = {
     },
     //update thong tin san pham
     update:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var response={
             status:201,
             message:""
@@ -129,6 +131,8 @@ module.exports = {
                 var result=await productModel.update(condition,value);
             if(result.changedRows!=0){
                 response.message=`Edit san pham thanh cong .`;
+                //delete detail product in redis
+                await redisClientService.del(`product:${condition.id}`);
             }else{
                 response.message=`Edit san pham khong thanh cong . failed`;
             }
@@ -139,6 +143,8 @@ module.exports = {
 
     //delete san pham
     delete:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var response={
             status:201,
             message:""
@@ -157,15 +163,32 @@ module.exports = {
         }else{
             response.status=201;
             response.message="Xoa san pham thanh cong";
+            //delete detail product in redis
+            await redisClientService.del(`product:${condition.id}`);
+       
         }
         res.json(response);
     },
     //xem chi tiet mot san pham theo ID 
     getOneByID:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService
+
         var condition={
             id:req.params.id
         };
-        var detailProduct=await productModel.getOneByID(condition);
+       
+        var detailProduct = await redisClientService.jsonGet(`product:${condition.id}`);
+        
+        if(!detailProduct){
+           
+            detailProduct=await productModel.getOneByID(condition);
+            await redisClientService.jsonSet(`product:${condition.id}`,".",JSON.stringify(detailProduct));
+        
+        }else{
+            
+            detailProduct = JSON.parse(detailProduct);
+        }
+
         res.json({
             status:200,
             data:detailProduct
