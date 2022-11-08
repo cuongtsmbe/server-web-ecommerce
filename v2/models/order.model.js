@@ -125,6 +125,12 @@ module.exports={
     //chỉ xóa khi cố lỗi khi tạo chi tiết đơn hàng
     deleteHDByID:function(condition){
         return db.delete(TABLE,condition);
+    },
+    //lay order theo id
+    getOrderByID:function(condition){
+        var sql= `SELECT * FROM ${TABLE} WHERE ?`;
+        var result = db.load(sql,condition);
+        return result;
     }
 
 }

@@ -8,6 +8,7 @@ module.exports = {
         app.get( LINK.CLIENT.ORDER_GET_DETAILS                  ,this.getOrderDetails);
         app.get( LINK.CLIENT.ORDER_LIST_ID_PRODUCT              ,this.getProductInOrderDetails);
         app.post(LINK.CLIENT.ORDER_THANHTOAN                    ,this.ThanhToan);
+        app.put( LINK.CLIENT.ORDER_CHANGE_STATUS                ,this.changeStatusOrder);
     },
     //set default page
     setDefaultPage: function(req,res,next){
@@ -38,22 +39,52 @@ module.exports = {
 
     //get chi tiet hoa don : theo ID hoa don
     getOrderDetails:async function(req,res,next){
+
+        var redisClientService=res.locals.redisClientService;
+
         var condition={
             id:req.params.id
         }
-        var result=await orderModel.getDetails(condition);
+        var orderdetails = await redisClientService.jsonGet(`getOrderDetails:${condition.id}`);
+
+        if(!orderdetails){
+            
+            orderdetails= await orderModel.getDetails(condition);
+            await redisClientService.jsonSet(`getOrderDetails:${condition.id}`,".",JSON.stringify(orderdetails));
+        
+        }else{
+            
+            orderdetails = JSON.parse(orderdetails);
+
+        }
         res.json({
             status:200,
-            data:result
+            data:orderdetails
         })
     },
-    
+
     //get danh sach id san pham trong chi tiết đơn hàng 
     getProductInOrderDetails:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var condition={
             id_hoadon:req.params.idhoadon
         }
-        var result=await orderModel.getproductsInDetail(condition);
+
+        var result = await redisClientService.jsonGet(`getProductInOrderDetails:${condition.id_hoadon}`);
+        
+        if(!result){
+           
+            result=await orderModel.getproductsInDetail(condition);
+            await redisClientService.jsonSet(`getProductInOrderDetails:${condition.id_hoadon}`,".",JSON.stringify(result));
+        
+        }else{
+       
+            result = JSON.parse(result);
+        
+        }
+        
+       
         res.json({
             status:200,
             data:result
@@ -81,20 +112,32 @@ module.exports = {
     //2.them hoa don 
     //3.them chi tiet hoa don
     ThanhToan:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+        //get cart in redis
+        var cartredis = await redisClientService.jsonGet(`cart:${req.user.id}`);
 
-        if(req.session.cart===undefined || req.session.cart.totalItems==0){
+        if(!cartredis){
             return res.json({
                 status:400,
                 message:"Cart empty."
             });
+        }else{
+            cartredis=JSON.parse(cartredis);
+            if(cartredis.totalItems==0){
+                return res.json({
+                    status:400,
+                    message:"Cart empty."
+                }); 
+            }
         }
+
         var response={
             status:201,
             message:""
         };
         //1
         var productsInCart = [];
-        Object.entries(req.session.cart.items).forEach(entry => {
+        Object.entries(cartredis.items).forEach(entry => {
             const [key, value] = entry;
             productsInCart.push({
                 id_san_pham: key,
@@ -108,7 +151,7 @@ module.exports = {
         var valueHD={
             id:                     Date.now(),//id order by milliseconds 
             id_khachhang:           req.user.id,
-            tong_tien:              req.session.cart.totalPrice,
+            tong_tien:              cartredis.totalPrice,
             id_nhanvien:            null,
             trang_thai:             1, //trang thái đơn hàng vừa được tạo    
             phuong_thuc_thanh_toan: req.body.phuong_thuc_thanh_toan===undefined ? 1 : req.body.phuong_thuc_thanh_toan
@@ -133,9 +176,44 @@ module.exports = {
                 response.message="Create order success.";
             }
         }
-        //xóa giỏ hàng 
-        delete req.session.cart;
 
+        //xóa giỏ hàng 
+        await redisClientService.del(`cart:${req.user.id}`);
+
+        res.json(response);
+    },
+     //cap nhat trang thai don hang (hủy đơn , mua lại ,...)
+    changeStatusOrder:async function(req,res,next){
+        
+        var response={
+            status:201,
+            message:""
+        };
+
+        var value={ trang_thai:req.body.Trang_thai  }
+        var condition={ id:req.params.id    }
+
+        var details = await orderModel.getOrderByID(condition);
+
+        if(details.length==0 || details[0].trang_thai!=1){
+            return res.json({
+                status:202,
+                message:"ID hoa don khong dung OR trang thai don hang khong the Update."
+            });
+        }
+
+        var result=await orderModel.update(condition,value);
+
+        if(result.changedRows==0){
+            response.status=201;
+            response.message="update khong thanh cong";
+        }else{
+            response.status=200;
+            response.message="update thanh cong";
+            //delete redis getOrderDetails by this ID 
+            var redisClientService=res.locals.redisClientService;
+            await redisClientService.del(`getOrderDetails:${condition.id}`);
+        }
         res.json(response);
     },
 }
