@@ -92,6 +92,8 @@ module.exports = {
     },
     //delete permission
     delete:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var response={
             status:201,
             message:""
@@ -107,6 +109,9 @@ module.exports = {
         }else{
             response.status=200;
             response.message="delete thanh cong";
+            //delete in redis
+            await redisClientService.del(`Permission:ListIDCateByIDPermission:${condition.id}`);
+
         }
         res.json(response);
     },
@@ -162,6 +167,8 @@ module.exports = {
     },
     //xoa tat ca danh muc ma id_permission quan ly 
     deleteDanhMuc:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var response={
             status:201,
             message:""
@@ -169,6 +176,7 @@ module.exports = {
         var condition={
             id_quyen:req.params.id
         };
+
         var result=await permissionModel.deleteItemByIDPermission(condition);
         if(result.affectedRows==0){
             response.status=500;
@@ -177,6 +185,9 @@ module.exports = {
         }else{
             response.status=200;
             response.message="delete thanh cong";
+             //delete in redis
+             await redisClientService.del(`Permission:ListIDCateByIDPermission:${condition.id_quyen}`);
+
         }
         res.json(response);
     },
@@ -185,6 +196,8 @@ module.exports = {
     //2.xoa danh muc quan ly cũ
     //3.add danh sach danh muc quan ly mới 
     updateDanhMuc:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var response={
             status:201,
             message:""
@@ -204,8 +217,12 @@ module.exports = {
                 ListIDDanhMuc:arrIdDanhMuc
             };
             var resultAdd=await permissionModel.addForPermission(value);
+            
             if(resultAdd.affectedRows!=0){
                 response.message=`Update thanh cong .`;
+                 //delete in redis
+                await redisClientService.del(`Permission:ListIDCateByIDPermission:${condition.id_quyen}`);
+
             }else{
                 response.message=`Update khong thanh cong . failed`;
             }

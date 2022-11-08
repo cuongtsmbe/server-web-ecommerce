@@ -62,7 +62,21 @@ module.exports={
                 var condition={
                     id:verified.user_permission
                 };
-                var ListIDcategory=await permissionModel.getIDDanhMucByIDquyen(condition);
+                var redisClientService=res.locals.redisClientService;
+
+                var ListIDcategory = await redisClientService.jsonGet(`Permission:ListIDCateByIDPermission:${condition.id}`);
+
+                if(!ListIDcategory){
+                
+                    ListIDcategory = await permissionModel.getIDDanhMucByIDquyen(condition);
+                    await redisClientService.jsonSet(`Permission:ListIDCateByIDPermission:${condition.id}`,".",JSON.stringify(ListIDcategory));
+                
+                }else{
+
+                    ListIDcategory = JSON.parse(ListIDcategory);
+                    
+                }   
+
                 //Gắn ID danh muc đúng với trên DB
                 var IDDanhMuc=0;
                 if(req_url.includes("/admin/order") ){
