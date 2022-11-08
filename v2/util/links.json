@@ -36,6 +36,8 @@
 
         "ORDER_THANHTOAN"   : "/order/thanhtoan",
 
+        "ORDER_CHANGE_STATUS" : "/order/change/:id",
+
         "PRODUCT_GET_LIST"  : "/product/list",
 
         "PRODUCT_GET_DETAILS"  : "/product/details/:id",
