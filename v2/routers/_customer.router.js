@@ -11,15 +11,30 @@ module.exports = {
     },
      //get thong tin khach hang theo ID
      getOneByID:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
         var condition={
             id: req.user.id
         };
-        var customer=await customerModel.getOne(condition);
-        delete customer[0].mat_khau;
-        delete customer[0].salt;
+        var result = await redisClientService.jsonGet(`ProfileCustomer:${condition.id}`);
+
+        if(!result){
+           
+            result=await customerModel.getOne(condition);
+            delete result[0].mat_khau;
+            delete result[0].salt;
+
+            await redisClientService.jsonSet(`ProfileCustomer:${condition.id}`,".",JSON.stringify(result));
+        
+        }else{
+
+            result = JSON.parse(result);
+            
+        }      
+       
+       
         res.status(200).json({
             status:200,
-            data:customer
+            data:result
         });
     },
     //kiem tra du lieu them vao khong duoc empty
@@ -45,6 +60,7 @@ module.exports = {
     },
      //edit thong tin khach hang
      update:async function(req,res,next){
+
         var response={
             status:201,
             message:""
@@ -66,6 +82,10 @@ module.exports = {
         }else{
             response.status=200;
             response.message="update thong tin thanh cong";  
+            
+            //delete in redis
+            var redisClientService=res.locals.redisClientService;
+            await redisClientService.del(`ProfileCustomer:${condition.id}`);
         }
         res.json(response);
     },
