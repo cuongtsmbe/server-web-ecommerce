@@ -134,12 +134,12 @@ module.exports = {
             });
         }
 
-        var result = await redisClientService.jsonGet(`ListTopSaleByTheLoai`);
+        var result = await redisClientService.jsonGet(`ListTopSaleByTheLoai:${condition.idtheloai}`);
         
         if(!result){
            
             var result= await productModel.getListTopSale(condition);
-            await redisClientService.jsonSet(`ListTopSaleByTheLoai`,".",JSON.stringify(result));
+            await redisClientService.jsonSet(`ListTopSaleByTheLoai:${condition.idtheloai}`,".",JSON.stringify(result));
         
         }else{
         

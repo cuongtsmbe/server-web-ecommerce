@@ -130,9 +130,29 @@ module.exports = {
         }else{
                 var result=await productModel.update(condition,value);
             if(result.changedRows!=0){
+                
                 response.message=`Edit san pham thanh cong .`;
-                //delete detail product in redis
-                await redisClientService.del(`product:${condition.id}`);
+                
+                var ProductRedis = await redisClientService.jsonGet(`product:${condition.id}`);
+                if(!ProductRedis){
+                    //delete relevant product in redis
+                    await redisClientService.del(`product:Relevant:${condition.id}`);
+    
+                }else{
+                    ProductRedis =JSON.parse(ProductRedis);
+                    //IF update id_the_loai
+                    if(ProductRedis[0].id_the_loai!=value.id_the_loai){
+
+                        //delete product detail and relevant product in redis
+                        await redisClientService.del(`product:${condition.id}`);
+                        await redisClientService.del(`product:Relevant:${condition.id}`);
+    
+                    }
+                }
+                    
+               
+
+                
             }else{
                 response.message=`Edit san pham khong thanh cong . failed`;
             }
