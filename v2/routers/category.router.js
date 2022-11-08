@@ -33,6 +33,8 @@ module.exports = {
     },
     //them the loai 
     add:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var response={
             status:201,
             message:""
@@ -46,6 +48,8 @@ module.exports = {
         };
         var result=await categoryModel.add(value);
         if(result.affectedRows!=0){
+            //xóa data old in redis 
+            await redisClientService.del(`getAllCategory`);   
             response.message=`Them the loai thanh cong . insertId: ${result.insertId}`;
         }else{
             response.message=`Them the loai khong thanh cong . failed`;
@@ -55,6 +59,8 @@ module.exports = {
     },
     //edit ten the loai
     update:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var response={
             status:201,
             message:""
@@ -71,12 +77,15 @@ module.exports = {
             response.message="update khong thanh cong";      
         }else{
             response.status=200;
-            response.message="update thanh cong";  
+            response.message="update thanh cong"; 
+             //xóa data old in redis 
+             await redisClientService.del(`getAllCategory`);  
         }
         res.json(response);
     },
     //delete the loai
     delete:async function(req,res,next){
+            var redisClientService=res.locals.redisClientService;
             var response={
                 status:201,
                 message:""
@@ -92,6 +101,8 @@ module.exports = {
             }else{
                 response.status=200;
                 response.message="delete thanh cong";
+                 //xóa data old in redis 
+                await redisClientService.del(`getAllCategory`); 
             }
             res.json(response);
     }

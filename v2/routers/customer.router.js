@@ -124,19 +124,36 @@ module.exports = {
     },
     //get thong tin khach hang theo ID
     getOneByID:async function(req,res,next){
-            var condition={
-                id:req.params.id
-            };
-            var customer=await customerModel.getOne(condition);
-            delete customer[0].mat_khau;
-            delete customer[0].salt;
-            res.json({
-                status:200,
-                data:customer
-            });
+        var redisClientService=res.locals.redisClientService;
+        
+        var condition={
+            id:req.params.id
+        };
+
+        var result = await redisClientService.jsonGet(`ProfileCustomer:${condition.id}`);
+
+        if(!result){
+           
+            result=await customerModel.getOne(condition);
+            delete result[0].mat_khau;
+            delete result[0].salt;
+
+            await redisClientService.jsonSet(`ProfileCustomer:${condition.id}`,".",JSON.stringify(result));
+        
+        }else{
+
+            result = JSON.parse(result);
+            
+        }    
+        res.json({
+            status:200,
+            data:result
+        });
     },
     //edit thong tin khach hang
     update:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var response={
             status:201,
             message:""
@@ -158,13 +175,18 @@ module.exports = {
             response.status=201;
             response.message="update khong thanh cong";      
         }else{
+
             response.status=200;
             response.message="update thanh cong";  
+            await redisClientService.del(`ProfileCustomer:${condition.id}`);
+
         }
         res.json(response);
     },
-    //delete nhan vien theo ID
+    //delete customer theo ID
     delete:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var response={
             status:201,
             message:""
@@ -178,8 +200,11 @@ module.exports = {
             response.message="delete khong thanh cong";
             
         }else{
+
             response.status=200;
             response.message="delete thanh cong";
+            await redisClientService.del(`ProfileCustomer:${condition.id}`);
+
         }
         res.json(response);
     }
