@@ -65,15 +65,23 @@ module.exports={
    getListByCondition:function(condition){
         var result;
             condition.tensp     =   `%${condition.tensp}%`;
-            condition.manHinh   =   `%${condition.manHinh}%`;
             condition.cpu       =   `%${condition.cpu}%`;
             condition.ram       =   `%${condition.ram}%`;
             condition.card      =   `%${condition.card}%`;
             condition.oCung     =   `%${condition.oCung}%`;
-      
-        var sql=`select * from ${TABLE} where ten_sp LIKE ? and manHinh LIKE ? and cpu LIKE ? and ram LIKE ? and card LIKE ? and oCung LIKE ? and don_gia BETWEEN ? AND ? `;
-        var args=[condition.tensp,condition.manHinh,condition.cpu,condition.ram,condition.card,condition.oCung,condition.price_start,condition.price_end];
+        var sqlManhinh="";
+        for(var i=0;i<condition.manHinh.length;i++){
+            sqlManhinh=sqlManhinh.concat(" and manHinh LIKE ? ");
+        }
+        var sql=`select * from ${TABLE} where ten_sp LIKE ?`
+        sql=sql.concat(sqlManhinh);
+        sql=sql.concat(` and cpu LIKE ? and ram LIKE ? and card LIKE ? and oCung LIKE ? and don_gia BETWEEN ? AND ? `);
         
+        var args=[condition.tensp,condition.cpu,condition.ram,condition.card,condition.oCung,condition.price_start,condition.price_end];
+        
+        for(var i=0;i<condition.manHinh.length;i++){
+            args.splice(1,0,condition.manHinh[i]);
+        }
         //condition thuong hieu
         if(condition.idthuonghieu.length != 0 ){
             sql = sql.concat(" and ");

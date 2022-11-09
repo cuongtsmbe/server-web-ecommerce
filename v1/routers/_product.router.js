@@ -24,7 +24,7 @@ module.exports = {
             req.query.idthuonghieu=[];
         }
         if(req.query.manHinh==undefined){
-            req.query.manHinh='';
+            req.query.manHinh=[];
         }
         if(req.query.cpu==undefined){
             req.query.cpu='';
