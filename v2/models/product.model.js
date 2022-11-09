@@ -141,7 +141,8 @@ module.exports={
    //action: INS,DES
    //1.tăng số lượng sản phẩm trong kho
    //2.tăng số lượng bán , giảm số lượng tồn kho (create order)
-   updateSoluong:async function(value,action){
+   updateSoluong:async function(value,action,redisClientService=null){
+
     //get list product from DB
     var sql_get='';
     sql_get=`select * from ${TABLE} where `;
@@ -196,14 +197,31 @@ module.exports={
     var connection = mysql.createConnection(config.mysql);
         connection.connect();
     var sql_update=``;
-
-    for (var i = 0; i <result_get.length; i++) {
+    
+    for (var  i = 0; i <result_get.length; i++) {
         sql_update=`UPDATE ${TABLE} SET so_luong=${result_get[i].so_luong},sl_da_ban=${result_get[i].sl_da_ban} where sanpham.id=${result_get[i].id} ; `;
+        try{
         connection.query(sql_update, function(error, results, fields) {
                 if (error) {
-                    console.log(error); 
+                    throw error;
+                    return ; 
                 };
+     
         });
+
+        //update number product in redis
+        var detailProduct = await redisClientService.jsonGet(`product:${result_get[i].id}`);
+        
+        if(detailProduct){
+            detailProduct = JSON.parse(detailProduct);
+            detailProduct[0].so_luong=result_get[i].so_luong;
+            detailProduct[0].sl_da_ban=result_get[i].sl_da_ban;
+            await redisClientService.jsonSet(`product:${result_get[i].id}`,".",JSON.stringify(detailProduct));
+        }
+
+        }catch(err){
+            console.log(`Error update so luong : ${err}`);
+        }
     }
     connection.end();
 
