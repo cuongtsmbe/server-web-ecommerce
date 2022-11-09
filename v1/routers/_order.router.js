@@ -1,5 +1,6 @@
 const config     = require("../config/default.json");
 const orderModel = require("../models/order.model");
+const productModel = require("../models/product.model");
 const LINK = require("../util/links.json");
 module.exports = {
     orderRoutersClient:function(app){
@@ -127,15 +128,34 @@ module.exports = {
                 id_hoadon:              valueHD.id       
             };
             var resultCreateDetailsOrder=await orderModel.addOrderDetails(valueChiTiet);
-            if(resultCreateDetailsOrder.affectedRows==0){
+            // length == 0 error sql thì load return []
+            // affectedRows khi đã chạy vô insert thành công 
+
+            if(resultCreateDetailsOrder.length==0 || resultCreateDetailsOrder.affectedRows==0){
+                //xóa đơn hàng fail
+                await orderModel.deleteHDByID({id:valueChiTiet.id_hoadon});
+                
                 response.status=500;
                 response.message="Tao don hang khong thanh cong.";
             }else{
+                //giảm số lượng sản phẩm trong kho
+                var orderChiTiet={
+                    Danh_sach_san_pham:     valueChiTiet.Danh_sach_san_pham      
+                };
+                var resultUpdate= await productModel.updateSoluong(orderChiTiet,'DES');
+                //có 1 sản phẩm sai ID 
+                if(404==resultUpdate.status){
+                    return res.json(resultUpdate);
+                }
                 response.message="Create order success.";
+                
+                //xóa giỏ hàng 
+                delete req.session.cart;  
+
             }
+
         }
-        //xóa giỏ hàng 
-        delete req.session.cart;
+        
 
         res.json(response);
     },
