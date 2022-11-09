@@ -184,7 +184,7 @@ module.exports = {
                 var orderChiTiet={
                     Danh_sach_san_pham:     valueChiTiet.Danh_sach_san_pham      
                 };
-                var resultUpdate= await productModel.updateSoluong(orderChiTiet,'DES');
+                var resultUpdate= await productModel.updateSoluong(orderChiTiet,'DES',redisClientService);
                 //có 1 sản phẩm sai ID 
                 if(404==resultUpdate.status){
                     return res.json(resultUpdate);
@@ -192,7 +192,7 @@ module.exports = {
                 response.message="Create order success.";  
                 //xóa giỏ hàng 
                 await redisClientService.del(`cart:${req.user.id}`);
-                
+
             }
         }
 

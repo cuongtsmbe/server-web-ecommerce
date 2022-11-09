@@ -142,6 +142,8 @@ module.exports = {
     //2.them hoa don 
     //3.them chi tiet hoa don
     addNewOrder:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var response={
             status:201,
             message:""
@@ -182,7 +184,7 @@ module.exports = {
                 var valueChiTiet={
                     Danh_sach_san_pham:     arrProduct      
                 };
-                var resultUpdate= await productModel.updateSoluong(valueChiTiet,'DES');
+                var resultUpdate= await productModel.updateSoluong(valueChiTiet,'DES',redisClientService);
                 //có 1 sản phẩm sai ID 
                 if(404==resultUpdate.status){
                     return res.json(resultUpdate);

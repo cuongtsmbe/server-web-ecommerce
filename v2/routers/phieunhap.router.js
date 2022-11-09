@@ -135,6 +135,8 @@ module.exports = {
     //2 add to table phieunhap
     //3 add to ctphieunhap
     addPhieuNhap:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var response={
             status:201,
             message:""
@@ -178,7 +180,7 @@ module.exports = {
                 var valueChiTiet={
                     Danh_sach_san_pham:     arrProduct      
                 };
-                var resultUpdate= await productModel.updateSoluong(valueChiTiet,'INS');
+                var resultUpdate= await productModel.updateSoluong(valueChiTiet,'INS',redisClientService);
                 //có 1 sản phẩm sai ID 
                 if(404==resultUpdate.status){
                     return res.json(resultUpdate);
