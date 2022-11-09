@@ -80,7 +80,7 @@ module.exports={
         var args=[condition.tensp,condition.cpu,condition.ram,condition.card,condition.oCung,condition.price_start,condition.price_end];
         
         for(var i=0;i<condition.manHinh.length;i++){
-            args.splice(1,0,condition.manHinh[i]);
+            args.splice(1,0,`%${condition.manHinh[i]}%`);
         }
         //condition thuong hieu
         if(condition.idthuonghieu.length != 0 ){
