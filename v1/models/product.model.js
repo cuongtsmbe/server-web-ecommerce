@@ -31,34 +31,64 @@ module.exports={
    },
     //đếm danh sách sản phẩm với nhiều điều kiện
    CountListByCondition:function(condition){
+
             var result;
-                condition.tensp     =   `%${condition.tensp}%`;
-                condition.manHinh   =   `%${condition.manHinh}%`;
-                condition.cpu       =   `%${condition.cpu}%`;
-                condition.ram       =   `%${condition.ram}%`;
-                condition.card      =   `%${condition.card}%`;
-                condition.oCung     =   `%${condition.oCung}%`;
+            condition.tensp     =   `%${condition.tensp}%`;
+            condition.cpu       =   `%${condition.cpu}%`;
+            condition.ram       =   `%${condition.ram}%`;
+            condition.card      =   `%${condition.card}%`;
+            condition.oCung     =   `%${condition.oCung}%`;
+        var sqlManhinh="";
+        for(var i=0;i<condition.manHinh.length;i++){
+            sqlManhinh=sqlManhinh.concat(" and manHinh LIKE ? ");
+        }
+        var sql=`select count(*) as count from ${TABLE} where ten_sp LIKE ?`
+        sql=sql.concat(sqlManhinh);
+        sql=sql.concat(` and cpu LIKE ? and ram LIKE ? and card LIKE ? and oCung LIKE ? and don_gia BETWEEN ? AND ? `);
 
-            var sql=`select count(*) AS count from ${TABLE} where ten_sp LIKE ? and manHinh LIKE ? and cpu LIKE ? and ram LIKE ? and card LIKE ? and oCung LIKE ? and don_gia BETWEEN ? AND ? `;
-            var args=[condition.tensp,condition.manHinh,condition.cpu,condition.ram,condition.card,condition.oCung,condition.price_start,condition.price_end];
+        var args=[condition.tensp,condition.cpu,condition.ram,condition.card,condition.oCung,condition.price_start,condition.price_end];
 
-            //condition thuong hieu
-            if(condition.idthuonghieu.length != 0 ){
-                sql = sql.concat(" and ");
-                for(var i=0;i<condition.idthuonghieu.length;i++){
-                    args.push(condition.idthuonghieu[i]);
-                    sql=sql.concat(` id_thuong_hieu=? `);
-                    if(i!=condition.idthuonghieu.length-1){
-                        sql=sql.concat(" OR ")
-                    }
+        for(var i=0;i<condition.manHinh.length;i++){
+            args.splice(1,0,`%${condition.manHinh[i]}%`);
+        }
+        //condition thuong hieu
+        if(condition.idthuonghieu.length != 0 ){
+            sql = sql.concat(" and ( ");
+            for(var i=0;i<condition.idthuonghieu.length;i++){
+                args.push(condition.idthuonghieu[i]);
+                sql=sql.concat(` id_thuong_hieu=? `);
+                if(i!=condition.idthuonghieu.length-1){
+                    sql=sql.concat(" OR ")
                 }
             }
-            if(condition.idtheloai!=-1){
-                args.push(condition.idtheloai);
-                sql=sql.concat(` and id_the_loai=? `);
-            }
-            result=db.load(sql,args);
-            return result;
+            sql = sql.concat(" ) ");
+        }
+        if(condition.idtheloai!=-1){
+            args.push(condition.idtheloai);
+            sql=sql.concat(` and id_the_loai=? `);
+        }
+
+        //-1 : không sort
+        // 0 : sort bán chay cao->thấp
+        // 1 : giá cao -> thấp 
+        // 2 : giá thấp -> cao
+
+        if(condition.sort==0){
+            sql=sql.concat(` order by sl_da_ban DESC `);
+        }
+        if(condition.sort==1){
+            sql=sql.concat(` order by don_gia DESC `);
+        }
+        if(condition.sort==2){
+            sql=sql.concat(` order by don_gia ASC `);
+        }
+
+        args.push(condition.limit);
+        args.push(condition.offset);
+        sql=sql.concat(` LIMIT ? OFFSET ? `);
+        result=db.load(sql,args);
+        return result;
+           
    },
 
    //lấy danh sách sản phẩm với nhiều điều kiện
@@ -69,6 +99,7 @@ module.exports={
             condition.ram       =   `%${condition.ram}%`;
             condition.card      =   `%${condition.card}%`;
             condition.oCung     =   `%${condition.oCung}%`;
+        
         var sqlManhinh="";
         for(var i=0;i<condition.manHinh.length;i++){
             sqlManhinh=sqlManhinh.concat(" and manHinh LIKE ? ");
@@ -78,13 +109,13 @@ module.exports={
         sql=sql.concat(` and cpu LIKE ? and ram LIKE ? and card LIKE ? and oCung LIKE ? and don_gia BETWEEN ? AND ? `);
         
         var args=[condition.tensp,condition.cpu,condition.ram,condition.card,condition.oCung,condition.price_start,condition.price_end];
-        
+
         for(var i=0;i<condition.manHinh.length;i++){
             args.splice(1,0,`%${condition.manHinh[i]}%`);
         }
         //condition thuong hieu
         if(condition.idthuonghieu.length != 0 ){
-            sql = sql.concat(" and ");
+            sql = sql.concat(" and (");
             for(var i=0;i<condition.idthuonghieu.length;i++){
                 args.push(condition.idthuonghieu[i]);
                 sql=sql.concat(` id_thuong_hieu=? `);
@@ -92,6 +123,7 @@ module.exports={
                     sql=sql.concat(" OR ")
                 }
             }
+            sql = sql.concat(" ) ");
         }
         if(condition.idtheloai!=-1){
             args.push(condition.idtheloai);
