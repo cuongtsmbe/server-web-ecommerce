@@ -13,6 +13,8 @@ module.exports={
             || req_url.includes("/authenticate/statusToken")
             || req_url.includes("/authenticate/refreshToken")
             || req_url.includes("/cart")
+            || (req_url.includes("/thuonghieu/list")  && !req_url.includes("/admin/thuonghieu/list"))
+            || (req_url.includes("/thuonghieu/listAll")  && !req_url.includes("/admin/thuonghieu/listAll"))
             || (req_url.includes("/product/") && !req_url.includes("/admin/product/"))
             || req_url.includes("/listcategories")
 
@@ -112,6 +114,8 @@ module.exports={
                 || req_url.includes("/authenticate/statusToken")
                 || req_url.includes("/authenticate/refreshToken")
                 || req_url.includes("/cart")
+                || (req_url.includes("/thuonghieu/list")  && !req_url.includes("/admin/thuonghieu/list"))
+                || (req_url.includes("/thuonghieu/listAll")  && !req_url.includes("/admin/thuonghieu/listAll"))
                 || (req_url.includes("/product/") && !req_url.includes("/admin/product/"))
                 || req_url.includes("/listcategories")
     
