@@ -62,6 +62,7 @@ require("./routers/phieunhap.router").PhieuNhapRouters(app);
 require("./routers/supplier.router").supplierRouters(app);
 require("./routers/product.router").productRouters(app);
 require("./routers/category.router").categoryRouters(app);
+require("./routers/thuonghieu.router").thuonghieuRouters(app);
 require("./routers/staff.router").staffRouters(app);
 require("./routers/customer.router").customerRouters(app);
 require("./routers/permission.router").permissionRouters(app);
@@ -69,6 +70,7 @@ require("./routers/authentication.router").AuthenticateRouters(app);
 
 //client routers 
 require("./routers/_category.router").categoryClientRouters(app);
+require("./routers/_thuonghieu.router").thuonghieuClientRouters(app);
 require("./routers/_product.router").productRoutersClient(app);
 require("./routers/_cart.router").CartRoutersClient(app);
 require("./routers/_authentication.router").AuthenticateClientRouters(app);

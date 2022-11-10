@@ -40,8 +40,9 @@ module.exports = {
             message:""
         };
         if(req.body.Ten_the_loai==undefined || req.body.Ten_the_loai==''){
+            response.status=203;
             response.message="Ten the loai empty";
-            res.json(response);
+            return res.json(response);
         }
         var value={
             ten_tl:req.body.Ten_the_loai
@@ -68,6 +69,11 @@ module.exports = {
         var condition={
             id:req.params.id
         };
+        if(req.body.Ten_the_loai==undefined || req.body.Ten_the_loai==''){
+            response.status=203;
+            response.message="Ten the loai empty";
+            return res.json(response);
+        }
         var value={
             ten_tl :req.body.Ten_the_loai,
         };

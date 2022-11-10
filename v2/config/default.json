@@ -14,6 +14,7 @@
     "limitProductRelevant":30,
     "limitProductTopSale":15,
     "limitCategories":5,
+    "limitThuonghieu":15,
     "limitStaff":2,
     "limitCustomer":2,
     "limitPermission":2,
