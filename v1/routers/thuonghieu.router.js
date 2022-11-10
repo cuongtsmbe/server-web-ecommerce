@@ -1,12 +1,13 @@
-const categoryModel = require("../models/category.model");
+const thuonghieuModel = require("../models/thuonghieu.model");
 const config     = require("../config/default.json");
 const LINK = require("../util/links.json");
 module.exports = {
-    categoryRouters:function(app){
-        app.get(    LINK.ADMIN.CATEGORY_GET_LIST            ,this.setDefault,this.getListCategory);
-        app.post(   LINK.ADMIN.CATEGORY_ADD                 ,this.add);
-        app.put(    LINK.ADMIN.CATEGORY_EDIT                ,this.update);
-        app.delete( LINK.ADMIN.CATEGORY_DELETE              ,this.delete);
+    thuonghieuRouters:function(app){
+        app.get(    LINK.ADMIN.THUONGHIEU_GET_LIST            ,this.setDefault,this.getListThuonghieu);
+        app.get(    LINK.ADMIN.THUONGHIEU_GET_ALL             ,this.getAllList);
+        app.post(   LINK.ADMIN.THUONGHIEU_ADD                 ,this.add);
+        app.put(    LINK.ADMIN.THUONGHIEU_EDIT                ,this.update);
+        app.delete( LINK.ADMIN.THUONGHIEU_DELETE              ,this.delete);
     },
     setDefault:function(req,res,next){
         if(req.query.search==undefined){
@@ -17,44 +18,54 @@ module.exports = {
         }
         next();
     },
-    //lay danh sach the loai
-    getListCategory:async function(req,res,next){
+    //lay danh sach 
+    getListThuonghieu:async function(req,res,next){
         var condition={
-            ten_tl      :req.query.search,
-            limit       :config.limitCategories,
-            offset      :(req.query.page-1)*config.limitCategories
+            ten_th      :req.query.search,
+            limit       :config.limitThuonghieu,
+            offset      :(req.query.page-1)*config.limitThuonghieu
         };
         
-        var result= await categoryModel.getList(condition);
+        var result= await thuonghieuModel.getList(condition);
         res.json({
             status:200,
             data:result
         })
     },
-    //them the loai 
+    //lay tất cả thuong hieu
+    getAllList:async function(req,res,next){
+        var result= await thuonghieuModel.getAll();
+        res.json({
+            status:200,
+            data:result
+        })
+    },
+    //them thuong hieu
     add:async function(req,res,next){
         var response={
             status:201,
             message:""
         };
-        if(req.body.Ten_the_loai==undefined || req.body.Ten_the_loai==''){
+        if(req.body.Ten_thuong_hieu==undefined || req.body.Ten_thuong_hieu==''){
             response.status=203;
-            response.message="Ten the loai empty";
+            response.message="Ten thuong hieu empty";
             return res.json(response);
         }
         var value={
-            ten_tl:req.body.Ten_the_loai
+            ten_th:req.body.Ten_thuong_hieu
         };
-        var result=await categoryModel.add(value);
+        var result=await thuonghieuModel.add(value);
         if(result.affectedRows!=0){
-            response.message=`Them the loai thanh cong . insertId: ${result.insertId}`;
+            response.status=200;
+            response.message=`Them thuong hieu thanh cong . insertId: ${result.insertId}`;
         }else{
-            response.message=`Them the loai khong thanh cong . failed`;
+            response.status=201;
+            response.message=`Them thuong hieu khong thanh cong . failed`;
         }
         res.json(response);
 
     },
-    //edit ten the loai
+    //edit ten thuong hieu
     update:async function(req,res,next){
         var response={
             status:201,
@@ -63,15 +74,18 @@ module.exports = {
         var condition={
             id:req.params.id
         };
-        if(req.body.Ten_the_loai==undefined || req.body.Ten_the_loai==''){
+
+        if(req.body.Ten_thuong_hieu==undefined || req.body.Ten_thuong_hieu==''){
             response.status=203;
-            response.message="Ten the loai empty";
+            response.message="Ten thuong hieu empty";
             return res.json(response);
         }
+
         var value={
-            ten_tl :req.body.Ten_the_loai,
+            ten_th :req.body.Ten_thuong_hieu,
         };
-        var result=await categoryModel.update(condition,value);
+
+        var result=await thuonghieuModel.update(condition,value);
         if(result.affectedRows==0){
             response.status=201;
             response.message="update khong thanh cong";      
@@ -81,7 +95,7 @@ module.exports = {
         }
         res.json(response);
     },
-    //delete the loai
+    //delete 
     delete:async function(req,res,next){
             var response={
                 status:201,
@@ -90,7 +104,7 @@ module.exports = {
             var condition={
                 id:req.params.id
             };
-            var result=await categoryModel.delete(condition);
+            var result=await thuonghieuModel.delete(condition);
             if(result.affectedRows==0){
                 response.status=500;
                 response.message="delete khong thanh cong";
