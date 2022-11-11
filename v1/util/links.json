@@ -91,6 +91,8 @@
 
         "ORDER_GET_LIST"  : "/admin/order",
 
+        "ORDER_GET_LIST_BY_STATUS" : "/admin/order/list/status",
+
         "ORDER_GET_ORDER_BY_CUSTOMER_ID"  : "/admin/order/customer/:id",
 
         "ORDER_GET_TOTALMONNEY_BY_CUSTOMER_ID"  : "/admin/order/customer/totalMonney/:id",

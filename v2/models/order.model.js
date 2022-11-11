@@ -43,6 +43,32 @@ module.exports={
 
         return result;
     },
+
+     //lấy danh sách đơn hàng theo status 
+     getListByStatus:function(condition){
+        var args=[condition.trangThai,condition.dateStart,condition.dateEnd,condition.limit,condition.offset];
+        
+        var sql=`SELECT *
+        FROM ${TABLE} HD
+        WHERE `;
+        
+        if(condition.trangThai==-1 && condition.dateStart!=undefined && condition.dateEnd!=undefined){
+            sql=sql.concat(` HD.ngay_tao BETWEEN ? AND ? LIMIT ? OFFSET ?`);
+            //delete trangthai
+            args.splice(0,1);
+        }else if(condition.trangThai==-1 && (condition.dateStart==undefined || condition.dateEnd==undefined)){
+            sql=sql.concat(`1 LIMIT ? OFFSET ?`);
+            args.splice(0,3);//delete trang thai,dateStart,dateEnd
+        }else if(condition.trangThai!=-1 && (condition.dateStart==undefined || condition.dateEnd==undefined)){
+            sql=sql.concat(`HD.trang_thai=? LIMIT ? OFFSET ?`);
+            args.splice(1,2);//delete dateStart,dateEnd
+        }else{
+            sql=sql.concat(` HD.trang_thai=? AND HD.ngay_tao BETWEEN ? AND ? LIMIT ? OFFSET ?`);
+        }
+        var listOrders= db.load(sql,args);
+        return listOrders;
+
+    },
     //lấy danh sách sản phẩm đã mua theo id  hóa đơn 
     getproductsInDetail:function(condition){
         var sql=`select id_sanpham as id_san_pham,so_luong as So_luong from ${TABLE_CTHD} where ? `;

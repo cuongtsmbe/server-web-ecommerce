@@ -5,6 +5,7 @@ const LINK = require("../util/links.json");
 module.exports = {
     orderRouters:function(app){
         app.get(    LINK.ADMIN.ORDER_GET_LIST                            ,this.setDefaultCustomerName,this.getListOrders);
+        app.get(    LINK.ADMIN.ORDER_GET_LIST_BY_STATUS                  ,this.getListOrdersByStatus);
         app.get(    LINK.ADMIN.ORDER_GET_ORDER_BY_CUSTOMER_ID            ,this.setDefaultCustomerId,this.getListOrders);
         app.get(    LINK.ADMIN.ORDER_GET_TOTALMONNEY_BY_CUSTOMER_ID      ,this.setDefaultCustomerId,this.getTotalMonneyOrders);
         app.get(    LINK.ADMIN.ORDER_GET_DETAILS                         ,this.getOrderDetails);
@@ -61,6 +62,25 @@ module.exports = {
         })
     },
 
+    //thông kê theo tình trạng đơn hàng 
+    getListOrdersByStatus:async function(req,res,next){
+        if(req.query.page==undefined){
+            req.query.page=1;
+        }
+        var condition={
+            dateStart   :req.query.startdate,
+            dateEnd     :req.query.enddate,
+            trangThai   :req.query.trangthai,
+            limit       :config.limitOrders,
+            offset      :(req.query.page-1)*config.limitOrders
+        };
+        var result= await orderModel.getListByStatus(condition);
+
+        res.json({
+            status:200,
+            data:result
+        })
+    },
     //get chi tiet hoa don : theo ID hoa don
     getOrderDetails:async function(req,res,next){
         var redisClientService=res.locals.redisClientService;
