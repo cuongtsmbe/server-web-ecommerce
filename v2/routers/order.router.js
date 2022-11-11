@@ -67,6 +67,9 @@ module.exports = {
         if(req.query.page==undefined){
             req.query.page=1;
         }
+        if(req.query.trangthai==undefined){
+            req.query.trangthai=-1;
+        }
         var condition={
             dateStart   :req.query.startdate,
             dateEnd     :req.query.enddate,
