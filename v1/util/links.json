@@ -97,7 +97,7 @@
 
         "ORDER_GET_DETAILS"  : "/admin/order/:id",
 
-        "ORDER_UPDATE_STATUS"  : "/admin/order/:id",
+        "ORDER_UPDATE_STATUS"  : "/admin/order/updateStatus/:id",
 
         "ORDER_CREATE"  : "/admin/order/createOrder",
 

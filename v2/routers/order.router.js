@@ -98,6 +98,17 @@ module.exports = {
 
         var value={ trang_thai:req.body.Trang_thai  }
         var condition={ id:req.params.id    }
+
+        var details = await orderModel.getOrderByID(condition);
+
+        //đơn đã hủy . không cho thay đổi trạng thái
+        if(details.length==0 || details[0].trang_thai==0){
+            return res.json({
+                status:202,
+                message:"ID hoa don khong dung OR trang thai don hang khong the Update."
+            });
+        }
+
         var result=await orderModel.update(condition,value);
 
         if(result.changedRows==0){
@@ -106,6 +117,27 @@ module.exports = {
         }else{
             response.status=200;
             response.message="update thanh cong";
+            
+            //hủy đơn . trả lại số lượng sản phẩm trong kho
+            if(value.trang_thai==0){
+                //tăng số lượng sản phẩm trong kho
+                //giảm số lượng bán ra
+                 var arrProduct = await orderModel.getproductsInDetail({id_hoadon:condition.id});
+                 
+                 var valueChiTiet={
+                    Danh_sach_san_pham:     arrProduct      
+                };
+
+                var resultUpdate= await productModel.updateSoluong(valueChiTiet,'HUYDON');
+
+                //có 1 sản phẩm sai ID 
+                if(404==resultUpdate.status){
+                    return res.json(resultUpdate);
+                }
+                response.message="hủy đơn thành công";
+            }
+
+
             //delete in redis 
             await redisClientService.del(`getOrderDetails:${condition.id}`);
         }

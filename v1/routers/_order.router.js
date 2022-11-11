@@ -55,7 +55,7 @@ module.exports = {
         var condition={
             id_hoadon:req.params.idhoadon
         }
-        var result=await orderModel.getproductsInDetail(condition);
+        var result=await orderModel.getIdProductsInDetail(condition);
         res.json({
             status:200,
             data:result
@@ -171,7 +171,9 @@ module.exports = {
 
         var details = await orderModel.getOrderByID(condition);
 
-        if(details.length==0 || details[0].trang_thai!=1){
+        //trang thai đơn đã duyệt. OR đơn hàng không phải của tài khoản login 
+
+        if(details.length==0 || details[0].trang_thai!=1 || details[0].id_khachhang!=req.user.id){
             return res.json({
                 status:202,
                 message:"ID hoa don khong dung OR trang thai don hang khong the Update."
@@ -186,6 +188,27 @@ module.exports = {
         }else{
             response.status=200;
             response.message="update thanh cong";
+            
+            //hủy đơn . trả lại số lượng sản phẩm trong kho
+
+            if(value.trang_thai==0){
+                
+                //tăng số lượng sản phẩm trong kho
+                 var arrProduct = await orderModel.getproductsInDetail({id_hoadon:condition.id});
+                 
+                 var valueChiTiet={
+                    Danh_sach_san_pham:     arrProduct      
+                };
+
+                var resultUpdate= await productModel.updateSoluong(valueChiTiet,'HUYDON');
+                //có 1 sản phẩm sai ID 
+                if(404==resultUpdate.status){
+                    return res.json(resultUpdate);
+                }
+                response.message="hủy đơn thành công";
+            }
+
+
         }
         res.json(response);
     },

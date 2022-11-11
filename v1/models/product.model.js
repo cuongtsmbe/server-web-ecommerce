@@ -181,6 +181,7 @@ module.exports={
    //action: INS,DES
    //1.tăng số lượng sản phẩm trong kho
    //2.tăng số lượng bán , giảm số lượng tồn kho (create order)
+   //3. Hủy đơn . tăng số lượng trong kho . giảm số lượng đã bán
    updateSoluong:async function(value,action){
     //get list product from DB
     var sql_get='';
@@ -232,7 +233,13 @@ module.exports={
         }
 
     }
-
+    //3 
+    if(action==='HUYDON'){
+        for (var i = 0; i < result_get.length; i++) {
+            result_get[i].so_luong=result_get[i].so_luong+value.Danh_sach_san_pham[i].So_luong;
+            result_get[i].sl_da_ban=result_get[i].sl_da_ban-value.Danh_sach_san_pham[i].So_luong;
+        }
+    }
     var connection = mysql.createConnection(config.mysql);
         connection.connect();
     var sql_update=``;

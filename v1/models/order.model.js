@@ -45,10 +45,18 @@ module.exports={
     },
     //lấy danh sách sản phẩm đã mua theo id  hóa đơn 
     getproductsInDetail:function(condition){
+        var sql=`select id_sanpham as id_san_pham,so_luong as So_luong from ${TABLE_CTHD} where ? `;
+        var listOrders= db.load(sql,condition);
+        return listOrders;
+    },
+
+    //lấy danh sách ID sản phẩm đã mua theo id  hóa đơn 
+    getIdProductsInDetail:function(condition){
         var sql=`select id_sanpham from ${TABLE_CTHD} where ? `;
         var listOrders= db.load(sql,condition);
         return listOrders;
     },
+    
     //Xem danh sách hóa đơn  
     getList: function(condition){
         var args=[condition.trangThai,condition.dateStart,condition.dateEnd,condition.limit,condition.offset];
