@@ -226,11 +226,25 @@ module.exports={
     }
     //2
     if(action==='DES'){
-
+        
+        var ListIDProductNotEnough=[];
         for (var i = 0; i < result_get.length; i++) {
             result_get[i].so_luong=result_get[i].so_luong-value.Danh_sach_san_pham[i].So_luong;
             result_get[i].sl_da_ban=result_get[i].sl_da_ban+value.Danh_sach_san_pham[i].So_luong;
+
+            //sản phẩm không đủ 
+            if(result_get[i].so_luong<0){
+                ListIDProductNotEnough.push(result_get[i].id);
+            }
+        
         }
+        if(ListIDProductNotEnough.length>0){
+            return {
+                status:404,
+                ListIDProductNotEnough
+            };
+        }
+
 
     }
     //3 
