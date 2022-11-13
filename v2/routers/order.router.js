@@ -240,8 +240,10 @@ module.exports = {
                     Danh_sach_san_pham:     arrProduct      
                 };
                 var resultUpdate= await productModel.updateSoluong(valueChiTiet,'DES',redisClientService);
-                //có 1 sản phẩm sai ID 
+                //có 1 sản phẩm sai ID || sản phẩm không đủ 
                 if(404==resultUpdate.status){
+                    //xóa đơn hàng fail
+                    await orderModel.deleteHDByID({id:valueHD.id});
                     return res.json(resultUpdate);
                 }
                 response.message="Create order success.";
