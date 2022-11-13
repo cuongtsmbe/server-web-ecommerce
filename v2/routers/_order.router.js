@@ -204,7 +204,8 @@ module.exports = {
     },
      //cap nhat trang thai don hang (hủy đơn , mua lại ,...)
     changeStatusOrder:async function(req,res,next){
-        
+        var redisClientService=res.locals.redisClientService;
+
         var response={
             status:201,
             message:""
@@ -246,7 +247,7 @@ module.exports = {
                     Danh_sach_san_pham:     arrProduct      
                 };
 
-                var resultUpdate= await productModel.updateSoluong(valueChiTiet,'HUYDON');
+                var resultUpdate= await productModel.updateSoluong(valueChiTiet,'HUYDON',redisClientService);
                 //có 1 sản phẩm sai ID 
                 if(404==resultUpdate.status){
                     return res.json(resultUpdate);
@@ -255,7 +256,6 @@ module.exports = {
             }
             
             //delete redis getOrderDetails by this ID 
-            var redisClientService=res.locals.redisClientService;
             await redisClientService.del(`getOrderDetails:${condition.id}`);
         }
         res.json(response);

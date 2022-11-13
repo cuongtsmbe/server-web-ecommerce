@@ -146,12 +146,11 @@ module.exports = {
                 //tăng số lượng sản phẩm trong kho
                 //giảm số lượng bán ra
                  var arrProduct = await orderModel.getproductsInDetail({id_hoadon:condition.id});
-                 
                  var valueChiTiet={
                     Danh_sach_san_pham:     arrProduct      
                 };
 
-                var resultUpdate= await productModel.updateSoluong(valueChiTiet,'HUYDON');
+                var resultUpdate= await productModel.updateSoluong(valueChiTiet,'HUYDON',redisClientService);
 
                 //có 1 sản phẩm sai ID 
                 if(404==resultUpdate.status){

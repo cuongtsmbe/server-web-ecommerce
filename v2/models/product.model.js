@@ -166,7 +166,9 @@ module.exports={
    //2.tăng số lượng bán , giảm số lượng tồn kho (create order)
    //3. Hủy đơn . tăng số lượng trong kho . giảm số lượng đã bán
    updateSoluong:async function(value,action,redisClientService=null){
-
+    //sort tăng dần theo ID sản phẩm
+    value.Danh_sach_san_pham.sort((a,b) => a.id_san_pham - b.id_san_pham);
+    
     //get list product from DB
     var sql_get='';
     sql_get=`select * from ${TABLE} where `;
@@ -177,6 +179,7 @@ module.exports={
         }
     }
 
+    //kết quả get sẽ được sắp tăng dần theo ID 
     var result_get = await db.load(sql_get);
 
     //Stop update nếu : có 1 ID sản phẩm không tồn tại trong DB
@@ -202,24 +205,47 @@ module.exports={
             ListIDProductNoExist
         };
     }
+    
     //1
+    //result_get[i] ứng với value.Danh_sach_san_pham[i] nguyên nhân 
+    //hàm select mysql đã sort theo thứ tự ID sản phẩm 
+    //trong khi đó giỏ hàng cx được sắp xếp theo thứ tự tăng dần ID product
     if(action==='INS'){
         for (var i = 0; i < result_get.length; i++) {
-            result_get[i].so_luong=result_get[i].so_luong+value.Danh_sach_san_pham[i].So_luong;
+            var so_luong_tang=value.Danh_sach_san_pham[i].So_luong;
+           
+            //update redis
+            var product=await redisClientService.jsonGet(`product:${result_get[i].id}`);
+            if(product){
+                product=JSON.parse(product);
+                product[0].so_luong=product[0].so_luong + so_luong_tang;
+                result_get[i].so_luong=product[0].so_luong;
+                await redisClientService.jsonSet(`product:${result_get[i].id}`,'.',JSON.stringify(product));
+            }else{
+                result_get[i].so_luong=result_get[i].so_luong + so_luong_tang;
+            }
         }
     }
     //2
     if(action==='DES'){
         var ListIDProductNotEnough=[];
         for (var i = 0; i < result_get.length; i++) {
-            result_get[i].so_luong=result_get[i].so_luong-value.Danh_sach_san_pham[i].So_luong;
-            result_get[i].sl_da_ban=result_get[i].sl_da_ban+value.Danh_sach_san_pham[i].So_luong;
 
-            //sản phẩm không đủ 
-            if(result_get[i].so_luong<0){
+            var so_luong_mua=value.Danh_sach_san_pham[i].So_luong;
+            //ktra sản phẩm không đủ 
+            
+            var product=await redisClientService.jsonGet(`product:${result_get[i].id}`);
+            if(product){
+                product=JSON.parse(product);
+               
+                //số lượng còn lại < số lượng trong đơn hàng 
+                if(product[0].so_luong<so_luong_mua ){
+                    ListIDProductNotEnough.push(result_get[i].id);
+                }
+            }else if(result_get[i].so_luong<so_luong_mua){
                 ListIDProductNotEnough.push(result_get[i].id);
             }
-        
+
         }
         if(ListIDProductNotEnough.length>0){
             return {
@@ -228,12 +254,65 @@ module.exports={
             };
         }
 
+
+        //update redis
+        /*
+            phải update số lượng trong redis trước khi update trong DB để tránh 2 người vào dùng lúc
+            lấy phải số lượng sản phẩm giống nhau.(Nguyên nhân redis có hàng đợi còn DB là multithread) 
+            nếu trong khi update sql bị lỗi thì tăng lại số lượng trong redis. 
+        */
+        for (var i = 0; i < result_get.length; i++) {
+
+            var so_luong_mua=value.Danh_sach_san_pham[i].So_luong;
+           
+            var product=await redisClientService.jsonGet(`product:${result_get[i].id}`);
+            if(product){
+                product=JSON.parse(product);
+               
+                product[0].so_luong=product[0].so_luong - so_luong_mua;
+                product[0].sl_da_ban=product[0].sl_da_ban + so_luong_mua;
+
+                result_get[i].so_luong= product[0].so_luong;
+                result_get[i].sl_da_ban= product[0].sl_da_ban;
+                
+                await redisClientService.jsonSet(`product:${result_get[i].id}`,'.',JSON.stringify(product));
+                
+            }else{
+                //sản phẩm không có trong redis 
+                //nếu nhiều người mua cùng lúc thì số lượng sp trong DB sẽ không đúng trong trg hợp này 
+                //nguyên nhân giải sử 2 người A,B cùng vào DB lấy số lượng sp X là Y trong cùng 1 thời gian
+                //khi đó giả sử request cập nhật số lượng của B đến sau A thì số lượng sản phẩm sẽ theo của B.
+
+                result_get[i].so_luong = result_get[i].so_luong - so_luong_mua;
+                result_get[i].sl_da_ban = result_get[i].sl_da_ban + so_luong_mua;
+            }
+           
+        
+        }
+
+
     }
     //3 
     if(action==='HUYDON'){
         for (var i = 0; i < result_get.length; i++) {
-            result_get[i].so_luong=result_get[i].so_luong+value.Danh_sach_san_pham[i].So_luong;
-            result_get[i].sl_da_ban=result_get[i].sl_da_ban-value.Danh_sach_san_pham[i].So_luong;
+            var so_luong_huy=value.Danh_sach_san_pham[i].So_luong;
+            //update redis
+            var product=await redisClientService.jsonGet(`product:${result_get[i].id}`);
+            if(product){
+
+                product=JSON.parse(product);
+
+                product[0].so_luong=product[0].so_luong + so_luong_huy;
+                product[0].sl_da_ban=product[0].sl_da_ban - so_luong_huy;
+
+                result_get[i].so_luong= product[0].so_luong;
+                result_get[i].sl_da_ban= product[0].sl_da_ban;
+                await redisClientService.jsonSet(`product:${result_get[i].id}`,'.',JSON.stringify(product));
+                
+            }else{
+                result_get[i].so_luong=result_get[i].so_luong + so_luong_huy;
+                result_get[i].sl_da_ban=result_get[i].sl_da_ban - so_luong_huy;
+            }
         }
     }
 
@@ -244,26 +323,39 @@ module.exports={
     for (var  i = 0; i <result_get.length; i++) {
         sql_update=`UPDATE ${TABLE} SET so_luong=${result_get[i].so_luong},sl_da_ban=${result_get[i].sl_da_ban} where sanpham.id=${result_get[i].id} ; `;
         try{
-        connection.query(sql_update, function(error, results, fields) {
-                if (error) {
-                    throw error;
-                    return ; 
-                };
-     
-        });
-
-        //update number product in redis
-        var detailProduct = await redisClientService.jsonGet(`product:${result_get[i].id}`);
-        
-        if(detailProduct){
-            detailProduct = JSON.parse(detailProduct);
-            detailProduct[0].so_luong=result_get[i].so_luong;
-            detailProduct[0].sl_da_ban=result_get[i].sl_da_ban;
-            await redisClientService.jsonSet(`product:${result_get[i].id}`,".",JSON.stringify(detailProduct));
-        }
+            connection.query(sql_update, function(error, results, fields) {
+                    if (error) {
+                        throw error;
+                    };
+            });
 
         }catch(err){
-            console.log(`Error update so luong : ${err}`);
+
+            //lỗi trong quá trình update trong DB
+            //update number product in redis
+        
+            var detailProduct = await redisClientService.jsonGet(`product:${result_get[i].id}`);
+            var so_luong_thay_doi=value.Danh_sach_san_pham[i].So_luong;
+
+            if(detailProduct){
+                detailProduct = JSON.parse(detailProduct);
+                if(action==='INS'){
+                    detailProduct[0].so_luong = detailProduct[i].so_luong-so_luong_thay_doi;
+                }
+                if(action==='DES'){
+                    detailProduct[0].so_luong = detailProduct[0].so_luong + so_luong_thay_doi;
+                    detailProduct[0].sl_da_ban = detailProduct[0].sl_da_ban - so_luong_thay_doi;
+                }
+                if(action==='HUYDON'){
+                    detailProduct[0].so_luong = detailProduct[0].so_luong - so_luong_thay_doi;
+                    detailProduct[0].sl_da_ban = detailProduct[0].sl_da_ban + so_luong_thay_doi;
+                }
+                await redisClientService.jsonSet(`product:${result_get[i].id}`,'.',JSON.stringify(detailProduct));
+            }
+
+            console.log(`Error update so luong:id ${result_get[i].id}`);
+            console.log(`Error:  ${err}`);
+
         }
     }
     connection.end();
