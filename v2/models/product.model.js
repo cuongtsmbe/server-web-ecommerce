@@ -69,24 +69,6 @@ module.exports={
         sql=sql.concat(` and id_the_loai=? `);
     }
 
-    //-1 : không sort
-    // 0 : sort bán chay cao->thấp
-    // 1 : giá cao -> thấp 
-    // 2 : giá thấp -> cao
-
-    if(condition.sort==0){
-        sql=sql.concat(` order by sl_da_ban DESC `);
-    }
-    if(condition.sort==1){
-        sql=sql.concat(` order by don_gia DESC `);
-    }
-    if(condition.sort==2){
-        sql=sql.concat(` order by don_gia ASC `);
-    }
-
-    args.push(condition.limit);
-    args.push(condition.offset);
-    sql=sql.concat(` LIMIT ? OFFSET ? `);
     result=db.load(sql,args);
     return result;
        
@@ -228,10 +210,22 @@ module.exports={
     }
     //2
     if(action==='DES'){
-
+        var ListIDProductNotEnough=[];
         for (var i = 0; i < result_get.length; i++) {
             result_get[i].so_luong=result_get[i].so_luong-value.Danh_sach_san_pham[i].So_luong;
             result_get[i].sl_da_ban=result_get[i].sl_da_ban+value.Danh_sach_san_pham[i].So_luong;
+
+            //sản phẩm không đủ 
+            if(result_get[i].so_luong<0){
+                ListIDProductNotEnough.push(result_get[i].id);
+            }
+        
+        }
+        if(ListIDProductNotEnough.length>0){
+            return {
+                status:404,
+                ListIDProductNotEnough
+            };
         }
 
     }
