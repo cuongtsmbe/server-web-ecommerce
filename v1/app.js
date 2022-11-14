@@ -29,6 +29,8 @@ app.use(session({
 //Authorization middleware 
 app.use(auth_mdw.loggedIn);
 
+app.use('/public',express.static('public'))
+
 //admin routers
 require("./routers/order.router").orderRouters(app);
 require("./routers/phieunhap.router").PhieuNhapRouters(app);
