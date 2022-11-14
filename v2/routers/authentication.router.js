@@ -40,16 +40,17 @@ module.exports = {
                 });            
                 return false;
             }
-            //cover to String hex 
-            hashedPassword=hashedPassword.toString("hex");
-            if (!crypto.timingSafeEqual(str2ab(String(staff.mat_khau)),str2ab(String(hashedPassword)))) {
-                response.status=210;
-                response.message="Incorrect username or password.";
-                res.json(response);
-                return false;
-            }
-             //4.Create and assign token
             try{
+                //cover to String hex 
+                hashedPassword=hashedPassword.toString("hex");
+                if (!crypto.timingSafeEqual(str2ab(String(staff.mat_khau)),str2ab(String(hashedPassword)))) {
+                    response.status=210;
+                    response.message="Incorrect username or password.";
+                    res.json(response);
+                    return false;
+                }
+                //4.Create and assign token
+            
                 var payload={
                             id: staff.Ma_nhan_vien,
                             username:staff.ten_dangnhap,

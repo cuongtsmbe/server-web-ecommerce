@@ -216,15 +216,16 @@ module.exports = {
                 });            
                 return false;
             }
-            //cover to String hex 
-            hashedPassword=hashedPassword.toString("hex");
-            if (!crypto.timingSafeEqual(str2ab(String(customer.mat_khau)),str2ab(String(hashedPassword)))) {
-                response.message="Incorrect username or password.";
-                res.json(response);
-                return false;
-            }
-             //4.Create and assign token,iat: để token luôn khác nhau trong DB
             try{
+                //cover to String hex 
+                hashedPassword=hashedPassword.toString("hex");
+                if (!crypto.timingSafeEqual(str2ab(String(customer.mat_khau)),str2ab(String(hashedPassword)))) {
+                    response.message="Incorrect username or password.";
+                    res.json(response);
+                    return false;
+                }
+                //4.Create and assign token,iat: để token luôn khác nhau trong DB
+            
                 var payload={
                             id: customer.Ma_kh,
                             username:customer.ten_dangnhap,
