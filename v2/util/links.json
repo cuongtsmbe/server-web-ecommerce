@@ -155,7 +155,11 @@
 
         "PHIEUNHAP_CREATE"  : "/admin/phieunhap/create",
 
-        "PHIEUNHAP_UPDATESTATUS_BY_ID"  : "/admin/phieunhap/updateStatus/:id" 
+        "PHIEUNHAP_UPDATESTATUS_BY_ID"  : "/admin/phieunhap/updateStatus/:id" ,
+
+        "UPLOAD_ADD_IMAGE" : "/admin/upload/add/:idsanpham",
+        
+        "UPLOAD_GET_BY_IDPRODUCT" : "/admin/upload/list/image/:idsanpham"
         
     }
     

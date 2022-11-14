@@ -67,6 +67,7 @@ require("./routers/staff.router").staffRouters(app);
 require("./routers/customer.router").customerRouters(app);
 require("./routers/permission.router").permissionRouters(app);
 require("./routers/authentication.router").AuthenticateRouters(app);
+require("./routers/uploadImageProduct.router").uploadRouters(app);
 
 //client routers 
 require("./routers/_category.router").categoryClientRouters(app);
