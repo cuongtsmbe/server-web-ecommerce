@@ -11,14 +11,30 @@ module.exports = {
 
     },
     getListByIDproduct:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
         var ID=req.params.idsanpham;
-        var ls= await uploadModel.ListImageOrVideoByIDProduct({idproduct:ID});
+
+        var listIMG = await redisClientService.jsonGet(`product:${ID}:image`);
+
+        if(!listIMG){
+            
+            listIMG=  await uploadModel.ListImageOrVideoByIDProduct({idproduct:ID});
+            await redisClientService.jsonSet(`product:${ID}:image`,".",JSON.stringify(listIMG));
+        
+        }else{
+            
+            listIMG = JSON.parse(listIMG);
+
+        }
+
         return res.json({
             status:200,
-            list:ls
+            list:listIMG
         });
     },
     uploadMultiImage:async function(req, res) {
+        var redisClientService=res.locals.redisClientService;
+
         var IDproduct=req.params.idsanpham;
 
         //remove file in server
@@ -39,7 +55,9 @@ module.exports = {
 
         //delete ảnh cũ của product in DB
         await uploadModel.delete({idproduct:IDproduct});
+        await redisClientService.del(`product:${IDproduct}:image`);
 
+        
         var storage = multer.diskStorage({ 
             
             destination: function(req, file, cb) {
