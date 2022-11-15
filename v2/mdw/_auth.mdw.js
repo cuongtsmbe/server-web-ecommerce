@@ -1,6 +1,8 @@
 const config=require("../config/default.json");
 const jwt = require("jsonwebtoken");
 const permissionModel = require("../models/permission.model");
+require('dotenv').config();
+
 module.exports={
     //Authorization middleware 
     loggedIn:async function (req, res, next) {
@@ -33,7 +35,7 @@ module.exports={
                 // Remove Bearer from string
                 token = token.slice(7, token.length).trimLeft();
             }
-            const verified = jwt.verify(token, config.TOKEN_SECRET_ACCESSTOKEN); 
+            const verified = jwt.verify(token, process.env.TOKEN_SECRET_ACCESSTOKEN); 
 
             //account blocked(customer)
             if(verified.user_permission===false){
