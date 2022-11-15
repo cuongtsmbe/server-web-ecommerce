@@ -11,6 +11,7 @@ module.exports={
                 req_url.includes("/authenticate/register/local") 
             || req_url.includes("/authenticate/login/local")
             || req_url.includes("/authenticate/statusToken")
+            || req_url.includes("/authenticate/forget/pw")
             || req_url.includes("/authenticate/refreshToken")
             || req_url.includes("/cart")
             || (req_url.includes("/thuonghieu/list")  && !req_url.includes("/admin/thuonghieu/list"))
@@ -18,9 +19,10 @@ module.exports={
             || (req_url.includes("/product/") && !req_url.includes("/admin/product/"))
             || req_url.includes("/listcategories")
 
-            ||req_url.includes("/admin/authenticate/refreshToken") 
+            || req_url.includes("/admin/authenticate/refreshToken") 
             || req_url.includes("/admin/authenticate/login/local")
             || req_url.includes("/admin/authenticate/statusToken")
+            || req_url.includes("/admin/authenticate/forget/pw")
         ) ){
             next();
             return ;
@@ -112,6 +114,7 @@ module.exports={
                    req_url.includes("/authenticate/register/local") 
                 || req_url.includes("/authenticate/login/local")
                 || req_url.includes("/authenticate/statusToken")
+                || req_url.includes("/authenticate/forget/pw")
                 || req_url.includes("/authenticate/refreshToken")
                 || req_url.includes("/cart")
                 || (req_url.includes("/thuonghieu/list")  && !req_url.includes("/admin/thuonghieu/list"))
@@ -119,9 +122,10 @@ module.exports={
                 || (req_url.includes("/product/") && !req_url.includes("/admin/product/"))
                 || req_url.includes("/listcategories")
     
-                ||req_url.includes("/admin/authenticate/refreshToken") 
+                || req_url.includes("/admin/authenticate/refreshToken") 
                 || req_url.includes("/admin/authenticate/login/local")
                 || req_url.includes("/admin/authenticate/statusToken")
+                || req_url.includes("/admin/authenticate/forget/pw")
             ){
                 next();
             }else{
