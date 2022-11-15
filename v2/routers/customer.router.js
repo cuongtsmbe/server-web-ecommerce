@@ -98,7 +98,18 @@ module.exports = {
             salt:salt
         };
         //1
-        var customer=await customerModel.getOne({ten_dangnhap:value.ten_dangnhap});
+        var [customer,customerInfo]=await Promise.all([
+            customerModel.getOne({ten_dangnhap:value.ten_dangnhap}),
+            customerModel.getOne({email:value.email})
+        ]);
+            
+        //email đã tồn tại
+        if(customerInfo.length!=0){
+            
+            response.message="Email đã tồn tại.";
+            return res.json(response);
+
+        }
 
         if(customer.length==1){
             response.message="username da ton tai.";
@@ -169,6 +180,21 @@ module.exports = {
             phone   :req.body.phone,
             trangthai:req.body.trangthai
         };
+
+        var customerInfoByID = await customerModel.getOne({condition});
+        
+        //check email exist
+        if(customerInfoByID.length!=0 && customerInfoByID[0].email!=value.email){
+            
+            var customerInfo = await customerModel.getOne({email:value.email});
+
+            if(customerInfo.length!=0){
+                response.status=203;
+                response.message="Email đã tồn tại ";    
+                return res.json(response);  
+            }
+
+        }
 
         var result=await customerModel.update(condition,value);
         if(result.affectedRows==0){

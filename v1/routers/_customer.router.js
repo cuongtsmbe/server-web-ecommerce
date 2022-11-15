@@ -58,7 +58,22 @@ module.exports = {
             dia_chi    :req.body.dia_chi,
             phone   :req.body.phone
         };
+        var customerInfoByID = await customerModel.getOne({condition});
+        
+        //check email exist
+        if(customerInfoByID.length!=0 && customerInfoByID[0].email!=value.email){
+                   
+            var customerInfo = await customerModel.getOne({email:value.email});
 
+            if(customerInfo.length!=0){
+                response.status=203;
+                response.message="Email đã tồn tại ";    
+                return res.json(response);  
+            }
+
+        }
+        
+        //update infomation
         var result=await customerModel.update(condition,value);
         if(result.affectedRows==0){
             response.status=201;

@@ -122,10 +122,17 @@ module.exports = {
             salt        :salt
         };
         //1
-        var [permission,staff]=await Promise.all([
+        var [permission,staff,staffInfo]=await Promise.all([
             permissionModel.getOneByID({id:value.id_quyen}),
-            staffModel.getByCondition({ten_dangnhap:value.ten_dangNhap})
+            staffModel.getByCondition({ten_dangnhap:value.ten_dangNhap}),
+            staffModel.getByCondition({email:value.email})
            ]);
+        //email exist 
+        if(staffInfo.length!=0){
+            response.status=217;
+            response.message="Email exist.";
+            return res.json(response);
+        }
         if(permission.length==0){
 
             response.status=211;
@@ -190,6 +197,21 @@ module.exports = {
             email   :req.body.email
         };
 
+        var staffInfoByID = staffModel.getByCondition(condition);
+        
+        //check email exist
+        if(staffInfoByID.length!=0 && staffInfoByID[0].email!=value.email){
+            
+            var staffInfo = staffModel.getByCondition({email:value.email});
+
+            if(staffInfo.length!=0){
+                response.status=203;
+                response.message="Email đã tồn tại ";    
+                return res.json(response);  
+            }
+
+        }
+        
         var result=await staffModel.update(condition,value);
         if(result.affectedRows==0){
             response.status=201;
