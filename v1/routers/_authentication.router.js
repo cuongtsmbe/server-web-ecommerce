@@ -9,6 +9,7 @@ const jwt = require("jsonwebtoken");
 const mdw = require("../mdw/valid.mdw");
 const sendMail = require("../mdw/sendMail.mdw");
 const LINK = require("../util/links.json");
+require('dotenv').config();
 
 module.exports = {
     AuthenticateClientRouters:function(app){        
@@ -163,8 +164,8 @@ module.exports = {
                         payload.id=result.insertId;
 
                         //create token 
-                        const AccessToken = jwt.sign(payload, config.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
-                        const refreshToken = jwt.sign(payload, config.TOKEN_SECRET_REFRESHTOKEN,{ expiresIn:"30d" });
+                        const AccessToken = jwt.sign(payload, process.env.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
+                        const refreshToken = jwt.sign(payload, process.env.TOKEN_SECRET_REFRESHTOKEN,{ expiresIn:"30d" });
 
                         //add refreshToken to DB
                         var result =await tokenModel.add({
@@ -254,8 +255,8 @@ module.exports = {
                 }
 
                 //create AccessToken AND refreshToken
-                const AccessToken = jwt.sign(payload, config.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
-                const refreshToken = jwt.sign(payload, config.TOKEN_SECRET_REFRESHTOKEN,{ expiresIn:"30d" });
+                const AccessToken = jwt.sign(payload, process.env.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
+                const refreshToken = jwt.sign(payload, process.env.TOKEN_SECRET_REFRESHTOKEN,{ expiresIn:"30d" });
                 
                 //add refreshToken to DB
                 var result =await tokenModel.add({
@@ -333,7 +334,7 @@ module.exports = {
                 payload.user_permission=false;
             }
 
-            const token = jwt.sign(payload, config.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "15m"});
+            const token = jwt.sign(payload, process.env.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "15m"});
 
             /** Gui email **/
             sendMail.SendMailForgetPassword(email,token,url_UI_ForgetPW);
@@ -443,7 +444,7 @@ module.exports = {
                 res.json({message_refreshToken:"refreshToken false"});
                 return ;
             }
-            const verified = jwt.verify(refreshToken, config.TOKEN_SECRET_REFRESHTOKEN); 
+            const verified = jwt.verify(refreshToken, process.env.TOKEN_SECRET_REFRESHTOKEN); 
             reponse.message_refreshToken="refreshToken OK";
         }catch(err){
 
@@ -464,7 +465,7 @@ module.exports = {
             if(!AccessToken){
                     reponse.message_accessToken='AccessToken false';
             };
-            const verified = jwt.verify(refreshToken, config.TOKEN_SECRET_ACCESSTOKEN); 
+            const verified = jwt.verify(refreshToken, process.env.TOKEN_SECRET_ACCESSTOKEN); 
             //AccessToken hợp lệ
             reponse.message_accessToken="AccessToken OK";
         }catch(err){
@@ -493,7 +494,7 @@ module.exports = {
             }
 
             //verified resfreshToken 
-            const verified = jwt.verify(refreshToken, config.TOKEN_SECRET_REFRESHTOKEN);  
+            const verified = jwt.verify(refreshToken, process.env.TOKEN_SECRET_REFRESHTOKEN);  
             
             //create AccessToken
             var payload={
@@ -503,7 +504,7 @@ module.exports = {
                 user_type:verified.user_type,
                 iat: Math.floor(Date.now() / 1000) + (60 * 60),
             };
-            const AccessToken = jwt.sign(payload, config.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
+            const AccessToken = jwt.sign(payload, process.env.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
             
             //send accessToken
             res.status(200).json({
