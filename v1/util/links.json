@@ -6,6 +6,10 @@
 
         "AUTHENTICATE_LOGOUT"   :"/authenticate/logout",
 
+        "AUTHENTICATE_FORGET_PW"  : "/authenticate/forget/pw",
+
+        "AUTHENTICATE_UPDATE_PW"  : "/authenticate/update/pw",
+
         "AUTHENTICATE_STATUSTOKEN"   :"/authenticate/statusToken",
 
         "AUTHENTICATE_REFRESHTOKEN"   :"/authenticate/refreshToken",
@@ -60,6 +64,10 @@
         "AUTHENTICATE_STATUSTOKEN"   :"/admin/authenticate/statusToken",
 
         "AUTHENTICATE_REFRESHTOKEN"   :"/admin/authenticate/refreshToken",
+
+        "AUTHENTICATE_FORGET_PW"  : "/admin/authenticate/forget/pw",
+
+        "AUTHENTICATE_UPDATE_PW"  : "/admin/authenticate/update/pw",
 
         "CATEGORY_GET_LIST"  : "/admin/category/list",
 
