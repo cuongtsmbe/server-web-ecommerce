@@ -7,22 +7,22 @@ const validator = require('validator');
 const str2ab = require('string-to-arraybuffer');
 const jwt = require("jsonwebtoken");
 const mdw = require("../mdw/valid.mdw");
+const sendMail = require("../mdw/sendMail.mdw");
 const LINK = require("../util/links.json");
+
 module.exports = {
-    AuthenticateClientRouters:function(app){
-        app.post(LINK.CLIENT.AUTHENTICATE_REGISTER_LOCAL                ,this.validateRegister,this.register);
+    AuthenticateClientRouters:function(app){        
+        app.post(LINK.CLIENT.AUTHENTICATE_REGISTER_LOCAL                ,this.validatePassword,this.validateRegister,this.register);
         app.post(LINK.CLIENT.AUTHENTICATE_LOGIN_LOCAL                   ,this.loginLocal);
         app.post(LINK.CLIENT.AUTHENTICATE_LOGOUT                        ,this.logout);
+        app.post(LINK.CLIENT.AUTHENTICATE_FORGET_PW                     ,this.forgetPassword);
+        app.post(LINK.CLIENT.AUTHENTICATE_UPDATE_PW                     ,this.validatePassword,this.updatePassword);
         app.post(LINK.CLIENT.AUTHENTICATE_STATUSTOKEN                   ,this.statusToken);
         app.post(LINK.CLIENT.AUTHENTICATE_REFRESHTOKEN                  ,this.getAccessToken);
     },
     //1.setting validate password
     //2.validate password
-    //3.validate email
-    //4.validate address,dia_chi
-    //5.validate username
-    //6.validate phone
-    validateRegister:function(req,res,next){
+    validatePassword:function(req,res,next){
         //1
         // Create a schema
         var schema = new passwordValidator();
@@ -45,24 +45,32 @@ module.exports = {
             });
             return false;
         }
+        next();
+    },
+
+    //1.validate email
+    //2.validate address,dia_chi
+    //3.validate username
+    //4.validate phone
+    validateRegister:function(req,res,next){
         var response={
             status:200,
             error:"",
             errorMessage:""
         };
-        //3
+        //1
         if(!validator.isEmail(req.body.email)){
             response.error="email";
             response.errorMessage   ="Email khong hop le.";
             res.json(response);
             return false;
         }
-        //4
+        //2
         if(req.body.ten_kh || req.body.dia_chi){
             req.body.ten_kh=" ";
             req.body.dia_chi=" ";
         }
-        //5
+        //3
         if(0==req.body.username.trim().length){
             response.error="username";
             response.errorMessage   ="username không được để trống.";
@@ -70,7 +78,7 @@ module.exports = {
             return false;
         }
         
-        //6
+        //4
         if(!mdw.isVietnamesePhoneNumber(req.body.phone.trim())){
             response.error="phone";
             response.errorMessage   ="Phone khong hop le.";
@@ -105,11 +113,22 @@ module.exports = {
             salt            :salt
         };
         //1
-        var customer=await customerModel.getOne({ten_dangnhap:value.ten_dangnhap});
+        var [customer,customerInfo]=await Promise.all([
+            customerModel.getOne({ten_dangnhap:value.ten_dangnhap}),
+            customerModel.getOne({email:value.email})
+           ]);
+        //email đã tồn tại
+        if(customerInfo.length!=0){
 
+            response.message="Email đã tồn tại.";
+            return res.json(response);
+
+        }
         if(customer.length==1){
+
             response.message="username da ton tai.";
-            res.json(response);
+            return res.json(response);
+
         }else{
             //2
             crypto.pbkdf2(value.mat_khau, value.salt, 310000, 32, 'sha256',async function(err, hashedPassword) {
@@ -276,6 +295,105 @@ module.exports = {
             }      
         });
     },
+    
+    //gửi token xác thực đến email.
+    forgetPassword:async function(req,res,next){
+        try{
+            var email = req.body.email;
+            var url_UI_ForgetPW=req.body.urlUI;//link UI chuyển đến trang reset password  
+
+            if(email==undefined || url_UI_ForgetPW==undefined || url_UI_ForgetPW.length==0){
+                return res.json({
+                    status:402,
+                    message: "Nhap thieu thong tin."
+                });
+            }
+
+            //ktra email co ton tai trong DB
+            var customerInfo=await customerModel.getOne({email:email});
+            if(customerInfo.length==0){
+                return res.json({
+                    status:404,
+                    message: "Gmail khong ton tai."
+                })
+            }
+            if(customerInfo.length>1){
+                return res.json({
+                    status:500,
+                    message: "Có nhiều tài khoản đang dùng Email này.Vì vậy không thể verify password."
+                })
+            }
+            //create token (15 minutes) and send email 
+            var customer=customerInfo[0];
+            var payload={
+                id: customer.Ma_kh,
+                username:customer.ten_dangnhap,
+                user_permission:true,
+                user_type:'CUSTOMER',
+                iat: Math.floor(Date.now() / 1000) + (60 * 60),
+            };
+
+            //nếu tài khoản bị block thì gắn permission là false
+            if(customer.trangthai==-1){
+                payload.user_permission=false;
+            }
+
+            const token = jwt.sign(payload, config.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "15m"});
+
+            /** Gui email **/
+            sendMail.SendMailForgetPassword(email,token,url_UI_ForgetPW);
+
+            return res.json({
+                status:200,
+                message:"Had send to email."
+            });
+        }catch(err){
+            console.log(err);
+            return res.json({
+                status:500,
+                message:err
+            });
+        }
+    },
+    //cap nhat password tren DB
+    updatePassword:async function(req,res,next){
+        try{
+            var password=req.body.password;
+            var customerInfo=await customerModel.getOne({id:req.user.id});
+            //hash password and update
+            crypto.pbkdf2(password, customerInfo[0].salt, 310000, 32, 'sha256',async function(err, hashedPassword) {
+                
+                if(err){
+                    return res.json({
+                        status:500,
+                        message:"server error"
+                    });
+                }
+                
+                var mat_khau_hash=hashedPassword.toString("hex");
+                var result = await customerModel.update({id:req.user.id},{mat_khau:mat_khau_hash});
+                if(result.affectedRows==0){
+                    return res.json({
+                        status:201,
+                        message:"update password khong thanh cong"
+                    });  
+                }else{
+                    return res.json({
+                        status:200,
+                        message:"update password thanh cong"
+                    });
+                }
+            })
+        }catch(err){
+            console.log(err);
+            return res.json({
+                status:500,
+                message:err
+            });
+        }
+
+    },
+
     //LOGOUT
     //1. delete token có trong DB
     logout:async function(req, res, next){
