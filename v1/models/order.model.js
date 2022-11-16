@@ -23,7 +23,7 @@ module.exports={
                 Tong_tien:      CustomerDetails[0].tong_tien,
                 Ma_giam_gia:    "chua co",
                 Loai_khach_hang:"chua co",
-                Trang_thai:     CustomerDetails[0].trangthai,
+                Trang_thai:     CustomerDetails[0].trang_thai,
                 Phuong_thuc_thanh_toan:"chua co",
                 Email:          CustomerDetails[0].email,
                 Phone:          CustomerDetails[0].phone,
