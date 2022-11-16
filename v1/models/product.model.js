@@ -1,7 +1,8 @@
 const db = require('../util/db');
 const TABLE="sanpham";
 const mysql = require('mysql');
-const config = require("./../config/default.json");
+const configMysql = require("../config/configMysql");
+
 module.exports={
    get: function(condition){
          var result;
@@ -236,7 +237,7 @@ module.exports={
             result_get[i].sl_da_ban=result_get[i].sl_da_ban-value.Danh_sach_san_pham[i].So_luong;
         }
     }
-    var connection = mysql.createConnection(config.mysql);
+    var connection = mysql.createConnection(configMysql.json());
         connection.connect();
     var sql_update=``;
 

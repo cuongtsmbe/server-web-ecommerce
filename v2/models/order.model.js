@@ -27,7 +27,7 @@ module.exports={
                 Phuong_thuc_thanh_toan:"chua co",
                 Email:          CustomerDetails[0].email,
                 Phone:          CustomerDetails[0].phone,
-
+                Dia_chi:        CustomerDetails[0].dia_chi,
             };
 
         var ListProductDetails=await db.load(`SELECT 
