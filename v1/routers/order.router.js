@@ -1,6 +1,7 @@
 const config     = require("../config/default.json");
 const orderModel = require("../models/order.model");
 const productModel = require("../models/product.model");
+const sendMail = require("../mdw/sendMail.mdw");
 const LINK = require("../util/links.json");
 module.exports = {
     orderRouters:function(app){
@@ -226,6 +227,10 @@ module.exports = {
                     return res.json(resultUpdate);
                 }
                 response.message="Create order success.";
+
+                //gửi bill qua email 
+                sendMail.SendMailBillOrder(valueHD.id);
+
             }
         }
         res.json(response);

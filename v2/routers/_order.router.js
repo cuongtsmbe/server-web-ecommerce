@@ -1,6 +1,7 @@
 const config     = require("../config/default.json");
 const orderModel = require("../models/order.model");
 const productModel = require("../models/product.model");
+const sendMail = require("../mdw/sendMail.mdw");
 const LINK = require("../util/links.json");
 module.exports = {
     orderRoutersClient:function(app){
@@ -194,6 +195,10 @@ module.exports = {
                 response.message="Create order success.";  
                 //xóa giỏ hàng 
                 await redisClientService.del(`cart:${req.user.id}`);
+
+                
+                //gửi bill qua email 
+                sendMail.SendMailBillOrder(valueChiTiet.id_hoadon);
 
             }
         }
