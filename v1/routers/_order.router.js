@@ -165,14 +165,14 @@ module.exports = {
 
         res.json(response);
     },
-     //cap nhat trang thai don hang
+     //cap nhat trang thai don hang (hủy đơn)
     changeStatusOrder:async function(req,res,next){
         var response={
             status:201,
             message:""
         };
 
-        var value={ trang_thai:req.body.Trang_thai  }
+        var value={ trang_thai:0  }
         var condition={ id:req.params.id    }
 
         var details = await orderModel.getOrderByID(condition);
