@@ -1,6 +1,8 @@
 const nodemailer = require("nodemailer");
 const { google } = require("googleapis");
 const htmlEmail = require("./htmlEmail.mdw");
+const orderModel = require("../models/order.model");
+
 const OAuth2 = google.auth.OAuth2;
 require('dotenv').config(); //  loads environment variables from a .env file into process.env
 
@@ -69,6 +71,21 @@ module.exports={
             var subject='Reset password Ecommerce'; 
             var text=htmlEmail.htmlForgetPassword(url_UI,token);
             this.sendMail(email,subject,text);
+    },
+    
+    //send content "bill order" to email
+    SendMailBillOrder:async function(OrderID){
+        var subject='Bill Ecommerce'; 
+
+        var condition={
+            id:OrderID
+        }
+        //lấy tất cả thông tin của đơn hàng
+        var details=await orderModel.getDetails(condition);
+        var email=details.Email;
+        var text=htmlEmail.htmlBillOrder(details);
+
+        this.sendMail(email,subject,text);
     }
 }
   
