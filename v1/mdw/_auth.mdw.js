@@ -78,6 +78,9 @@ module.exports={
                 if(req_url.includes("/admin/product/") ){
                     IDDanhMuc=2; 
                 }
+                if(req_url.includes("/admin/thuonghieu/")){
+                    IDDanhMuc=3; 
+                }
                 if(req_url.includes("/admin/category/") ){
                     IDDanhMuc=5; 
                 }
