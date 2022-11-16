@@ -120,13 +120,14 @@ module.exports = {
             message:""
         };
 
-        var value={ trang_thai:req.body.Trang_thai  }
-        var condition={ id:req.params.id    }
+        var value={ trang_thai:req.body.Trang_thai  };
+        var Message=req.body.Message===undefined?'' : req.body.Message ;
+        var condition={ id:req.params.id    };
 
         var details = await orderModel.getOrderByID(condition);
 
-        //đơn đã hủy . không cho thay đổi trạng thái
-        if(details.length==0 || details[0].trang_thai==0){
+        //đơn đã hủy OR đơn hoàn thành . không cho thay đổi trạng thái
+        if(details.length==0 || details[0].trang_thai==0 || details[0].trang_thai==5){
             return res.json({
                 status:202,
                 message:"ID hoa don khong dung OR trang thai don hang khong the Update."
@@ -163,6 +164,10 @@ module.exports = {
 
             //delete in redis 
             await redisClientService.del(`getOrderDetails:${condition.id}`);
+
+            //gửi status order to email
+            sendMail.SendMailStatusOrder(condition.id,Message);
+
         }
         res.json(response);
     },

@@ -68,24 +68,52 @@ module.exports={
 
     //send content "forget password" to email
     SendMailForgetPassword:function(email,token,url_UI){
+        try{
             var subject='Reset password Ecommerce'; 
             var text=htmlEmail.htmlForgetPassword(url_UI,token);
             this.sendMail(email,subject,text);
+        }catch(err){
+            console.log(err);
+        }
     },
     
     //send content "bill order" to email
     SendMailBillOrder:async function(OrderID){
-        var subject='Bill Ecommerce'; 
+        var subject='Thank you for your order ! . Below is your bill.'; 
 
         var condition={
             id:OrderID
         }
-        //lấy tất cả thông tin của đơn hàng
-        var details=await orderModel.getDetails(condition);
-        var email=details.Email;
-        var text=htmlEmail.htmlBillOrder(details);
+        try{
+            //lấy tất cả thông tin của đơn hàng
+            var details=await orderModel.getDetails(condition);
+            var email=details.Email;
+            var text=htmlEmail.htmlBillOrder(details);
+            this.sendMail(email,subject,text);
+        }catch(err){
+            console.log(err);
+        }
+        
+    },
 
-        this.sendMail(email,subject,text);
+    //send content "follow order (update status order)" to email
+    SendMailStatusOrder:async function(OrderID,Message){
+        var subject=`Below is status order ${OrderID}. `; 
+
+        var condition={
+            id:OrderID
+        }
+        try{
+            //lấy tất cả thông tin của đơn hàng
+            var details=await orderModel.getDetails(condition);
+            
+            var email=details.Email;
+            var text=htmlEmail.htmlStatusOrder(details,Message);
+            this.sendMail(email,subject,text);
+        }catch(err){
+            console.log(err);
+        }
+        
     }
 }
   

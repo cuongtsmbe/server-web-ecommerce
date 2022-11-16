@@ -11,6 +11,37 @@ module.exports={
                 
         </html>`;
     },
+    htmlStatusOrder:function(detailsOrder,Message){
+        var stringStatus='';
+        if(detailsOrder.Trang_thai==1){
+            stringStatus="Đợi duyệt";
+        }
+        if(detailsOrder.Trang_thai==2){
+            stringStatus="Đã duyệt";
+        }
+        if(detailsOrder.Trang_thai==3){
+            stringStatus="Đang chuẩn bị hàng";
+        }
+        if(detailsOrder.Trang_thai==4){
+            stringStatus="Đang giao";
+        }
+        if(detailsOrder.Trang_thai==5){
+            stringStatus="Hoàn thành";
+        }
+        if(detailsOrder.Trang_thai==0){
+            stringStatus="Đã hủy";
+        }
+
+        return `<html>
+                <p>
+                    Theo dõi đơn hàng của bạn !.<br><br>
+                    Tình trạng đơn : <b>${stringStatus}</b> <br><br>
+                    Lời nhắn : ${Message}. <br><br>
+                    Dev by Ecommerce 11/2022
+                </p>
+                
+        </html>`;
+    },
     htmlBillOrder:function(detailsOrder){
 
         var hostnameImage="http://localhost:3001/public/image/";
@@ -142,7 +173,7 @@ module.exports={
                                                                
                                                             </td>
                                                             <td style="font-size: 14px; line-height: 18px; color: #757575; text-align: right; padding-bottom: 10px;">
-                                                                <b style="color: #666666;">${detailsOrder.data[i].Don_gia_khi_mua * detailsOrder.data[i].So_luong_mua}</b> Total
+                                                                <b style="color: #666666;"> Thành tiền : ${detailsOrder.data[i].Don_gia_khi_mua * detailsOrder.data[i].So_luong_mua}</b> 
                                                             </td>
                                                         </tr>
                                                         
@@ -164,7 +195,7 @@ module.exports={
                                                      
                                                         <tr>
                                                             <td style="font-size: 14px; font-weight: bold; line-height: 18px; color: #666666; padding-top: 10px;">
-                                                                Order Total
+                                                                Tổng tiền : 
                                                             </td>
                                                             <td style="font-size: 14px; font-weight: bold; line-height: 18px; color: #666666; padding-top: 10px; text-align: right;">
                                                                 ${detailsOrder.Tong_tien} VND
