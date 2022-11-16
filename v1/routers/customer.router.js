@@ -189,7 +189,7 @@ module.exports = {
         }
         res.json(response);
     },
-    //delete nhan vien theo ID
+    //delete (update trangthai = -1) customer theo ID
     delete:async function(req,res,next){
         var response={
             status:201,
@@ -198,7 +198,10 @@ module.exports = {
         var condition={
             id:req.params.id
         };
-        var result=await customerModel.delete(condition);
+        var value ={
+            trangthai:-1
+        };
+        var result=await customerModel.update(condition,value);
         if(result.affectedRows==0){
             response.status=500;
             response.message="delete khong thanh cong";
