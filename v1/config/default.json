@@ -1,4 +1,5 @@
 {
+    "corsLink":"http://localhost:3000",
     "hash": 8,
     "limitOrders":10,
     "limitSuppliers":3,

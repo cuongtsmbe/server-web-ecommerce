@@ -1,4 +1,5 @@
 {
+    "corsLink":"http://localhost:3000",
     "hash": 8,
     "limitOrders":10,
     "limitSuppliers":3,
@@ -14,8 +15,6 @@
     "limitPermission":2,
     "MAX":100000000,
     "crypto_salt":16,
-    "TOKEN_SECRET_ACCESSTOKEN":"17.10.2022.14:19PM.AT.E403",
-    "TOKEN_SECRET_REFRESHTOKEN":"20.20.2022.1:10AM.AT.HOME",
     "max_file_upload":6,
     "maxSizeFileUpload":20
 }

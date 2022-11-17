@@ -1,10 +1,13 @@
 const express = require('express')
 const session = require('express-session')
 const app = express()
-const port = 3002
-var bodyParser = require('body-parser')
-var auth_mdw=require("./mdw/_auth.mdw")
-var cors=require('cors');
+const bodyParser = require('body-parser')
+const auth_mdw=require("./mdw/_auth.mdw")
+const cors=require('cors');
+require('dotenv').config();
+const port = process.env.PORT;
+const config=require("./config/default.json");
+
 
 require('connect-redis')(session);
 const redis = require('redis')
@@ -19,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.use(cors({
-  origin: 'http://localhost:3006',
+  origin: config.corsLink,
   methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD','DELETE'],
   credentials: true
 }));

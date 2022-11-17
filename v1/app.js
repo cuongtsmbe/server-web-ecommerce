@@ -1,18 +1,21 @@
 const express = require('express')
 const session = require('express-session')
 const app = express()
-const port = 3001
-var bodyParser = require('body-parser')
-var auth_mdw=require("./mdw/_auth.mdw")
-var cors=require('cors');
-
+const bodyParser = require('body-parser')
+const auth_mdw=require("./mdw/_auth.mdw")
+const cors=require('cors');
+require('dotenv').config();
+const port = process.env.PORT;
+const config=require("./config/default.json");
 require('express-async-errors');
+
+
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 app.use(cors({
-  origin: 'http://localhost:3001',
+  origin: config.corsLink,
   methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD','DELETE'],
   credentials: true
 }));
