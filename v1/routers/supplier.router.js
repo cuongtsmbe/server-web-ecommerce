@@ -4,6 +4,7 @@ const LINK = require("../util/links.json");
 module.exports = {
     supplierRouters:function(app){
         app.get(    LINK.ADMIN.SUPPLIER_GET_LIST        ,this.setDefault , this.get);
+        app.get(    LINK.ADMIN.SUPPLIER_GET_BY_ID       ,this.getSupplierByID);
         app.post(   LINK.ADMIN.SUPPLIER_ADD             ,this.add);
         app.put(    LINK.ADMIN.SUPPLIER_EDIT            ,this.update);
         app.delete( LINK.ADMIN.SUPPLIER_DELETE          ,this.delete);
@@ -27,6 +28,17 @@ module.exports = {
             offset:config.limitSuppliers*(req.query.page-1)
         };
         var result= await supplierModel.get(condition);
+        res.json({
+            status:200,
+            data:result
+        })
+    },
+    //lay nha cung cap theo ID 
+    getSupplierByID:async function(req,res,next){
+        var condition={
+           id:req.params.id
+        };
+        var result= await supplierModel.getOneByID(condition);
         res.json({
             status:200,
             data:result

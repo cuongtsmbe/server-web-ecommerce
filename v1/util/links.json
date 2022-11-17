@@ -25,7 +25,7 @@
         "CATEGORY_GET_LIST"  : "/listcategories",
 
         "CATEGORY_GET_BY_ID" : "/category/one/:id",
-        
+
         "THUONGHIEU_GET_LIST" : "/thuonghieu/list",
 
         "THUONGHIEU_GET_ALL"    : "/thuonghieu/listAll",
@@ -58,7 +58,9 @@
 
         "PRODUCT_GET_LIST_TOPSALE_MOST" : "/product/topsale/:limit",
         
-        "PRODUCT_GET_LIST_RELEVANT":"/product/relevant/:idtheloai/:idProduct/:limit"
+        "PRODUCT_GET_LIST_RELEVANT":"/product/relevant/:idtheloai/:idProduct/:limit",
+
+        "SUPPLIER_GET_BY_ID"    : "/supplier/one/:id"
     },
 
     "ADMIN": {
@@ -154,6 +156,8 @@
         "STAFF_DELETE"  : "/admin/staff/delete/:id",
 
         "SUPPLIER_GET_LIST"  : "/admin/supplier/list",
+
+        "SUPPLIER_GET_BY_ID"    : "/admin/supplier/one/:id",
 
         "SUPPLIER_ADD"  : "/admin/supplier/add",
         

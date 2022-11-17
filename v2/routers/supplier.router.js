@@ -4,6 +4,7 @@ const LINK = require("../util/links.json");
 module.exports = {
     supplierRouters:function(app){
         app.get(    LINK.ADMIN.SUPPLIER_GET_LIST        ,this.setDefault , this.get);
+        app.get(    LINK.ADMIN.SUPPLIER_GET_BY_ID       ,this.getSupplierByID);
         app.post(   LINK.ADMIN.SUPPLIER_ADD             ,this.add);
         app.put(    LINK.ADMIN.SUPPLIER_EDIT            ,this.update);
         app.delete( LINK.ADMIN.SUPPLIER_DELETE          ,this.delete);
@@ -27,6 +28,32 @@ module.exports = {
             offset:config.limitSuppliers*(req.query.page-1)
         };
         var result= await supplierModel.get(condition);
+        res.json({
+            status:200,
+            data:result
+        })
+    },
+    //lay nha cung cap theo ID 
+    getSupplierByID:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
+        var condition={
+            id:req.params.id
+        };
+
+        var result = await redisClientService.jsonGet(`supplier:${condition.id}`);
+
+        if(!result){
+           
+            result= await supplierModel.getOneByID(condition);
+            await redisClientService.jsonSet(`supplier:${condition.id}`,".",JSON.stringify(result));
+        
+        }else{
+
+            result = JSON.parse(result);
+            
+        }      
+
         res.json({
             status:200,
             data:result
@@ -58,6 +85,8 @@ module.exports = {
     },
     //update thong tin nha cung cap
     update:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
         var response={
             status:201,
             message:""
@@ -81,11 +110,17 @@ module.exports = {
         }else{
             response.status=200;
             response.message="update thanh cong";  
+
+            await redisClientService.del(`supplier:${condition.id}`);
+
         }
         res.json(response);
     },
     //delete nha cung cap theo id
     delete:async function(req,res,next){
+
+        var redisClientService=res.locals.redisClientService;
+
         var response={
             status:201,
             message:""
@@ -102,6 +137,8 @@ module.exports = {
         }else{
             response.status=200;
             response.message="delete thanh cong";
+
+            await redisClientService.del(`supplier:${condition.id}`);
         }
         res.json(response);
     }
