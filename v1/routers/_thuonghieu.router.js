@@ -5,6 +5,7 @@ module.exports = {
     thuonghieuClientRouters:function(app){
         app.get(    LINK.CLIENT.THUONGHIEU_GET_LIST            ,this.setDefault,this.getListThuonghieu);
         app.get(    LINK.CLIENT.THUONGHIEU_GET_ALL             ,this.getAllList);
+        app.get(    LINK.CLIENT.THUONGHIEU_GET_BY_ID           ,this.getThuongHieuByID);
     },
     setDefault:function(req,res,next){
         if(req.query.search==undefined){
@@ -32,6 +33,19 @@ module.exports = {
     //lay tất cả thuong hieu
     getAllList:async function(req,res,next){
         var result= await thuonghieuModel.getAll();
+        res.json({
+            status:200,
+            data:result
+        })
+    },
+    //lay thuong hieu theo id 
+    getThuongHieuByID:async function(req,res,next){
+        var condition={
+           id:req.params.id
+        };
+        
+        var result= await thuonghieuModel.getOneByID(condition);
+        
         res.json({
             status:200,
             data:result

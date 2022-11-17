@@ -24,11 +24,13 @@
 
         "CATEGORY_GET_LIST"  : "/listcategories",
 
+        "CATEGORY_GET_BY_ID" : "/category/one/:id",
+        
         "THUONGHIEU_GET_LIST" : "/thuonghieu/list",
 
-        "CATEGORY_GET_BY_ID" : "/category/one/:id",
-
         "THUONGHIEU_GET_ALL"    : "/thuonghieu/listAll",
+
+        "THUONGHIEU_GET_BY_ID"    : "/thuonghieu/one/:id",
 
         "CUSTOMER_GET_INFO"  : "/customer/details",
 
@@ -84,6 +86,8 @@
         "THUONGHIEU_GET_LIST" : "/admin/thuonghieu/list",
 
         "THUONGHIEU_GET_ALL"    : "/admin/thuonghieu/listAll",
+
+        "THUONGHIEU_GET_BY_ID"    : "/admin/thuonghieu/one/:id",
 
         "THUONGHIEU_ADD"    : "/admin/thuonghieu/add",
 

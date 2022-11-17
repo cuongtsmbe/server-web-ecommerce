@@ -5,6 +5,7 @@ module.exports = {
     thuonghieuRouters:function(app){
         app.get(    LINK.ADMIN.THUONGHIEU_GET_LIST            ,this.setDefault,this.getListThuonghieu);
         app.get(    LINK.ADMIN.THUONGHIEU_GET_ALL             ,this.getAllList);
+        app.get(    LINK.ADMIN.THUONGHIEU_GET_BY_ID           ,this.getThuongHieuByID);
         app.post(   LINK.ADMIN.THUONGHIEU_ADD                 ,this.add);
         app.put(    LINK.ADMIN.THUONGHIEU_EDIT                ,this.update);
         app.delete( LINK.ADMIN.THUONGHIEU_DELETE              ,this.delete);
@@ -54,6 +55,33 @@ module.exports = {
             data:lsthuonghieu
         })
 
+    },
+    //lay thuong hieu theo id 
+    getThuongHieuByID:async function(req,res,next){
+
+        var redisClientService=res.locals.redisClientService;
+
+        var condition={
+            id:req.params.id
+        };
+
+        var result = await redisClientService.jsonGet(`thuonghieu:${condition.id}`);
+
+        if(!result){
+           
+            result= await thuonghieuModel.getOneByID(condition);
+            await redisClientService.jsonSet(`thuonghieu:${condition.id}`,".",JSON.stringify(result));
+        
+        }else{
+
+            result = JSON.parse(result);
+            
+        }      
+
+        res.json({
+            status:200,
+            data:result
+        })
     },
     //them thuong hieu
     add:async function(req,res,next){
@@ -112,6 +140,7 @@ module.exports = {
             response.status=200;
             response.message="update thanh cong";  
             await redisClientService.del(`thuonghieu:all`);
+            await redisClientService.del(`thuonghieu:${condition.id}`);
         }
         res.json(response);
     },
@@ -134,6 +163,7 @@ module.exports = {
                 response.status=200;
                 response.message="delete thanh cong";
                 await redisClientService.del(`thuonghieu:all`);
+                await redisClientService.del(`thuonghieu:${condition.id}`);
             }
             res.json(response);
     }

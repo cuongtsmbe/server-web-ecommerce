@@ -5,6 +5,7 @@ module.exports = {
     thuonghieuRouters:function(app){
         app.get(    LINK.ADMIN.THUONGHIEU_GET_LIST            ,this.setDefault,this.getListThuonghieu);
         app.get(    LINK.ADMIN.THUONGHIEU_GET_ALL             ,this.getAllList);
+        app.get(    LINK.ADMIN.THUONGHIEU_GET_BY_ID           ,this.getThuongHieuByID);
         app.post(   LINK.ADMIN.THUONGHIEU_ADD                 ,this.add);
         app.put(    LINK.ADMIN.THUONGHIEU_EDIT                ,this.update);
         app.delete( LINK.ADMIN.THUONGHIEU_DELETE              ,this.delete);
@@ -35,6 +36,19 @@ module.exports = {
     //lay tất cả thuong hieu
     getAllList:async function(req,res,next){
         var result= await thuonghieuModel.getAll();
+        res.json({
+            status:200,
+            data:result
+        })
+    },
+    //lay thuong hieu theo id 
+    getThuongHieuByID:async function(req,res,next){
+        var condition={
+           id:req.params.id
+        };
+        
+        var result= await thuonghieuModel.getOneByID(condition);
+        
         res.json({
             status:200,
             data:result

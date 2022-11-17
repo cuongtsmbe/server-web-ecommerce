@@ -5,6 +5,7 @@ module.exports = {
     thuonghieuClientRouters:function(app){
         app.get(    LINK.CLIENT.THUONGHIEU_GET_LIST            ,this.setDefault,this.getListThuonghieu);
         app.get(    LINK.CLIENT.THUONGHIEU_GET_ALL             ,this.getAllList);
+        app.get(    LINK.CLIENT.THUONGHIEU_GET_BY_ID           ,this.getThuongHieuByID);
     },
     setDefault:function(req,res,next){
         if(req.query.search==undefined){
@@ -49,6 +50,33 @@ module.exports = {
             status:200,
             data:lsthuonghieu
         })
-    }
+    },
+     //lay thuong hieu theo id 
+     getThuongHieuByID:async function(req,res,next){
+
+        var redisClientService=res.locals.redisClientService;
+
+        var condition={
+            id:req.params.id
+        };
+
+        var result = await redisClientService.jsonGet(`thuonghieu:${condition.id}`);
+
+        if(!result){
+           
+            result= await thuonghieuModel.getOneByID(condition);
+            await redisClientService.jsonSet(`thuonghieu:${condition.id}`,".",JSON.stringify(result));
+        
+        }else{
+
+            result = JSON.parse(result);
+            
+        }      
+
+        res.json({
+            status:200,
+            data:result
+        })
+    },
 
 }
