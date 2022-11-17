@@ -1,5 +1,5 @@
 const staffModel = require("../models/staff.model");
-const config    =require("../config/default.json");
+const permissionModel = require("../models/permission.model");
 const crypto=require('crypto');
 const str2ab = require('string-to-arraybuffer');
 const jwt = require("jsonwebtoken");
@@ -67,6 +67,8 @@ module.exports = {
                 const AccessToken = jwt.sign(payload, process.env.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
                 const refreshToken = jwt.sign(payload, process.env.TOKEN_SECRET_REFRESHTOKEN,{ expiresIn:"1d" });
                 
+                //get tất cả id danh muc mà quyền đó có
+                var listQuyenDanhMuc =await permissionModel.getDetails({id:staff.id_quyen});
                 //reponse
                 res.json({
                     status:200,
@@ -75,6 +77,7 @@ module.exports = {
                         username:value.username,
                         name:staff.ten_nv,
                         email:staff.email,
+                        danhMucQuyen:listQuyenDanhMuc,
                         AccessToken:AccessToken,
                         refreshToken:refreshToken
                     }
