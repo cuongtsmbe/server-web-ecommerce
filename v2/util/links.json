@@ -26,6 +26,8 @@
 
         "THUONGHIEU_GET_LIST" : "/thuonghieu/list",
 
+        "CATEGORY_GET_BY_ID" : "/category/one/:id",
+
         "THUONGHIEU_GET_ALL"    : "/thuonghieu/listAll",
 
         "CUSTOMER_GET_INFO"  : "/customer/details",
@@ -70,6 +72,8 @@
         "AUTHENTICATE_UPDATE_PW"  : "/admin/authenticate/update/pw",
 
         "CATEGORY_GET_LIST"  : "/admin/category/list",
+
+        "CATEGORY_GET_BY_ID" : "/admin/category/one/:id",
 
         "CATEGORY_ADD"  : "/admin/category/add",
 

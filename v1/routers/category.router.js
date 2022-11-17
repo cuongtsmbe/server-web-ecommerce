@@ -4,6 +4,7 @@ const LINK = require("../util/links.json");
 module.exports = {
     categoryRouters:function(app){
         app.get(    LINK.ADMIN.CATEGORY_GET_LIST            ,this.setDefault,this.getListCategory);
+        app.get(    LINK.ADMIN.CATEGORY_GET_BY_ID           ,this.getCategoryByID);
         app.post(   LINK.ADMIN.CATEGORY_ADD                 ,this.add);
         app.put(    LINK.ADMIN.CATEGORY_EDIT                ,this.update);
         app.delete( LINK.ADMIN.CATEGORY_DELETE              ,this.delete);
@@ -26,6 +27,17 @@ module.exports = {
         };
         
         var result= await categoryModel.getList(condition);
+        res.json({
+            status:200,
+            data:result
+        })
+    },
+    //lay the loai theo id 
+    getCategoryByID:async function(req,res,next){
+        var condition={
+           id:req.params.id
+        };
+        var result= await categoryModel.getOneByID(condition);
         res.json({
             status:200,
             data:result

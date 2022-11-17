@@ -4,6 +4,7 @@ const LINK = require("../util/links.json");
 module.exports = {
     categoryRouters:function(app){
         app.get(    LINK.ADMIN.CATEGORY_GET_LIST            ,this.setDefault,this.getListCategory);
+        app.get(    LINK.ADMIN.CATEGORY_GET_BY_ID           ,this.getCategoryByID);
         app.post(   LINK.ADMIN.CATEGORY_ADD                 ,this.add);
         app.put(    LINK.ADMIN.CATEGORY_EDIT                ,this.update);
         app.delete( LINK.ADMIN.CATEGORY_DELETE              ,this.delete);
@@ -26,6 +27,32 @@ module.exports = {
         };
         
         var result= await categoryModel.getList(condition);
+        res.json({
+            status:200,
+            data:result
+        })
+    },
+    //lay the loai theo id 
+    getCategoryByID:async function(req,res,next){
+        var redisClientService=res.locals.redisClientService;
+
+        var condition={
+            id:req.params.id
+        };
+
+        var result = await redisClientService.jsonGet(`category:${condition.id}`);
+
+        if(!result){
+           
+            result= await categoryModel.getOneByID(condition);
+            await redisClientService.jsonSet(`category:${condition.id}`,".",JSON.stringify(result));
+        
+        }else{
+
+            result = JSON.parse(result);
+            
+        }      
+
         res.json({
             status:200,
             data:result
@@ -86,6 +113,7 @@ module.exports = {
             response.message="update thanh cong"; 
              //xóa data old in redis 
              await redisClientService.del(`getAllCategory`);  
+             await redisClientService.del(`category:${condition.id}`);
         }
         res.json(response);
     },
@@ -109,6 +137,7 @@ module.exports = {
                 response.message="delete thanh cong";
                  //xóa data old in redis 
                 await redisClientService.del(`getAllCategory`); 
+                await redisClientService.del(`category:${condition.id}`);
             }
             res.json(response);
     }
