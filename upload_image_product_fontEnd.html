@@ -1,0 +1,79 @@
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+function show_image_client_update() { //dùng fileReader đọc file và hiển thị ra trước khi gửi lên server
+    document.getElementById("image_read").style.display = "flex";
+    var filename = document.getElementById('upload').files; //filelist  input:multiple
+    console.log(filename);
+    if (filename.length > 0) {
+        for (let i = 0; i < filename.length; i++) { //chạy hết các phần tử trong array filename
+            var fileReader = new FileReader();
+            fileReader.onload = function(ProgressEvent) { //khi chạy đến trạng thái onload thì ProgressEvent lúc này dạng obj trong đó có ProgressEvent.target.result dạng url đại diện cho data vừa đọc
+                console.log(ProgressEvent);
+                if (ProgressEvent.target.result.search("image") != -1) { //hiển thị file image ra màn hình 
+                    var img = document.createElement("img");
+                    img.src = ProgressEvent.target.result; //src dữ liệu đã đọc dưới dạng url
+                    img.className = "img_show_item";
+                    var span = document.createElement("span");
+                    span.className = "span_image_readfile";
+                    span.appendChild(img);
+                    document.getElementById("image_read").appendChild(span);
+                } 
+            }
+            fileReader.readAsDataURL(filename[i]); //chạy reader file upload file
+        }
+    }
+}
+
+function send_file() { 
+    var bodyFormData = new FormData(); //tạo form để thực hiện gửi form bằng axios
+    var updatefileList = document.getElementById('upload').files; //lấy tất cả file đc chọn trong input có type=file
+    arrFileNameUpload = [];
+    for (let i = 0; i < updatefileList.length; i++) { //lấy từng file trong upload và append nó nào form FormData với name=ListPhoto
+        var namefile = Date.now() + updatefileList[i].name;
+        arrFileNameUpload.push({ name: namefile, type: updatefileList[i].type });
+        bodyFormData.append("ListPhoto", updatefileList[i], namefile); //nếu dùng bodyFormData.set thì chỉ upload đc 1 file thôi
+    }
+    console.log("bodyFormData: ");
+    console.log(bodyFormData);
+    axios({
+            method: "post",
+            url: "http://localhost:3002/admin/upload/add/60",
+            data: bodyFormData, //data: {  } nếu dùng dạng này truyền form thì sẽ bị lỗi 
+            headers: {
+                'Content-Type': 'multipart/form-data' //cho form dạng "multipart/form-data" thì mới upload đc file lên server
+            },
+        }).then(function(response) { 
+            if (response.status == 200) {
+                for (let i = 0; i < arrFileNameUpload.length; i++) {
+                    var typeContent;
+                    var url; //url dẫn đến file upload 
+                    if (arrFileNameUpload[i].type.search("video") != -1) {
+                        typeContent = "video";
+                    } else if (arrFileNameUpload[i].type.search("image") != -1) {
+                        typeContent = "image";
+                    } else {
+                        typeContent = "other";
+                        alert("chi nhan file image hoac video");
+                        return ;
+                    }
+                    url = typeContent;
+                }
+            }
+            console.log(response);
+        })
+        .catch(function(response) {
+            alert("Có lỗi gì đó khi gửi file. xin vui lòng thử lại.(lưu ý: số lượng file gửi luôn <=6,Kích thước mỗi file <=20 MB)");
+            console.log(response);
+        });
+}
+
+
+
+
+</script>
+<div class="fileUpload btn msg_send_btn">
+        <input  class="msg_send_btn upload"  type="file" name="ListPhoto" id="upload" onchange="show_image_client_update()" multiple/>
+</div>
+<div id="image_read"></div>
+<button class="msg_send_btn" type="button"  onclick="send_file()"  id="submit-btn">submit</button>
+
