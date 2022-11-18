@@ -8,6 +8,7 @@ module.exports={
     loggedIn:async function (req, res, next) {
         let token = req.header('Authorization');
         let req_url = req.originalUrl;
+        console.log(req_url);
         //không có Token có thể vào các đường dẫn
         if(!token && (
                 req_url.includes("/authenticate/register/local") 
