@@ -1,5 +1,6 @@
 const mysql = require('mysql');
 const configMysql = require("../config/configMysql");
+const dbMdw =require('../mdw/db.mdw');
 
 module.exports = {
     load: function(sql,condition) {
@@ -11,6 +12,10 @@ module.exports = {
                     console.log(error); 
                     return resolve([]);
                 };
+                
+                
+                results = dbMdw.resultsFormatTime(results);
+
                 resolve(results);
             });
             connection.end();
@@ -25,6 +30,9 @@ module.exports = {
                     console.log(error); 
                     return resolve([]);
                 };
+
+                results = dbMdw.resultsFormatTime(results);
+
                 resolve(results);
             });
 
@@ -55,6 +63,9 @@ module.exports = {
                     console.log(error); 
                     return resolve([]);
                 };
+
+                results = dbMdw.resultsFormatTime(results);
+                
                 resolve(results);
             });
 
