@@ -169,7 +169,7 @@ module.exports={
         if(condition.sort==1){
             sql=sql.concat(` order by HD.tong_tien DESC`);
         }
-        //sort =1 tăng dần 
+        //sort =2 tăng dần 
         if(condition.sort==2){
             sql=sql.concat(` order by HD.tong_tien ASC`);
         }

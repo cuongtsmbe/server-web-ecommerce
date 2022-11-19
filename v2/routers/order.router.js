@@ -22,6 +22,9 @@ module.exports = {
         if(req.query.page==undefined){
             req.query.page=1;
         }
+        if(req.query.sort==undefined){
+            req.query.sort=-1;
+        }
         next();
     },
     //set default ID customer
@@ -29,6 +32,9 @@ module.exports = {
         res.locals.GetByName=false;
         if(req.query.page==undefined){
             req.query.page=1;
+        }
+        if(req.query.sort==undefined){
+            req.query.sort=-1;
         }
         next();
     },
@@ -41,6 +47,7 @@ module.exports = {
                 dateStart   :req.query.startdate,
                 dateEnd     :req.query.enddate,
                 trangThai   :req.query.trangthai,
+                sort        :req.query.sort,
                 limit       :config.limitOrders,
                 offset      :(req.query.page-1)*config.limitOrders
             };
@@ -51,15 +58,22 @@ module.exports = {
                 dateStart   :req.query.startdate,
                 dateEnd     :req.query.enddate,
                 trangThai   :req.query.trangthai,
+                sort        :req.query.sort,
                 limit       :config.limitOrders,
                 offset      :(req.query.page-1)*config.limitOrders
             };
         }
-        var result= await orderModel.getList(condition);
-
+        
+        var [result,countResult]=await Promise.all([
+            await orderModel.getList(condition),
+            await orderModel.countGetListOrder(condition)
+           ]);
         res.json({
             status:200,
-            data:result
+            data:result,
+            countOrdersNoLimit:countResult[0],
+            PageCurrent:req.query.page,
+            TotalPage:Math.ceil(1.0*countResult[0].count/condition.limit)
         })
     },
 
