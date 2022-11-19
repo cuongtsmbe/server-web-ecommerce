@@ -199,8 +199,9 @@ module.exports={
             args.unshift(condition.trangThai);
             sql=sql.concat(` AND HD.trang_thai=? `)
         }
-        
-        sql=sq.concat(` AND HD.ngay_tao BETWEEN ? AND ? `);
+        if(condition.dateStart!=undefined && condition.dateEnd!=undefined){
+            sql=sq.concat(` AND HD.ngay_tao BETWEEN ? AND ? `);
+        }
         var listOrders= db.load(sql,args);
         return listOrders;
     },
