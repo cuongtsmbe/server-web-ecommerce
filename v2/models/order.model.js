@@ -200,7 +200,7 @@ module.exports={
             sql=sql.concat(` AND HD.trang_thai=? `)
         }
         if(condition.dateStart!=undefined && condition.dateEnd!=undefined){
-            sql=sq.concat(` AND HD.ngay_tao BETWEEN ? AND ? `);
+            sql=sql.concat(` AND HD.ngay_tao BETWEEN ? AND ? `);
         }
         var listOrders= db.load(sql,args);
         return listOrders;
