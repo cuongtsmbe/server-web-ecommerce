@@ -74,6 +74,9 @@ module.exports = {
 
     //get total monney orders of customer by ID
     getTotalMonneyOrders:async function(req,res,next){
+        if(req.query.trangthai==undefined){
+            req.query.trangthai=-1;
+        }
         var condition={
             ID_KH       :req.user.id,     
             dateStart   :req.query.startdate,
