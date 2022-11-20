@@ -18,6 +18,22 @@ module.exports={
         }
         return result;
    },
+   
+   CountGet:function(condition){
+        var result;
+        condition.search=`%${condition.search}%`;
+        if(condition.idtheloai==-1 && condition.search==`%%`){
+            var args=[condition.limit,condition.offset];
+            result = db.load(`select count(*) as count from ${TABLE} where 1 LIMIT ? OFFSET ? `,args);
+        }else if(condition.idtheloai==-1){
+            var args=[condition.search,condition.limit,condition.offset];
+            result   = db.load(`select count(*) as count from ${TABLE} where ten_sp LIKE ? LIMIT ? OFFSET ? `,args);
+        }else{
+            var args=[condition.idtheloai,condition.search,condition.limit,condition.offset];
+            result   = db.load(`select count(*) as count from ${TABLE} where id_the_loai = ? AND ten_sp LIKE ? LIMIT ? OFFSET ?`,args);
+        }
+        return result;
+    },
    add:function(value){
        return db.insert(TABLE,value);
    },

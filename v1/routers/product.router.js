@@ -33,10 +33,19 @@ module.exports = {
             search:req.query.search,
             idtheloai:req.query.idtheloai
         };
-        var result= await productModel.get(condition);
+
+        var [countProducts,result]=await Promise.all([
+            productModel.CountGet(condition),
+            productModel.get(condition)
+           ]);
+           
         res.json({
             status:200,
-            data:result
+            datalength:result.length,
+            data:result,
+            countProductsNoLimit:countProducts[0],
+            PageCurrent:req.query.page,
+            TotalPage:Math.ceil(1.0*countProducts[0].count/config.limitProducts)
         })
     },
     //them moi sản phẩm
