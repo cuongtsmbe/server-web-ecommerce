@@ -73,7 +73,7 @@ module.exports = {
         };
 
         var [countProducts,result]=await Promise.all([
-            productModel.CountListByCondition(condition),
+            productModel.getListByCondition(condition,1),
             productModel.getListByCondition(condition)
            ]);
 

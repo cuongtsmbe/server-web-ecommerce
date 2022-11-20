@@ -67,7 +67,7 @@ module.exports = {
         }
         var [result,countResult]=await Promise.all([
             await orderModel.getList(condition),
-            await orderModel.countGetListOrder(condition)
+            await orderModel.getList(condition,1)
            ]);
         res.json({
             status:200,

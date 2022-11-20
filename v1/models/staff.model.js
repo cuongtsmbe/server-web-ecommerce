@@ -11,16 +11,33 @@ module.exports={
         var sql=`select id as Ma_nhan_vien,mat_khau,salt,id_quyen,ten_nv,phone,ten_dangnhap,email,ngay_tao,ngay_sua `;
         return db.load(sql.concat(` from ${TABLE} WHERE ?`),condition);
     },
-    getList: function(condition){
+    getList: function(condition,count=0){
         var result;
         condition.ten_nv=`%${condition.ten_nv}%`;
-        var sql=`select id as Ma_nhan_vien,id_quyen,ten_nv,phone,ten_dangnhap,email,ngay_tao,ngay_sua `;
-        if(condition.ten_nv=='%%'){
-            var args=[condition.limit,condition.offset];
-            result   = db.load(sql.concat(` from ${TABLE} LIMIT ? OFFSET ?  `),args);
+        var sql;
+        if(count==0){
+            sql=`select id as Ma_nhan_vien,id_quyen,ten_nv,phone,ten_dangnhap,email,ngay_tao,ngay_sua `;
         }else{
-           var args=[condition.ten_nv,condition.limit,condition.offset];
-           result   = db.load(sql.concat(` from ${TABLE} where ten_nv LIKE ? LIMIT ? OFFSET ? `),args);
+            sql=`select count(*) as count `;
+        }
+        sql=sql.concat(` from ${TABLE} `);
+        if(condition.ten_nv=='%%'){
+            var args=[];
+            if(count==0){
+                args.push(condition.limit);
+                args.push(condition.offset);
+                sql=sql.concat(` limit ? offset ? `);
+            }
+            result   = db.load(sql,args);
+        }else{
+           var args=[condition.ten_nv];
+           sql=sql.concat(` where ten_nv LIKE ? `);
+            if(count==0){
+                args.push(condition.limit);
+                args.push(condition.offset);
+                sql=sql.concat(` limit ? offset ? `);
+            }
+            result   = db.load(sql,args);
            
         }
        return result;

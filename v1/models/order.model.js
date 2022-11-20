@@ -45,25 +45,34 @@ module.exports={
     },
 
     //lấy danh sách đơn hàng theo status 
-    getListByStatus:function(condition){
-        var args=[condition.trangThai,condition.dateStart,condition.dateEnd,condition.limit,condition.offset];
-        
-        var sql=`SELECT *
-        FROM ${TABLE} HD
-        WHERE `;
-        
+    getListByStatus:function(condition,count=0){
+        var args=[condition.trangThai,condition.dateStart,condition.dateEnd];
+        var sql="";
+        if(count==0){
+             sql=`SELECT *
+             `;
+        }else{
+             sql="select count(*) as count "
+        }
+
+        sql=sql.concat(` FROM ${TABLE} HD WHERE `);
         if(condition.trangThai==-1 && condition.dateStart!=undefined && condition.dateEnd!=undefined){
-            sql=sql.concat(` HD.ngay_tao BETWEEN ? AND ? LIMIT ? OFFSET ?`);
+            sql=sql.concat(` HD.ngay_tao BETWEEN ? AND ? `);
             //delete trangthai
             args.splice(0,1);
         }else if(condition.trangThai==-1 && (condition.dateStart==undefined || condition.dateEnd==undefined)){
-            sql=sql.concat(`1 LIMIT ? OFFSET ?`);
+            sql=sql.concat(`1 `);
             args.splice(0,3);//delete trang thai,dateStart,dateEnd
         }else if(condition.trangThai!=-1 && (condition.dateStart==undefined || condition.dateEnd==undefined)){
-            sql=sql.concat(`HD.trang_thai=? LIMIT ? OFFSET ?`);
+            sql=sql.concat(`HD.trang_thai=? `);
             args.splice(1,2);//delete dateStart,dateEnd
         }else{
-            sql=sql.concat(` HD.trang_thai=? AND HD.ngay_tao BETWEEN ? AND ? LIMIT ? OFFSET ?`);
+            sql=sql.concat(` HD.trang_thai=? AND HD.ngay_tao BETWEEN ? AND ? `);
+        }
+        if(count==0){
+            sql=sql.concat(` LIMIT ? OFFSET ? `);
+            args.push(condition.limit);
+            args.push(condition.offset);    
         }
         var listOrders= db.load(sql,args);
         return listOrders;
@@ -84,12 +93,20 @@ module.exports={
     },
     
     //Xem danh sách hóa đơn  
-    getList: function(condition){
+    getList: function(condition,count=0){
+        var sql="";
+        if(count==0){
+            sql=`SELECT 
+                HD.id as Ma_don_hang,HD.ngay_tao as Ngay_dat,HD.id_khachhang,KH.ten_kh as Ten_khach_hang,HD.tong_tien as Tong_tien,
+                HD.id_nhanvien ,HD.trang_thai as Trang_thai,phuong_thuc_thanh_toan
+             `
+        }else{
+            sql= "select count(*) as count"
+        }
+        sql=sql.concat(` FROM (SELECT kh.id,kh.ten_kh FROM ${TABLE_KH} kh WHERE `);
+
         var args=[condition.trangThai,condition.dateStart,condition.dateEnd];
-        var sql=`SELECT 
-        HD.id as Ma_don_hang,HD.ngay_tao as Ngay_dat,HD.id_khachhang,KH.ten_kh as Ten_khach_hang,HD.tong_tien as Tong_tien,
-        HD.id_nhanvien ,HD.trang_thai as Trang_thai,phuong_thuc_thanh_toan
-        FROM (SELECT kh.id,kh.ten_kh FROM ${TABLE_KH} kh WHERE `
+      
         if(condition.GetByName==true){
             sql=sql.concat( `kh.ten_kh LIKE ?`);
             args.unshift(condition.Ten_KH);//add value at begin array
@@ -125,58 +142,12 @@ module.exports={
         if(condition.sort==2){
             sql=sql.concat(` order by HD.tong_tien ASC`);
         }
-
-        sql=sql.concat(` LIMIT ? OFFSET ? `);
-        args.push(condition.limit);
-        args.push(condition.offset);
-        var listOrders= db.load(sql,args);
-        return listOrders;
-    },
-    //đếm số lượng order với condition
-    countGetListOrder:function(condition){
-        var args=[condition.trangThai,condition.dateStart,condition.dateEnd];
-        var sql=`SELECT 
-            COUNT(*) as count
-        FROM (SELECT kh.id,kh.ten_kh FROM ${TABLE_KH} kh WHERE `
-        if(condition.GetByName==true){
-            sql=sql.concat( `kh.ten_kh LIKE ?`);
-            args.unshift(condition.Ten_KH);//add value at begin array
-        }else{
-            sql=sql.concat( `kh.id=?`);
-            args.unshift(condition.ID_KH);
+        
+        if(count==0){
+            sql=sql.concat(` LIMIT ? OFFSET ? `);
+            args.push(condition.limit);
+            args.push(condition.offset);
         }
-        sql=sql.concat(
-            `) as KH
-            INNER JOIN ${TABLE} HD ON KH.id=HD.id_khachhang
-            WHERE `
-        );
-            
-        if(condition.trangThai==-1 && condition.dateStart!=undefined && condition.dateEnd!=undefined){
-            sql=sql.concat(` HD.ngay_tao BETWEEN ? AND ? `);
-            //delete trangthai
-            args.splice(1,1);
-        }else if(condition.trangThai==-1 && (condition.dateStart==undefined || condition.dateEnd==undefined)){
-            sql=sql.concat(`1 `);
-            args.splice(1,3);//delete trang thai,dateStart,dateEnd
-        }else if(condition.trangThai!=-1 && (condition.dateStart==undefined || condition.dateEnd==undefined)){
-            sql=sql.concat(`HD.trang_thai=? `);
-            args.splice(2,2);//delete dateStart,dateEnd
-        }else{
-            sql=sql.concat(` HD.trang_thai=? AND HD.ngay_tao BETWEEN ? AND ? `);
-        }
-
-        //sort =1 giảm dần 
-        if(condition.sort==1){
-            sql=sql.concat(` order by HD.tong_tien DESC`);
-        }
-        //sort =2 tăng dần 
-        if(condition.sort==2){
-            sql=sql.concat(` order by HD.tong_tien ASC`);
-        }
-
-        sql=sql.concat(` LIMIT ? OFFSET ? `);
-        args.push(condition.limit);
-        args.push(condition.offset);
         var listOrders= db.load(sql,args);
         return listOrders;
     },
