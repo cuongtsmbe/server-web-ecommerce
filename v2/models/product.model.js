@@ -23,14 +23,14 @@ module.exports={
         var result;
         condition.search=`%${condition.search}%`;
         if(condition.idtheloai==-1 && condition.search==`%%`){
-            var args=[condition.limit,condition.offset];
-            result = db.load(`select count(*) as count from ${TABLE} where 1 LIMIT ? OFFSET ? `,args);
+
+            result = db.load(`select count(*) as count from ${TABLE} where 1  `);
         }else if(condition.idtheloai==-1){
-            var args=[condition.search,condition.limit,condition.offset];
-            result   = db.load(`select count(*) as count from ${TABLE} where ten_sp LIKE ? LIMIT ? OFFSET ? `,args);
+            var args=[condition.search];
+            result   = db.load(`select count(*) as count from ${TABLE} where ten_sp LIKE ?  `,args);
         }else{
-            var args=[condition.idtheloai,condition.search,condition.limit,condition.offset];
-            result   = db.load(`select count(*) as count from ${TABLE} where id_the_loai = ? AND ten_sp LIKE ? LIMIT ? OFFSET ?`,args);
+            var args=[condition.idtheloai,condition.search];
+            result   = db.load(`select count(*) as count from ${TABLE} where id_the_loai = ? AND ten_sp LIKE ? `,args);
         }
         return result;
     },
@@ -46,70 +46,32 @@ module.exports={
    getOneByID:function(condition){
         return db.getOneByCondition(TABLE,condition);
    },
-    //đếm danh sách sản phẩm với nhiều điều kiện
-    CountListByCondition:function(condition){
-
-        var result;
-        condition.tensp     =   `%${condition.tensp}%`;
-        condition.cpu       =   `%${condition.cpu}%`;
-        condition.ram       =   `%${condition.ram}%`;
-        condition.card      =   `%${condition.card}%`;
-        condition.oCung     =   `%${condition.oCung}%`;
-        
-    var sqlManhinh="";
-    for(var i=0;i<condition.manHinh.length;i++){
-        sqlManhinh=sqlManhinh.concat(" and manHinh LIKE ? ");
-    }
-    var sql=`select count(*) as count from ${TABLE} where ten_sp LIKE ?`
-    sql=sql.concat(sqlManhinh);
-    sql=sql.concat(` and cpu LIKE ? and ram LIKE ? and card LIKE ? and oCung LIKE ? and don_gia BETWEEN ? AND ? `);
-
-    var args=[condition.tensp,condition.cpu,condition.ram,condition.card,condition.oCung,condition.price_start,condition.price_end];
-
-    for(var i=0;i<condition.manHinh.length;i++){
-        args.splice(1,0,`%${condition.manHinh[i]}%`);
-    }
-    //condition thuong hieu
-    if(condition.idthuonghieu.length != 0 ){
-        sql = sql.concat(" and ( ");
-        for(var i=0;i<condition.idthuonghieu.length;i++){
-            args.push(condition.idthuonghieu[i]);
-            sql=sql.concat(` id_thuong_hieu=? `);
-            if(i!=condition.idthuonghieu.length-1){
-                sql=sql.concat(" OR ")
-            }
-        }
-        sql = sql.concat(" ) ");
-    }
-    if(condition.idtheloai!=-1){
-        args.push(condition.idtheloai);
-        sql=sql.concat(` and id_the_loai=? `);
-    }
-
-    result=db.load(sql,args);
-    return result;
-       
-},
-
 
     //lấy danh sách sản phẩm với nhiều điều kiện
-    getListByCondition:function(condition){
+    getListByCondition:function(condition,count=0){
         var result;
             condition.tensp     =   `%${condition.tensp}%`;
             condition.cpu       =   `%${condition.cpu}%`;
             condition.ram       =   `%${condition.ram}%`;
             condition.card      =   `%${condition.card}%`;
             condition.oCung     =   `%${condition.oCung}%`;
+        
         var sqlManhinh="";
         for(var i=0;i<condition.manHinh.length;i++){
             sqlManhinh=sqlManhinh.concat(" and manHinh LIKE ? ");
         }
-        var sql=`select * from ${TABLE} where ten_sp LIKE ?`
+
+        var sql;
+        if(count==0){
+            sql=`select * from ${TABLE} where ten_sp LIKE ?`;
+        }else{
+            sql=`select count(*) as count from ${TABLE} where ten_sp LIKE ?`;
+        }
         sql=sql.concat(sqlManhinh);
         sql=sql.concat(` and cpu LIKE ? and ram LIKE ? and card LIKE ? and oCung LIKE ? and don_gia BETWEEN ? AND ? `);
         
         var args=[condition.tensp,condition.cpu,condition.ram,condition.card,condition.oCung,condition.price_start,condition.price_end];
-        
+
         for(var i=0;i<condition.manHinh.length;i++){
             args.splice(1,0,`%${condition.manHinh[i]}%`);
         }
@@ -130,24 +92,26 @@ module.exports={
             sql=sql.concat(` and id_the_loai=? `);
         }
 
-        //-1 : không sort
-        // 0 : sort bán chay cao->thấp
-        // 1 : giá cao -> thấp 
-        // 2 : giá thấp -> cao
+        if(count==0){
+            //-1 : không sort
+            // 0 : sort bán chay cao->thấp
+            // 1 : giá cao -> thấp 
+            // 2 : giá thấp -> cao
 
-        if(condition.sort==0){
-            sql=sql.concat(` order by sl_da_ban DESC `);
-        }
-        if(condition.sort==1){
-            sql=sql.concat(` order by don_gia DESC `);
-        }
-        if(condition.sort==2){
-            sql=sql.concat(` order by don_gia ASC `);
-        }
+            if(condition.sort==0){
+                sql=sql.concat(` order by sl_da_ban DESC `);
+            }
+            if(condition.sort==1){
+                sql=sql.concat(` order by don_gia DESC `);
+            }
+            if(condition.sort==2){
+                sql=sql.concat(` order by don_gia ASC `);
+            }
 
-        args.push(condition.limit);
-        args.push(condition.offset);
-        sql=sql.concat(` LIMIT ? OFFSET ? `);
+            args.push(condition.limit);
+            args.push(condition.offset);
+            sql=sql.concat(` LIMIT ? OFFSET ? `);
+        }
         result=db.load(sql,args);
         return result;
    },

@@ -2,13 +2,25 @@ const db = require('../util/db');
 const TABLE="nhacungcap";
 
 module.exports={
-   get: function(condition){
+   get: function(condition,count=0){
          var result;
          if(condition.ten_ncc==undefined){
-            result   = db.get(TABLE,condition.limit,condition.offset);
+            if(count==0){
+               result   = db.get(TABLE,condition.limit,condition.offset);
+              
+            }else{
+               result = db.load(`select count(*) as count from ${TABLE} where 1 `);
+            }
+            
          }else{
-            var args=[condition.ten_ncc,condition.limit,condition.offset];
-            result   = db.load(`select * from ${TABLE} where ten_ncc LIKE ? LIMIT ? OFFSET ?  `,args);
+            var args=[condition.ten_ncc];
+            if(count==0){
+               args.push(condition.limit);
+               args.push(condition.offset);
+               result   = db.load(`select * from ${TABLE} where ten_ncc LIKE ? LIMIT ? OFFSET ? `,args);
+            }else{
+               result   = db.load(`select count(*) as count from ${TABLE} where ten_ncc LIKE ?  `,args);
+            }
          }
 
         return result;

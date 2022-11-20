@@ -6,10 +6,12 @@ module.exports={
     getOneByID:function(condition){
         return db.load(`SELECT * from ${TABLE} WHERE id=?`,condition.id);
     },
-    get: function(condition){
-        var result;
-        result   = db.get(TABLE,condition.limit,condition.offset);
-       return result;
+    get: function(condition,count=0){
+        if(count=0){
+            return db.get(TABLE,condition.limit,condition.offset);
+        }else{
+            return db.load(`SELECT count(*) as count from ${TABLE} WHERE 1 `);
+        }
     },
     //lấy danh sách ID danh mục mà ID quyền có quyền truy cập
     getIDDanhMucByIDquyen:function(condition){

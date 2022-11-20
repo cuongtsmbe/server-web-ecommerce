@@ -7,31 +7,62 @@ module.exports={
     //2. neu co search    : username+ten khach hang
     //3. neu chi search   : username 
     //4. neu chi search   : ten khach hang
-    getList: function(condition){
+    getList: function(condition,count=0){
         var result;
         condition.ten_kh=`%${condition.ten_kh}%`;
         condition.username=`%${condition.username}%`;
-        var sql=`select id as Ma_kh,ten_kh,ten_dangnhap,email,dia_chi,phone,ngay_tao,ngay_sua,trangthai `;
+        var sql="";
+        if(count==0){
+            sql=`select id as Ma_kh,ten_kh,ten_dangnhap,email,dia_chi,phone,ngay_tao,ngay_sua,trangthai `;
+        }else{
+            sql=`select count(*) as count `;
+        }
 
+        sql=sql.concat( ` from ${TABLE} `);
         if(condition.ten_kh=='%%' && condition.username=='%%'){
-
-            var args=[condition.limit,condition.offset];
-            result   = db.load(sql.concat(` from ${TABLE} LIMIT ? OFFSET ?  `),args);
+           
+            var args=[];
+            if(count==0){
+                args.push(condition.limit);
+                args.push(condition.offset);
+                sql=sql.concat(` limit ? offset ? `);
+            }
+            result   = db.load(sql,args);
 
         }else if(condition.ten_kh!='%%' && condition.username!='%%'){
+            var args=[condition.username,condition.ten_kh];
 
-            var args=[condition.username,condition.ten_kh,condition.limit,condition.offset];
-            result   = db.load(sql.concat(` from ${TABLE} where ten_dangnhap LIKE ? AND ten_kh LIKE ? LIMIT ? OFFSET ? `),args);
+            sql=sql.concat(` where ten_dangnhap LIKE ? AND ten_kh LIKE ? `); 
+
+            if(count==0){
+                args.push(condition.limit);
+                args.push(condition.offset);
+                sql=sql.concat(` limit ? offset ? `);
+            }
+                    
+            result   = db.load(sql,args);
         
         }else if(condition.ten_kh!='%%'){
 
-           var args=[condition.ten_kh,condition.limit,condition.offset];
-           result   = db.load(sql.concat(` from ${TABLE} where ten_kh LIKE ? LIMIT ? OFFSET ? `),args);
+           var args=[condition.ten_kh];
+           sql=sql.concat(` where ten_kh LIKE ?  `); 
+           if(count==0){
+               args.push(condition.limit);
+               args.push(condition.offset);
+               sql=sql.concat(` limit ? offset ? `);
+           }
+           result   = db.load(sql,args);
         
         }else if(condition.username!='%%'){
-
-            var args=[condition.username,condition.limit,condition.offset];
-           result   = db.load(sql.concat(` from ${TABLE} where ten_dangnhap LIKE ? LIMIT ? OFFSET ? `),args);
+            var args=[condition.username];
+            
+            sql=sql.concat(` where ten_dangnhap LIKE ?  `); 
+            if(count==0){
+                args.push(condition.limit);
+                args.push(condition.offset);
+                sql=sql.concat(` limit ? offset ? `);
+            }
+            result   = db.load(sql,args);
         
         }
        return result;

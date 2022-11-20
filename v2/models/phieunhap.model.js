@@ -6,11 +6,16 @@ const TABLE_NV="nhanvien";
 const TABLESP="sanpham";
 module.exports={
     //Xem danh sách phiếu nhập theo ID nha cung cap có điều kiện thời gian
-    GetListByIDNCC: function(condition){
-        var args=[condition.ID_NCC,condition.trangThai,condition.dateStart,condition.dateEnd,condition.limit,condition.offset];
-      
-        var sql=`SELECT PN.*,NV.ten_nv
-        FROM (SELECT * FROM ${TABLE_PN} PN WHERE `
+    GetListByIDNCC: function(condition,count=0){
+        var args=[condition.ID_NCC,condition.trangThai,condition.dateStart,condition.dateEnd];
+        var sql;
+        if(count==0){
+            sql=`SELECT PN.*,NV.ten_nv`;
+        }else{
+            sql=`SELECT count(*) as count `;
+        }
+        
+        sql=sql.concat(` FROM (SELECT * FROM ${TABLE_PN} PN WHERE `);
         sql=sql.concat( `PN.id_ncc=?`);
         sql=sql.concat(
             `) as PN
@@ -19,32 +24,54 @@ module.exports={
         );
 
         if(condition.trangThai==-1 && condition.dateStart!=undefined && condition.dateEnd!=undefined){
-            sql=sql.concat(` PN.ngay_tao BETWEEN ? AND ? LIMIT ? OFFSET ?`);
+            sql=sql.concat(` PN.ngay_tao BETWEEN ? AND ? `);
             args.splice(1,1);//delete trangthai
         }else if(condition.trangThai==-1 && (condition.dateStart==undefined || condition.dateEnd==undefined)){
-            sql=sql.concat(`1 LIMIT ? OFFSET ?`); 
+            sql=sql.concat(`1 `); 
             args.splice(1,3);//delete trangthai,dateStart,dateEnd
         }else if(condition.trangThai!=-1 && (condition.dateStart==undefined || condition.dateEnd==undefined)){
             args.splice(2,2);//delete dateStart,dateEnd
-            sql=sql.concat(`PN.trangthai=? LIMIT ? OFFSET ?`); 
+            sql=sql.concat(`PN.trangthai=? `); 
         }else{
-            sql=sql.concat(` PN.trangthai=? AND PN.ngay_tao BETWEEN ? AND ? LIMIT ? OFFSET ?`);
+            sql=sql.concat(` PN.trangthai=? AND PN.ngay_tao BETWEEN ? AND ? `);
         }
+        
+        if(count==0){
+            args.push(condition.limit);
+            args.push(condition.offset);
+            sql=sql.concat(` LIMIT ? OFFSET ? `);
+        }
+        
         var listPN= db.load(sql,args);
         return listPN;
     },
     //Xem danh sách phiếu nhập trong khoảng thời gian 
     GetListByTime:function(condition){
-        var args=[condition.trangThai,condition.dateStart,condition.dateEnd,condition.limit,condition.offset];
+        var sql;
+        if(count==0){
+            sql=`SELECT PN.*,NV.ten_nv,NCC.ten_ncc,NCC.email AS email_ncc,NCC.phone AS phone_ncc`;
+        }else{
+            sql=`SELECT count(*) as count `;
+        }
 
-        var sql=`SELECT PN.*,NV.ten_nv,NCC.ten_ncc,NCC.email AS email_ncc,NCC.phone AS phone_ncc
-        FROM (SELECT * FROM ${TABLE_PN} PN WHERE `;
+        var args=[condition.trangThai,condition.dateStart,condition.dateEnd];
+
+        sql=sql.concat(` FROM (SELECT * FROM ${TABLE_PN} PN WHERE `);
         if(condition.trangThai!=-1){
             sql=sql.concat("trangthai=? AND ");
         }else{
             args.splice(0,1);//delete trangThai
         }
-        sql=sql.concat(`PN.ngay_tao BETWEEN ? AND ? LIMIT ? OFFSET ?`);
+
+        if(count==0){
+            args.push(condition.limit);
+            args.push(condition.offset);
+            sql=sql.concat(` PN.ngay_tao BETWEEN ? AND ? LIMIT ? OFFSET ?`);
+        }else{
+            sql=sql.concat(` PN.ngay_tao BETWEEN ? AND ? `);
+        }
+
+       
         sql=sql.concat(
             `) as PN
             INNER JOIN ${TABLE_NV} NV ON NV.id=PN.id_nv
