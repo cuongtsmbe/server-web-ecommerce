@@ -134,16 +134,17 @@ module.exports={
             sql=sql.concat(` HD.trang_thai=? AND HD.ngay_tao BETWEEN ? AND ? `);
         }
 
-        //sort =1 giảm dần 
-        if(condition.sort==1){
-            sql=sql.concat(` order by HD.tong_tien DESC`);
-        }
-        //sort =1 tăng dần 
-        if(condition.sort==2){
-            sql=sql.concat(` order by HD.tong_tien ASC`);
-        }
-        
         if(count==0){
+            //sort =1 giảm dần 
+            if(condition.sort==1){
+                sql=sql.concat(` order by HD.tong_tien DESC`);
+            }
+            //sort =1 tăng dần 
+            if(condition.sort==2){
+                sql=sql.concat(` order by HD.tong_tien ASC`);
+            }
+        
+        
             sql=sql.concat(` LIMIT ? OFFSET ? `);
             args.push(condition.limit);
             args.push(condition.offset);

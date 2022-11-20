@@ -26,7 +26,7 @@ module.exports={
                 args.push(condition.offset);
                 result   = db.load(`select * from ${TABLE} where ten_th LIKE ? LIMIT ? OFFSET ?  `,args);
            }else{
-                result  =db.load(`select count(*) as count from ${TABLE} where ten_th LIKE ? `)
+                result  =db.load(`select count(*) as count from ${TABLE} where ten_th LIKE ? ` ,args)
            }
            
         }
