@@ -13,6 +13,10 @@ module.exports={
         if(!token && (
                 req_url.includes("/authenticate/register/local") 
             || req_url.includes("/authenticate/login/local")
+            || req_url.includes("/authenticate/login/phone/code")
+            || req_url.includes("/authenticate/login/phone")
+            || req_url.includes("/authenticate/login/email/code")
+            || req_url.includes("/authenticate/login/email")
             || req_url.includes("/authenticate/statusToken")
             || req_url.includes("/authenticate/forget/pw")
             || req_url.includes("/authenticate/refreshToken")
@@ -119,6 +123,10 @@ module.exports={
             if(
                    req_url.includes("/authenticate/register/local") 
                 || req_url.includes("/authenticate/login/local")
+                || req_url.includes("/authenticate/login/phone/code")
+                || req_url.includes("/authenticate/login/phone")
+                || req_url.includes("/authenticate/login/email/code")
+                || req_url.includes("/authenticate/login/email")
                 || req_url.includes("/authenticate/statusToken")
                 || req_url.includes("/authenticate/forget/pw")
                 || req_url.includes("/authenticate/refreshToken")
