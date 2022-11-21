@@ -273,7 +273,7 @@ module.exports = {
         if(!toPhone){
             return res.json({
                 status:400,
-                message:"Please enter your phone."
+                message:"Please enter your phone number."
             });
         }
 
@@ -332,7 +332,7 @@ module.exports = {
         if (!verificationCode || !phoneNumber) {
             return res.json({
                 status:400,
-                message:'Please enter your Phone number and verification code.'
+                message:'Please enter your Phone number and verify code.'
             });
         } else {
             var [OneResult,customerResult]=await Promise.all([
@@ -355,8 +355,8 @@ module.exports = {
             if(OneResult.length>1 || customerResult.length>1){
                     console.log(`phone: ${toPhone} ton tai nhieu hon 1`);
                     return res.json({
-                        status:500,
-                        message:"Khong the login bằng OTP bang SDT nay."
+                        status:505,
+                        message:"Khong the login bằng OTP với SDT nay."
                     });
             }
 
@@ -448,8 +448,8 @@ module.exports = {
         sendMail.sendMail(email,"Verify your email address ",content);
 
         return res.json({
-            status:500,
-            message:"Email LOGIN"
+            status:200,
+            message:"check your Email."
         });
     },
 
@@ -461,7 +461,7 @@ module.exports = {
         if (!verificationCode || !email) {
             return res.json({
                 status:400,
-                message:'Please enter your Email and verification code.'
+                message:'Please enter your Email and verify code.'
             });
         } else {
             var [OneResult,customerResult]=await Promise.all([
@@ -484,8 +484,8 @@ module.exports = {
             if(OneResult.length>1 || customerResult.length>1){
                     console.log(`email: ${email} ton tai nhieu hon 1`);
                     return res.json({
-                        status:500,
-                        message:"Khong the login bằng OTP bang Email nay."
+                        status:505,
+                        message:"Khong the login bằng OTP với Email nay."
                     });
             }
 
