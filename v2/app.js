@@ -7,8 +7,6 @@ const cors=require('cors');
 require('dotenv').config();
 const port = process.env.PORT;
 const config=require("./config/default.json");
-
-
 require('connect-redis')(session);
 const redis = require('redis')
 const rejson = require('redis-rejson');
@@ -16,83 +14,89 @@ const checkSession =require('./mdw/checkSession.mdw');
 const RedisServices =require('./services/RedisServices');
 
 require('express-async-errors');
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
-// parse application/json
-app.use(bodyParser.json())
 
-app.use(cors({
-  origin: config.corsLink,
-  methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD','DELETE'],
-  credentials: true
-}));
+try{
 
-app.use(session({
-  secret: 'banhang',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }
-}));
+    // parse application/x-www-form-urlencoded
+    app.use(bodyParser.urlencoded({ extended: false }))
+    // parse application/json
+    app.use(bodyParser.json())
 
+    app.use(cors({
+      origin: config.corsLink,
+      methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD','DELETE'],
+      credentials: true
+    }));
 
-app.use(checkSession);
-
-rejson(redis);
-
-const redisClient = redis.createClient({
-  host: process.env.HOST_REDIS,
-  port: process.env.PORT_REDIS
-});
+    app.use(session({
+      secret: 'banhang',
+      resave: false,
+      saveUninitialized: true,
+      cookie: { secure: false }
+    }));
 
 
-redisClient.on('connect', function() {
-  console.log('Connected Redis!');
-});
-const redisClientService = new RedisServices(redisClient);
+    app.use(checkSession);
 
-app.use((req,res,next)=>{
-  res.locals.redisClientService=redisClientService;
-  next();
-});
+    rejson(redis);
+
+    const redisClient = redis.createClient({
+      host: process.env.HOST_REDIS,
+      port: process.env.PORT_REDIS
+    });
 
 
-//Authorization middleware 
-app.use(auth_mdw.loggedIn);
+    redisClient.on('connect', function() {
+      console.log('Connected Redis!');
+    });
+    const redisClientService = new RedisServices(redisClient);
 
-app.use('/public',express.static('public'))
+    app.use((req,res,next)=>{
+      res.locals.redisClientService=redisClientService;
+      next();
+    });
 
-//admin routers
-require("./routers/order.router").orderRouters(app);
-require("./routers/phieunhap.router").PhieuNhapRouters(app);
-require("./routers/supplier.router").supplierRouters(app);
-require("./routers/product.router").productRouters(app);
-require("./routers/category.router").categoryRouters(app);
-require("./routers/thuonghieu.router").thuonghieuRouters(app);
-require("./routers/staff.router").staffRouters(app);
-require("./routers/customer.router").customerRouters(app);
-require("./routers/permission.router").permissionRouters(app);
-require("./routers/authentication.router").AuthenticateRouters(app);
-require("./routers/uploadImageProduct.router").uploadRouters(app);
 
-//client routers 
-require("./routers/_category.router").categoryClientRouters(app);
-require("./routers/_thuonghieu.router").thuonghieuClientRouters(app);
-require("./routers/_supplier.router").supplierRouters(app);
-require("./routers/_product.router").productRoutersClient(app);
-require("./routers/_cart.router").CartRoutersClient(app);
-require("./routers/_authentication.router").AuthenticateClientRouters(app);
-require("./routers/_order.router").orderRoutersClient(app);
-require("./routers/_customer.router").customerRouters(app);
+    //Authorization middleware 
+    app.use(auth_mdw.loggedIn);
 
-app.use((req, res, next) => {
-  res.status(404).send("Sorry can't find that!")
-})
+    app.use('/public',express.static('public'))
 
-app.use((err, req, res, next) => {
-  console.log(err.stack)
-  res.status(500).send('Something broke!')
-})
+    //admin routers
+    require("./routers/order.router").orderRouters(app);
+    require("./routers/phieunhap.router").PhieuNhapRouters(app);
+    require("./routers/supplier.router").supplierRouters(app);
+    require("./routers/product.router").productRouters(app);
+    require("./routers/category.router").categoryRouters(app);
+    require("./routers/thuonghieu.router").thuonghieuRouters(app);
+    require("./routers/staff.router").staffRouters(app);
+    require("./routers/customer.router").customerRouters(app);
+    require("./routers/permission.router").permissionRouters(app);
+    require("./routers/authentication.router").AuthenticateRouters(app);
+    require("./routers/uploadImageProduct.router").uploadRouters(app);
 
+    //client routers 
+    require("./routers/_category.router").categoryClientRouters(app);
+    require("./routers/_thuonghieu.router").thuonghieuClientRouters(app);
+    require("./routers/_supplier.router").supplierRouters(app);
+    require("./routers/_product.router").productRoutersClient(app);
+    require("./routers/_cart.router").CartRoutersClient(app);
+    require("./routers/_authentication.router").AuthenticateClientRouters(app);
+    require("./routers/_order.router").orderRoutersClient(app);
+    require("./routers/_customer.router").customerRouters(app);
+
+    app.use((req, res, next) => {
+      res.status(404).send("Sorry can't find that!")
+    })
+
+    app.use((err, req, res, next) => {
+      console.log(err.stack)
+      res.status(500).send('Something broke!')
+    })
+
+}catch(err){
+  console.log(err);
+}
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })

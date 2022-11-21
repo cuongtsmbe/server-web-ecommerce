@@ -9,62 +9,72 @@ const port = process.env.PORT;
 const config=require("./config/default.json");
 require('express-async-errors');
 
+try{
+    // parse application/x-www-form-urlencoded
+    app.use(bodyParser.urlencoded({ extended: false }))
+    // parse application/json
+    app.use(bodyParser.json())
+    app.use(cors({
+      origin: config.corsLink,
+      methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD','DELETE'],
+      credentials: true
+    }));
 
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
-// parse application/json
-app.use(bodyParser.json())
-app.use(cors({
-  origin: config.corsLink,
-  methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD','DELETE'],
-  credentials: true
-}));
+    app.use(session({
+      secret: 'banhang',
+      resave: false,
+      saveUninitialized: true,
+      cookie: { secure: false }
+    }));
 
-app.use(session({
-  secret: 'banhang',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }
-}));
+    /*
+    https://dashboard.nexmo.com/test-numbers
+    https://vntalking.com/tu-tao-server-gui-sms-api-free-online-voi-node-js-va-express.html#yeu-cau-chuan-bi
+    */
 
 
+    //Authorization middleware 
+    app.use(auth_mdw.loggedIn);
 
-//Authorization middleware 
-app.use(auth_mdw.loggedIn);
+    app.use('/public',express.static('public'))
 
-app.use('/public',express.static('public'))
 
-//admin routers
-require("./routers/order.router").orderRouters(app);
-require("./routers/phieunhap.router").PhieuNhapRouters(app);
-require("./routers/supplier.router").supplierRouters(app);
-require("./routers/product.router").productRouters(app);
-require("./routers/category.router").categoryRouters(app);
-require("./routers/thuonghieu.router").thuonghieuRouters(app);
-require("./routers/staff.router").staffRouters(app);
-require("./routers/customer.router").customerRouters(app);
-require("./routers/permission.router").permissionRouters(app);
-require("./routers/authentication.router").AuthenticateRouters(app);
-require("./routers/uploadImageProduct.router").uploadRouters(app);
+    //admin routers
+    require("./routers/order.router").orderRouters(app);
+    require("./routers/phieunhap.router").PhieuNhapRouters(app);
+    require("./routers/supplier.router").supplierRouters(app);
+    require("./routers/product.router").productRouters(app);
+    require("./routers/category.router").categoryRouters(app);
+    require("./routers/thuonghieu.router").thuonghieuRouters(app);
+    require("./routers/staff.router").staffRouters(app);
+    require("./routers/customer.router").customerRouters(app);
+    require("./routers/permission.router").permissionRouters(app);
+    require("./routers/authentication.router").AuthenticateRouters(app);
+    require("./routers/uploadImageProduct.router").uploadRouters(app);
 
-//client routers 
-require("./routers/_category.router").categoryClientRouters(app);
-require("./routers/_thuonghieu.router").thuonghieuClientRouters(app);
-require("./routers/_supplier.router").supplierRouters(app);
-require("./routers/_product.router").productRoutersClient(app);
-require("./routers/_cart.router").CartRoutersClient(app);
-require("./routers/_authentication.router").AuthenticateClientRouters(app);
-require("./routers/_order.router").orderRoutersClient(app);
-require("./routers/_customer.router").customerRouters(app);
+    //client routers 
+    require("./routers/_category.router").categoryClientRouters(app);
+    require("./routers/_thuonghieu.router").thuonghieuClientRouters(app);
+    require("./routers/_supplier.router").supplierRouters(app);
+    require("./routers/_product.router").productRoutersClient(app);
+    require("./routers/_cart.router").CartRoutersClient(app);
+    require("./routers/_authentication.router").AuthenticateClientRouters(app);
+    require("./routers/_order.router").orderRoutersClient(app);
+    require("./routers/_customer.router").customerRouters(app);
 
-app.use((req, res, next) => {
-  res.status(404).send("Sorry can't find that!")
-})
 
-app.use((err, req, res, next) => {
-  console.log(err.stack)
-  res.status(500).send('Something broke!')
-})
+    app.use((req, res, next) => {
+      res.status(404).send("Sorry can't find that!")
+    })
+
+    app.use((err, req, res, next) => {
+      console.log(err.stack)
+      res.status(500).send('Something broke!')
+    })
+
+}catch(err){
+  console.log(err);
+}
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
