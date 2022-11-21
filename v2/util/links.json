@@ -4,6 +4,14 @@
 
         "AUTHENTICATE_LOGIN_LOCAL"   :"/authenticate/login/local",
 
+        "AUTHENTICATE_LOGIN_GET_CODE_PHONE"  :"/authenticate/login/phone/code",
+
+        "AUTHENTICATE_LOGIN_PHONE"  :"/authenticate/login/phone",
+
+        "AUTHENTICATE_LOGIN_GET_CODE_EMAIL" :"/authenticate/login/email/code",
+
+        "AUTHENTICATE_LOGIN_EMAIL"  :"/authenticate/login/email",
+
         "AUTHENTICATE_LOGOUT"   :"/authenticate/logout",
 
         "AUTHENTICATE_FORGET_PW"  : "/authenticate/forget/pw",

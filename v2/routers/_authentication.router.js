@@ -1,20 +1,30 @@
-const customerModel = require("../models/customer.model");
-const tokenModel = require("../models/token.model");
-const config    =require("../config/default.json");
 const crypto=require('crypto');
 const passwordValidator = require('password-validator');
 const validator = require('validator');
 const str2ab = require('string-to-arraybuffer');
 const jwt = require("jsonwebtoken");
+const customerModel = require("../models/customer.model");
+const tokenModel = require("../models/token.model");
+const authPhoneModels = require('../models/auth_phone.model');
+const authEmailModels = require("../models/auth_email.model");
 const mdw = require("../mdw/valid.mdw");
+const tokenMdw = require("../mdw/token.mdw");
 const sendMail = require("../mdw/sendMail.mdw");
+const Random=require("../mdw/random.mdw");
+const SMS = require("../mdw/sendSMS.mdw");
 const LINK = require("../util/links.json");
+const config    =require("../config/default.json");
 require('dotenv').config();
+
 
 module.exports = {
     AuthenticateClientRouters:function(app){        
         app.post(LINK.CLIENT.AUTHENTICATE_REGISTER_LOCAL                ,this.validatePassword,this.validateRegister,this.register);
         app.post(LINK.CLIENT.AUTHENTICATE_LOGIN_LOCAL                   ,this.loginLocal);
+        app.post(LINK.CLIENT.AUTHENTICATE_LOGIN_GET_CODE_PHONE          ,this.loginPhoneGetCode);
+        app.post(LINK.CLIENT.AUTHENTICATE_LOGIN_PHONE                   ,this.loginPhone);
+        app.post(LINK.CLIENT.AUTHENTICATE_LOGIN_GET_CODE_EMAIL          ,this.loginEmailGetCode);
+        app.post(LINK.CLIENT.AUTHENTICATE_LOGIN_EMAIL                   ,this.loginEmail);
         app.post(LINK.CLIENT.AUTHENTICATE_LOGOUT                        ,this.logout);
         app.post(LINK.CLIENT.AUTHENTICATE_FORGET_PW                     ,this.forgetPassword);
         app.post(LINK.CLIENT.AUTHENTICATE_UPDATE_PW                     ,this.validatePassword,this.updatePassword);
@@ -160,7 +170,7 @@ module.exports = {
                             username:value.ten_dangnhap,
                             user_permission:true,
                             user_type:'CUSTOMER',
-                            iat: Math.floor(Date.now() / 1000) + (60 * 60),
+                            iat: Math.floor(Date.now() / 1000) ,
                         };
                         payload.id=result.insertId;
 
@@ -243,49 +253,10 @@ module.exports = {
                     response.message="Incorrect username or password.";
                     res.json(response);
                     return false;
-                }
-                //4.Create and assign token,iat: để token luôn khác nhau trong DB
-            
-                var payload={
-                            id: customer.Ma_kh,
-                            username:customer.ten_dangnhap,
-                            user_permission:true,
-                            user_type:'CUSTOMER',
-                            iat: Math.floor(Date.now() / 1000) + (60 * 60),
-                        };
-                //nếu tài khoản bị block thì gắn permission là false
-                if(customer.trangthai==-1){
-                    payload.user_permission=false;
-                }
+                }            
+                //4.Create and assign token
+                return res.json(await tokenMdw.AccessTokenAndRefreshToken(customer));
 
-                //create AccessToken AND refreshToken
-                const AccessToken = jwt.sign(payload, process.env.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
-                const refreshToken = jwt.sign(payload, process.env.TOKEN_SECRET_REFRESHTOKEN,{ expiresIn:"30d" });
-                
-                //add refreshToken to DB and redis
-                var result =await tokenModel.add({
-                    username:customer.ten_dangnhap,
-                    refreshToken:refreshToken
-                });
-                await redisClientService.jsonSet(`RefreshToken:${refreshToken}`,".",1);
-
-                if(result.affectedRows==0){
-                    throw new Error('insert refreshToken false.');
-                }
-
-                //reponse
-                res.json({
-                    status:200,
-                    message:"Login success.",
-                    user:{
-                        username:value.username,
-                        name:customer.ten_kh,
-                        email:customer.email,
-                        AccessToken:AccessToken,
-                        refreshToken:refreshToken
-                    }
-                
-                });  
             }catch(err){
                 console.log(err);
                 res.status(500).json({
@@ -296,7 +267,266 @@ module.exports = {
             }      
         });
     },
-    
+    //send code SMS OTP 
+    loginPhoneGetCode:async function(req,res,next){
+        console.log("SMS Login");
+        var verificationCode = Random.rand(100000, 999999);
+        var fromPhone = "84349612646";
+        var toPhone = req.body.toPhone || "84384849034";
+        var content = `CUONG API - code: ${verificationCode}`;
+
+        if(!toPhone){
+            return res.json({
+                status:400,
+                message:"Please enter your phone."
+            });
+        }
+
+        var payload={
+            phone:toPhone,
+            code:verificationCode,
+            iat: Math.floor(Date.now() / 1000),
+        };
+        const tokenPhoneCode = jwt.sign(payload, process.env.TOKEN_SECRET_PHONECODETOKEN,{ expiresIn:60 });
+        
+        //lưu code và tokenCode vào DB
+        //Chỉ save tokenCode and code khi SDT trên DB chưa có
+        //update code and token khi SDT trên DB đã có  
+        var Oneresult=await authPhoneModels.get({phone:toPhone});
+        if(Oneresult.length==0){
+            var resultAdd=await authPhoneModels.add({
+                phone:toPhone,
+                code:verificationCode,
+                tokenCode:tokenPhoneCode
+            });
+            if( resultAdd.affectedRows==0)
+            {
+                return res.json({
+                    status:505,
+                    message:"Error insert code in DB."
+                });
+            }
+        }else{
+            var resultUpdate=await authPhoneModels.update({phone:toPhone},{code:verificationCode,tokenCode:tokenPhoneCode});
+            if(resultUpdate.affectedRows==0)
+            {
+                return res.json({
+                    status:505,
+                    message:"Error insert code in DB."
+                });
+            }
+        }
+
+        //send code to SMS
+        SMS.sendSMS(fromPhone, toPhone, content, function(responseData){
+            console.log(responseData);
+            return res.json({
+                status:200,
+                message:responseData
+            });
+        });
+
+        return res.json({
+            status:500,
+            message:"SMS LOGIN"
+        });
+    },
+
+   
+    //login with code (OTP)
+    loginPhone:async function(req,res,next){
+        var verificationCode = req.body.Digits;
+        var phoneNumber = req.body.PhoneNumber;
+
+        if (!verificationCode || !phoneNumber) {
+            return res.json({
+                status:400,
+                message:'Please enter your Phone number and verification code.'
+            });
+        } else {
+            var [OneResult,customerResult]=await Promise.all([
+                await authPhoneModels.get({phone:phoneNumber}),
+                await customerModel.getOne({phone:phoneNumber})
+               ]);
+            
+            if(customerResult.length==0){
+                return res.json({
+                    status:408,
+                    message:"SDT chua duoc dang ky.The phone number has not been registered."
+                });
+            }
+            if(OneResult.length==0){
+                return res.json({
+                    status:205,
+                    message:"Yeu cau gui lai OTP."
+                });
+            }
+            if(OneResult.length>1 || customerResult.length>1){
+                    return res.json({
+                        status:500,
+                        message:"Khong the login bằng OTP bang SDT nay."
+                    });
+            }
+
+            //kiem tra tokenCode va code
+            try{
+                const verified = jwt.verify(OneResult[0].tokenCode, process.env.TOKEN_SECRET_PHONECODETOKEN); 
+                if(verified.code!=verificationCode){
+                    return res.json({
+                        status:204,
+                        message:"code incorrect."
+                    })
+                }
+
+                //create va send accesstoken and refreshToken
+                var customer=customerResult[0];
+                try{
+                    return res.json(await tokenMdw.AccessTokenAndRefreshToken(customer));
+                }catch(err){
+                    console.log(err);
+                    res.status(500).json({
+                        status:500,
+                        message:"server error.",
+                        error:err
+                    })
+                }  
+            }catch(err){
+                return res.json({
+                    status:501,
+                    message:"code invalid."
+                })
+            }
+
+            
+
+        }
+    },
+
+    //send code to email
+    loginEmailGetCode:async function(req,res,next){
+        console.log("Email Login");
+        var verificationCode = Random.rand(100000, 999999);
+        var email=req.body.Email;
+        var content = `your code is : ${verificationCode}`;
+
+        if(!email){
+            return res.json({
+                status:400,
+                message:"Please enter your email."
+            });
+        }
+
+        var payload={
+            email:email,
+            code:verificationCode,
+            iat: Math.floor(Date.now() / 1000) ,
+        };
+        const tokenCode = jwt.sign(payload, process.env.TOKEN_SECRET_PHONECODETOKEN,{ expiresIn:60});
+        
+        //lưu code và tokenCode vào DB
+        //Chỉ save tokenCode and code khi SDT trên DB chưa có
+        //update code and token khi SDT trên DB đã có  
+        
+        var Oneresult=await authEmailModels.get({email:email});
+        if(Oneresult.length==0){
+            var resultAdd=await authEmailModels.add({
+                email:email,
+                code:verificationCode,
+                tokenCode:tokenCode
+            });
+            if( resultAdd.affectedRows==0)
+            {
+                return res.json({
+                    status:505,
+                    message:"Error insert code in DB."
+                });
+            }
+        }else{
+            var resultUpdate=await authEmailModels.update({email:email},{code:verificationCode,tokenCode:tokenCode});
+            if(resultUpdate.affectedRows==0)
+            {
+                return res.json({
+                    status:505,
+                    message:"Error insert code in DB."
+                });
+            }
+        }
+
+        //send code to Email
+        sendMail.sendMail(email,"Verify your email address ",content);
+
+        return res.json({
+            status:500,
+            message:"Email LOGIN"
+        });
+    },
+
+    //login Email (return token)
+    loginEmail:async function(req,res,next){
+        var verificationCode = req.body.Digits;
+        var email = req.body.Email;
+
+        if (!verificationCode || !email) {
+            return res.json({
+                status:400,
+                message:'Please enter your Email and verification code.'
+            });
+        } else {
+            var [OneResult,customerResult]=await Promise.all([
+                await authEmailModels.get({email}),
+                await customerModel.getOne({email})
+            ]);
+            
+            if(customerResult.length==0){
+                return res.json({
+                    status:408,
+                    message:"Email chua duoc dang ky.The Email has not been registered."
+                });
+            }
+            if(OneResult.length==0){
+                return res.json({
+                    status:205,
+                    message:"Yeu cau gui lai OTP."
+                });
+            }
+            if(OneResult.length>1 || customerResult.length>1){
+                    console.log(`email: ${email} ton tai nhieu hon 1`);
+                    return res.json({
+                        status:500,
+                        message:"Khong the login bằng OTP bang Email nay."
+                    });
+            }
+
+            //kiem tra tokenCode va code
+            try{
+                const verified = jwt.verify(OneResult[0].tokenCode, process.env.TOKEN_SECRET_PHONECODETOKEN); 
+                if(verified.code!=verificationCode){
+                    return res.json({
+                        status:204,
+                        message:"code incorrect."
+                    })
+                }
+
+                //create va send accesstoken and refreshToken
+                var customer=customerResult[0];
+                try{
+                    return res.json(await tokenMdw.AccessTokenAndRefreshToken(customer));
+                }catch(err){
+                    console.log(err);
+                    res.status(500).json({
+                        status:500,
+                        message:"server error.",
+                        error:err
+                    })
+                }  
+            }catch(err){
+                return res.json({
+                    status:501,
+                    message:"code invalid."
+                })
+            }
+        }
+    },
     //gửi token xác thực đến email.
     forgetPassword:async function(req,res,next){
         try{
@@ -331,7 +561,7 @@ module.exports = {
                 username:customer.ten_dangnhap,
                 user_permission:true,
                 user_type:'CUSTOMER',
-                iat: Math.floor(Date.now() / 1000) + (60 * 60),
+                iat: Math.floor(Date.now() / 1000) ,
             };
 
             //nếu tài khoản bị block thì gắn permission là false
@@ -339,7 +569,7 @@ module.exports = {
                 payload.user_permission=false;
             }
 
-            const token = jwt.sign(payload, process.env.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "15m"});
+            const token = jwt.sign(payload, process.env.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: 15*60});
 
             /** Gui email **/
             sendMail.SendMailForgetPassword(email,token,url_UI_ForgetPW);
@@ -530,7 +760,7 @@ module.exports = {
                 username:verified.username,
                 user_permission:verified.user_permission,
                 user_type:verified.user_type,
-                iat: Math.floor(Date.now() / 1000) + (60 * 60),
+                iat: Math.floor(Date.now() / 1000) ,
             };
             const AccessToken = jwt.sign(payload, process.env.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
             
