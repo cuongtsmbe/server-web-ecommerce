@@ -231,7 +231,7 @@ module.exports = {
             var condition={
                 id:req.params.id
             };
-            var result=await staffModel.delete(condition);
+            var result=await staffModel.update(condition,{trangthai:-2});
             if(result.affectedRows==0){
                 response.status=500;
                 response.message="delete khong thanh cong";

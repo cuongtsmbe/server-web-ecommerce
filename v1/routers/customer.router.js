@@ -189,7 +189,7 @@ module.exports = {
         }
         res.json(response);
     },
-    //delete (update trangthai = -1) customer theo ID
+    //delete (update trangthai = -2) customer theo ID
     delete:async function(req,res,next){
         var response={
             status:201,
@@ -199,7 +199,7 @@ module.exports = {
             id:req.params.id
         };
         var value ={
-            trangthai:-1
+            trangthai:-2
         };
         var result=await customerModel.update(condition,value);
         if(result.affectedRows==0){
