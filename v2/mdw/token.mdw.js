@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 require('dotenv').config();
 
 module.exports={
-    AccessTokenAndRefreshToken:async function(customer){
+    AccessTokenAndRefreshTokenCustomer:async function(customer){
         var payload={
             id: customer.Ma_kh,
             username:customer.ten_dangnhap,

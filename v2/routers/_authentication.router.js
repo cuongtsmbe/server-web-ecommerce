@@ -255,7 +255,7 @@ module.exports = {
                     return false;
                 }            
                 //4.Create and assign token
-                return res.json(await tokenMdw.AccessTokenAndRefreshToken(customer));
+                return res.json(await tokenMdw.AccessTokenAndRefreshTokenCustomer(customer));
 
             }catch(err){
                 console.log(err);
@@ -376,7 +376,7 @@ module.exports = {
                 //create va send accesstoken and refreshToken
                 var customer=customerResult[0];
                 try{
-                    return res.json(await tokenMdw.AccessTokenAndRefreshToken(customer));
+                    return res.json(await tokenMdw.AccessTokenAndRefreshTokenCustomer(customer));
                 }catch(err){
                     console.log(err);
                     res.status(500).json({
@@ -505,7 +505,7 @@ module.exports = {
                 //create va send accesstoken and refreshToken
                 var customer=customerResult[0];
                 try{
-                    return res.json(await tokenMdw.AccessTokenAndRefreshToken(customer));
+                    return res.json(await tokenMdw.AccessTokenAndRefreshTokenCustomer(customer));
                 }catch(err){
                     console.log(err);
                     res.status(500).json({
