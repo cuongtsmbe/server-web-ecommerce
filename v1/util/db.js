@@ -13,9 +13,11 @@ module.exports = {
                     return resolve([]);
                 };
                 
-                
-                results = dbMdw.resultsFormatTime(results);
-
+                try{
+                    results = dbMdw.resultsFormatTime(results);
+                }catch(err){
+                    //console.log("RUN UPDATE OR ....");
+                }
                 resolve(results);
             });
             connection.end();
@@ -31,7 +33,11 @@ module.exports = {
                     return resolve([]);
                 };
 
-                results = dbMdw.resultsFormatTime(results);
+                try{
+                    results = dbMdw.resultsFormatTime(results);
+                }catch(err){
+                    //console.log("RUN UPDATE OR ....");
+                }
 
                 resolve(results);
             });
@@ -64,7 +70,11 @@ module.exports = {
                     return resolve([]);
                 };
 
-                results = dbMdw.resultsFormatTime(results);
+                try{
+                    results = dbMdw.resultsFormatTime(results);
+                }catch(err){
+                    //console.log("RUN UPDATE OR ....");
+                }
                 
                 resolve(results);
             });
