@@ -27,11 +27,6 @@ try{
       cookie: { secure: false }
     }));
 
-    /*
-    https://dashboard.nexmo.com/test-numbers
-    https://vntalking.com/tu-tao-server-gui-sms-api-free-online-voi-node-js-va-express.html#yeu-cau-chuan-bi
-    */
-
 
     //Authorization middleware 
     app.use(auth_mdw.loggedIn);

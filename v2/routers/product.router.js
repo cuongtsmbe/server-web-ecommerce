@@ -190,7 +190,7 @@ module.exports = {
         };
         var result=await productModel.delete(condition);
         if(result.affectedRows==0){
-            response.status=201;
+            response.status=202;
             response.message="Xoa san pham khong thanh cong";
         }else{
             response.status=201;

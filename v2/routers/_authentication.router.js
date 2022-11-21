@@ -271,9 +271,8 @@ module.exports = {
     loginPhoneGetCode:async function(req,res,next){
         console.log("SMS Login");
         var verificationCode = Random.rand(100000, 999999);
-        var fromPhone = "84349612646";
-        var toPhone = req.body.toPhone || "84384849034";
-        var content = `CUONG API - code: ${verificationCode}`;
+        var toPhone = req.body.Phone;
+        var content = `your code (use in 60 second) is : ${verificationCode}`;
 
         if(!toPhone){
             return res.json({
@@ -318,17 +317,13 @@ module.exports = {
         }
 
         //send code to SMS
-        SMS.sendSMS(fromPhone, toPhone, content, function(responseData){
-            console.log(responseData);
-            return res.json({
-                status:200,
-                message:responseData
-            });
+        SMS.sendSMS(toPhone, content, function(data){
+            //khong response data Vì : nếu API send SMS bên thứ 3 không trả về thì sẽ treo request
+            console.log(data);
         });
-
         return res.json({
-            status:500,
-            message:"SMS LOGIN"
+            status:200,
+            message:"check OTP in your phone."
         });
     },
 
@@ -336,7 +331,7 @@ module.exports = {
     //login with code (OTP)
     loginPhone:async function(req,res,next){
         var verificationCode = req.body.Digits;
-        var phoneNumber = req.body.PhoneNumber;
+        var phoneNumber = req.body.Phone;
 
         if (!verificationCode || !phoneNumber) {
             return res.json({
