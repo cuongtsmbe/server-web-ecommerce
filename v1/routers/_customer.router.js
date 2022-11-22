@@ -59,18 +59,29 @@ module.exports = {
             phone   :req.body.phone
         };
         var customerInfoByID = await customerModel.getOne({condition});
-        
-        //check email exist
-        if(customerInfoByID.length!=0 && customerInfoByID[0].email!=value.email){
-                   
-            var customerInfo = await customerModel.getOne({email:value.email});
 
-            if(customerInfo.length!=0){
+        if(customerInfoByID.length==0){
+            return res.json({status:201,message:"update thong tin khong thanh cong"});
+        }
+
+        //check email exist
+        if(customerInfoByID[0].email!=value.email){
+            var customerEmail=await customerModel.getOne({email:value.email});
+            if(customerEmail.length!=0){
                 response.status=203;
                 response.message="Email đã tồn tại ";    
                 return res.json(response);  
             }
 
+        }
+        //check phone exist
+        if(customerInfoByID[0].phone!=value.phone){
+            var customerPhone= await customerModel.getOne({phone:value.phone})
+            if(customerPhone.length!=0){
+                response.status=203;
+                response.message="SDT đã được sử dụng. ";    
+                return res.json(response);
+            }
         }
         
         //update infomation
