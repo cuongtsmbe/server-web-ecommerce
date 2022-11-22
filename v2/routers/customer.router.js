@@ -31,10 +31,18 @@ module.exports = {
             limit       :config.limitCustomer,
             offset      :(req.query.page-1)*config.limitCustomer
         };
-        var result= await customerModel.getList(condition);
+       
+        var [result,countResult]=await Promise.all([
+            await customerModel.getList(condition),
+            await customerModel.getList(condition,1)
+           ]);
+
         res.json({
             status:200,
-            data:result
+            data:result,
+            countNoLimit:countResult[0],
+            PageCurrent:req.query.page,
+            TotalPage:Math.ceil(1.0*countResult[0].count/condition.limit)
         })
     },
     //kiem tra du lieu them vao khong duoc empty

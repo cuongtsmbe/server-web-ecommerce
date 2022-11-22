@@ -27,11 +27,19 @@ module.exports = {
             ten_ncc:`%${req.query.ten_ncc}%`,
             offset:config.limitSuppliers*(req.query.page-1)
         };
-        var result= await supplierModel.get(condition);
+        
+        var [data,countResult]=await Promise.all([
+            supplierModel.get(condition),
+            supplierModel.get(condition,1),
+           ]);
+
         res.json({
             status:200,
-            data:result
-        })
+            data,
+            countNoLimit:countResult[0],
+            PageCurrent:req.query.page,
+            TotalPage:Math.ceil(1.0*countResult[0].count/condition.limit)
+        }) 
     },
     //lay nha cung cap theo ID 
     getSupplierByID:async function(req,res,next){

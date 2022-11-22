@@ -24,10 +24,18 @@ module.exports = {
             limit:config.limitPermission,
             offset:config.limitPermission*(req.query.page-1)
         };
-        var result= await permissionModel.get(condition);
+          
+        var [result,countResult]=await Promise.all([
+            await permissionModel.get(condition),
+            await permissionModel.get(condition,1)
+           ]);
+
         res.json({
             status:200,
-            data:result
+            data:result,
+            countNoLimit:countResult[0],
+            PageCurrent:req.query.page,
+            TotalPage:Math.ceil(1.0*countResult[0].count/condition.limit)
         })
     },
     //lấy danh sách các thư mục mà quyền đó có thể truy cập 
