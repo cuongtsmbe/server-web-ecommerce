@@ -26,10 +26,16 @@ module.exports = {
             offset      :(req.query.page-1)*config.limitCategories
         };
         
-        var result= await categoryModel.getList(condition);
+        var [result,countResult]=await Promise.all([
+            await categoryModel.getList(condition),
+            await categoryModel.getList(condition,1)
+           ]);
         res.json({
             status:200,
-            data:result
+            data:result,
+            countNoLimit:countResult[0],
+            PageCurrent:req.query.page,
+            TotalPage:Math.ceil(1.0*countResult[0].count/condition.limit)
         })
     },
     //lay the loai theo id 

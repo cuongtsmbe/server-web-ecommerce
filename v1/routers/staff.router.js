@@ -94,11 +94,19 @@ module.exports = {
             limit       :config.limitStaff,
             offset      :(req.query.page-1)*config.limitStaff
         };
-        var result= await staffModel.getList(condition);
+
+        var [data,countResult]=await Promise.all([
+            staffModel.getList(condition),
+            staffModel.getList(condition,1),
+           ]);
+
         res.json({
             status:200,
-            data:result
-        })
+            data,
+            countNoLimit:countResult[0],
+            PageCurrent:req.query.page,
+            TotalPage:Math.ceil(1.0*countResult[0].count/condition.limit)
+        })  
     },
     //them nhan vien 
     //0. random salt

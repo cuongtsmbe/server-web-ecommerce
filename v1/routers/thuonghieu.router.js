@@ -26,12 +26,19 @@ module.exports = {
             limit       :config.limitThuonghieu,
             offset      :(req.query.page-1)*config.limitThuonghieu
         };
-        
-        var result= await thuonghieuModel.getList(condition);
+
+        var [data,countResult]=await Promise.all([
+            thuonghieuModel.getList(condition),
+            thuonghieuModel.getList(condition,1),
+           ]);
+
         res.json({
             status:200,
-            data:result
-        })
+            data,
+            countNoLimit:countResult[0],
+            PageCurrent:req.query.page,
+            TotalPage:Math.ceil(1.0*countResult[0].count/condition.limit)
+        }) 
     },
     //lay tất cả thuong hieu
     getAllList:async function(req,res,next){

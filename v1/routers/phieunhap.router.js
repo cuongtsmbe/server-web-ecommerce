@@ -36,14 +36,20 @@ module.exports = {
             limit       :config.limitPhieuNhap,
             offset      :(req.query.page-1)*config.limitPhieuNhap
         };
-        var [NCC,data]=await Promise.all([
+
+        var [NCC,data,countResult]=await Promise.all([
             supplierModel.getOneByID({id:condition.ID_NCC}),
             phieuNhapModel.GetListByIDNCC(condition),
+            phieuNhapModel.GetListByIDNCC(condition,1),
            ]);
+
         res.json({
             status:200,
             NCC,
-            data
+            data,
+            countPNNoLimit:countResult[0],
+            PageCurrent:req.query.page,
+            TotalPage:Math.ceil(1.0*countResult[0].count/condition.limit)
         })
     },
     //lay danh sach phieu nhap trong khoảng thời gian
@@ -56,11 +62,18 @@ module.exports = {
             limit       :config.limitPhieuNhap,
             offset      :(req.query.page-1)*config.limitPhieuNhap
         };
-        var data=await phieuNhapModel.GetListByTime(condition);
-         //sai truy van join inner  day phay hay gi do
+
+        var [data,countResult]=await Promise.all([
+                phieuNhapModel.GetListByTime(condition),
+                phieuNhapModel.GetListByTime(condition,1),
+           ]);
+
         res.json({
             status:200,
-            data
+            data,
+            countPNNoLimit:countResult[0],
+            PageCurrent:req.query.page,
+            TotalPage:Math.ceil(1.0*countResult[0].count/condition.limit)
         })
     },
     //cap nhat trang thai phieu nhap
