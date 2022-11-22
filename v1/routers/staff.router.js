@@ -206,9 +206,16 @@ module.exports = {
         };
 
         var staffInfoByID = staffModel.getByCondition(condition);
-        
+
+        if(staffInfoByID.length==0){
+            return res.json({
+                status:201,
+                message:"update khong thanh cong"
+            });
+        }
+
         //check email exist
-        if(staffInfoByID.length!=0 && staffInfoByID[0].email!=value.email){
+        if(staffInfoByID[0].email!=value.email){
             
             var staffInfo = staffModel.getByCondition({email:value.email});
 
