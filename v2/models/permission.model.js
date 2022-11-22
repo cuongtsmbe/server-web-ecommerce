@@ -7,7 +7,7 @@ module.exports={
         return db.load(`SELECT * from ${TABLE} WHERE id=?`,condition.id);
     },
     get: function(condition,count=0){
-        if(count=0){
+        if(count==0){
             return db.get(TABLE,condition.limit,condition.offset);
         }else{
             return db.load(`SELECT count(*) as count from ${TABLE} WHERE 1 `);

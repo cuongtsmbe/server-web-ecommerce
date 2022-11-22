@@ -46,7 +46,7 @@ module.exports={
         return listPN;
     },
     //Xem danh sách phiếu nhập trong khoảng thời gian 
-    GetListByTime:function(condition){
+    GetListByTime:function(condition,count=0){
         var sql;
         if(count==0){
             sql=`SELECT PN.*,NV.ten_nv,NCC.ten_ncc,NCC.email AS email_ncc,NCC.phone AS phone_ncc`;
