@@ -54,6 +54,14 @@ module.exports = {
                 });
                 return false;
             }
+            
+            //san pham ở trạng thái đã xóa trong DB
+            if(product[0].trangthai==-2){
+                return res.json({
+                    status:404,
+                    message: "Khong tim thay san pham muon them."
+                });
+            }
             var cart = new cartModel(req.session.cart ? req.session.cart : {});
             cart.add(product[0], productId,parseInt(value.sl));
             req.session.cart = cart;

@@ -61,6 +61,13 @@ module.exports = {
                 });
                 return false;
             }
+            //san pham ở trạng thái đã xóa trong DB
+            if(product[0].trangthai==-2){
+                return res.json({
+                    status:404,
+                    message: "Khong tim thay san pham muon them."
+                });
+            }
             //get in redis
             var cartredis = await redisClientService.jsonGet(`cart:${req.user.id}`);
             var cart = new cartModel(cartredis ? JSON.parse(cartredis) : {});
