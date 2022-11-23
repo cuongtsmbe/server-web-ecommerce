@@ -1,11 +1,13 @@
-
 require('dotenv').config();
 var https = require('https');
+var http = require('http');
 module.exports={
     sendSMS:function (toPhone, content, callback){
 
       this.twilio(toPhone,content,callback);
+      //speedsms va esms chưa thể chạy . vì chưa đăng kí brandname
       //this.speedsms(toPhone,content,callback);
+      //this.esms(toPhone,content,callback);
     },
    
     twilio:function(toPhone, content, callback){
@@ -33,7 +35,7 @@ module.exports={
             to: toPhone,
             content: content,
             sms_type: 2,
-            sender: "84349612646"
+            sender: '' //cần đăng kí brandname
         });
     
         var buf = new Buffer(ACCESS_TOKEN + ':x');
@@ -74,6 +76,35 @@ module.exports={
         req.end();
 
     },
+
+    //http://esms.vn/eSMS.vn_TailieuAPI.pdf
+    esms:function(toPhone, content, callback){
+        const apiKey = process.env.ESMS_API_KEY;
+        const secretKey = process.env.ESMS_SECRET_KEY;
+       
+        url=`http://rest.esms.vn/MainService.svc/json/SendMultipleMessage_V4_get?Phone=${toPhone}&Content=2646&ApiKey=${apiKey}&SecretKey=${secretKey}&SmsType=8`;
+        http.get(url, res => {
+        let data = [];
+        const headerDate = res.headers && res.headers.date ? res.headers.date : 'no response date';
+        console.log('Status Code:', res.statusCode);
+        console.log('Date in Response header:', headerDate);
+
+        res.on('data', chunk => {
+            console.log(data);
+            data.push(chunk);
+        });
+
+        res.on('end', () => {
+            console.log('Response ended: ');
+            //const users = JSON.parse(Buffer.concat(data).toString());
+
+            callback(Buffer.concat(data).toString());
+        });
+        }).on('error', err => {
+            console.log('Error: ', err.message);
+        });
+    },
+
 
 }
 
