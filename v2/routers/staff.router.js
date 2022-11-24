@@ -208,7 +208,7 @@ module.exports = {
         };
        
 
-        var staffInfoByID = staffModel.getByCondition(condition);
+        var staffInfoByID = await staffModel.getByCondition(condition);
 
         if(staffInfoByID.length==0){
             return res.json({
@@ -220,7 +220,7 @@ module.exports = {
         //check email exist
         if( staffInfoByID[0].email!=value.email){
             
-            var staffInfo = staffModel.getByCondition({email:value.email});
+            var staffInfo =await staffModel.getByCondition({email:value.email});
 
             if(staffInfo.length!=0){
                 response.status=203;
