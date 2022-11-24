@@ -193,6 +193,7 @@ module.exports = {
         //0
         var salt = crypto.randomBytes(config.crypto_salt).toString("hex");
         var value={
+            id              :Date.now(),//id order by milliseconds 
             ten_kh          :req.body.ten_kh.trim(),
             ten_dangnhap    :req.body.username.trim(),
             mat_khau        :req.body.password,
@@ -246,13 +247,12 @@ module.exports = {
                 if(result.affectedRows!=0){
                     try{
                         var payload={
-                            id: null,
+                            id: value.id,
                             username:value.ten_dangnhap,
                             user_permission:true,
                             user_type:'CUSTOMER',
                             iat: Math.floor(Date.now() / 1000),
                         };
-                        payload.id=result.insertId;
 
                         //create token 
                         const AccessToken = jwt.sign(payload, process.env.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});

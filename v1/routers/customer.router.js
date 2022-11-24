@@ -96,14 +96,15 @@ module.exports = {
         //0
         var salt = crypto.randomBytes(config.crypto_salt).toString("hex");
         var value={
-            ten_kh :req.body.ten_kh,
-            ten_dangnhap  :req.body.ten_dangnhap,
-            mat_khau   :req.body.mat_khau,
-            email :req.body.email,
-            dia_chi    :req.body.dia_chi,
-            phone   :req.body.phone,
-            trangthai:1,
-            salt:salt
+            id              :Date.now(),//id order by milliseconds
+            ten_kh          :req.body.ten_kh,
+            ten_dangnhap    :req.body.ten_dangnhap,
+            mat_khau        :req.body.mat_khau,
+            email           :req.body.email,
+            dia_chi         :req.body.dia_chi,
+            phone           :req.body.phone,
+            trangthai       :1,
+            salt            :salt
         };
         //1
         var [customer,customerInfo]=await Promise.all([
