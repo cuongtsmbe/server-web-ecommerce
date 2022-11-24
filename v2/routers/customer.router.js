@@ -213,7 +213,7 @@ module.exports = {
         if(customerInfoByID[0].phone!=value.phone){
             var customerPhone= await customerModel.getOne({phone:value.phone})
             if(customerPhone.length!=0){
-                response.status=203;
+                response.status=204;
                 response.message="SDT đã được sử dụng. ";    
                 return res.json(response);
             }
