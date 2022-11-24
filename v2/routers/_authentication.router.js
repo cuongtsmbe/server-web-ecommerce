@@ -15,10 +15,59 @@ const SMS = require("../mdw/sendSMS.mdw");
 const LINK = require("../util/links.json");
 const config    =require("../config/default.json");
 require('dotenv').config();
-
+const OAuth2Mdw =require("../mdw/authGoogle.mdw");
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const clientID=process.env.CLIENT_ID;
+const sercetID=process.env.CLIENT_SECRET;
 
 module.exports = {
-    AuthenticateClientRouters:function(app){        
+    AuthenticateClientRouters:function(app){      
+        //passport 
+        app.use(passport.initialize());
+        app.use(passport.session());
+        //serialize , deserialize  
+        OAuth2Mdw.use(passport);
+        passport.use(
+            new GoogleStrategy(
+              {
+                clientID: clientID,
+                clientSecret: sercetID,
+                callbackURL: LINK.CLIENT.AUTHENTICATE_GOOGLE_CALLBACK
+              },
+              async function(accessToken, refreshToken, profile, done) {
+                console.log("-GoogleStrategy-");
+                // find current user in customerModel
+                var profileCustomer=await customerModel.getOne({id:profile.id});
+                if(profileCustomer.length==0){
+                    //save in DB
+                    //password default vì hàm login có verify nên sẽ không thể login bằng pw
+                    var salt = crypto.randomBytes(config.crypto_salt).toString("hex");
+                    var value={
+                        id              :profile.id,
+                        ten_kh          :profile.displayName,
+                        ten_dangnhap    :profile.emails[0].value,
+                        mat_khau        :"account login as email.",
+                        email           :profile.emails[0].value,
+                        dia_chi         :"",
+                        phone           :"",
+                        trangthai       :1,
+                        salt            :salt
+                    };               
+                    await customerModel.add(value);
+                   
+                }
+                return done(null, profile);
+                }
+            )
+        );
+        
+        
+        app.get(LINK.CLIENT.AUTHENTICATE_GOOGLE_LOGIN                   ,OAuth2Mdw.authenticate(passport));
+        app.get(LINK.CLIENT.AUTHENTICATE_GOOGLE_CALLBACK                ,OAuth2Mdw.callback(passport),this.Oauth2CallBack);
+        app.get(LINK.CLIENT.AUTHENTICATE_GOOGLE_SUCCESS                 ,this.Oauth2Success);
+        app.get(LINK.CLIENT.AUTHENTICATE_GOOGLE_LOGOUT                  ,this.Oauth2Logout);
+        app.get(LINK.CLIENT.AUTHENTICATE_GOOGLE_ERROR                   ,this.Oauth2Fail);  
         app.post(LINK.CLIENT.AUTHENTICATE_REGISTER_LOCAL                ,this.validatePassword,this.validateRegister,this.register);
         app.post(LINK.CLIENT.AUTHENTICATE_LOGIN_LOCAL                   ,this.loginLocal);
         app.post(LINK.CLIENT.AUTHENTICATE_LOGIN_GET_CODE_PHONE          ,this.loginPhoneGetCode);
@@ -30,6 +79,37 @@ module.exports = {
         app.post(LINK.CLIENT.AUTHENTICATE_UPDATE_PW                     ,this.validatePassword,this.updatePassword);
         app.post(LINK.CLIENT.AUTHENTICATE_STATUSTOKEN                   ,this.statusToken);
         app.post(LINK.CLIENT.AUTHENTICATE_REFRESHTOKEN                  ,this.getAccessToken);
+    
+
+    },
+
+    Oauth2CallBack: function(req, res) {
+        console.log(`-call back : chuyen den: ${config.CLIENT_HOME_PAGE_URL}-`);
+        res.redirect(config.CLIENT_HOME_PAGE_URL);
+    },
+    Oauth2Success: async function(req, res){
+        try{
+        //req.user from passport.deserializeUser
+        return res.json(await tokenMdw.AccessTokenAndRefreshTokenCustomer(req.user));
+        }catch(err){
+            console.log("Error: undefined req.user at function Oauth2Success");
+            //lỗi do truy cập trực tiếp đến url . mà chưa qua deserializeUser
+            return res.status(300).json({
+                status:500,
+                message:"Error. Please login again."
+            })
+        }
+    },
+    Oauth2Logout:function(req,res,next){
+        console.log(`logout - chuyen den: ${config.CLIENT_HOME_PAGE_URL}- `);
+        req.logout(function(err) {
+            if (err) { return next(err); }
+            res.redirect(config.CLIENT_HOME_PAGE_URL);
+          });
+       
+    },
+    Oauth2Fail: function(req, res){
+        res.json({status:205,message:"error logging in"});
     },
     //1.setting validate password
     //2.validate password
