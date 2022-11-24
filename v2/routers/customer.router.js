@@ -193,7 +193,7 @@ module.exports = {
             trangthai:req.body.trangthai
         };
 
-        var customerInfoByID = await customerModel.getOne({condition});
+        var customerInfoByID = await customerModel.getOne(condition);
         
         if(customerInfoByID.length==0){
             return res.json({status:201,message:"update thong tin khong thanh cong"});

@@ -51,7 +51,7 @@ module.exports = {
             status:201,
             message:""
         };
-        
+
         var empty=0;
         if(req.body.ten_kh==undefined || req.body.ten_kh==''){empty=1;}
         if(req.body.ten_dangnhap==undefined || req.body.ten_dangnhap==''){empty=1;}
@@ -176,7 +176,7 @@ module.exports = {
             trangthai:req.body.trangthai
         };
 
-        var customerInfoByID = await customerModel.getOne({condition});
+        var customerInfoByID = await customerModel.getOne(condition);
         
         if(customerInfoByID.length==0){
             return res.json({status:201,message:"update thong tin khong thanh cong"});
