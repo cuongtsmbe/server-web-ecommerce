@@ -11,21 +11,32 @@ module.exports={
         console.log(req_url);
         //không có Token có thể vào các đường dẫn
         if(!token && (
+            //login,register
                 req_url.includes("/authenticate/register/local") 
             || req_url.includes("/authenticate/login/local")
+            //login phone
             || req_url.includes("/authenticate/login/phone/code")
             || req_url.includes("/authenticate/login/phone")
+            //email
             || req_url.includes("/authenticate/login/email/code")
             || req_url.includes("/authenticate/login/email")
+            //forget pw,token
             || req_url.includes("/authenticate/statusToken")
             || req_url.includes("/authenticate/forget/pw")
             || req_url.includes("/authenticate/refreshToken")
+            //google 
+            || req_url.includes("/auth/google")
+            || req_url.includes("/auth/google/callback")
+            || req_url.includes("/auth/google/success")
+            || req_url.includes("/auth/google/logout")
+            || req_url.includes("/auth/google/error")
+            //client router
             || req_url.includes("/cart")
             || (req_url.includes("/thuonghieu/list")  && !req_url.includes("/admin/thuonghieu/list"))
             || (req_url.includes("/thuonghieu/listAll")  && !req_url.includes("/admin/thuonghieu/listAll"))
             || (req_url.includes("/product/") && !req_url.includes("/admin/product/"))
             || req_url.includes("/listcategories")
-
+            //admin
             || req_url.includes("/admin/authenticate/refreshToken") 
             || req_url.includes("/admin/authenticate/login/local")
             || req_url.includes("/admin/authenticate/statusToken")
@@ -121,25 +132,36 @@ module.exports={
         catch (err) {
             
             if(
-                   req_url.includes("/authenticate/register/local") 
-                || req_url.includes("/authenticate/login/local")
-                || req_url.includes("/authenticate/login/phone/code")
-                || req_url.includes("/authenticate/login/phone")
-                || req_url.includes("/authenticate/login/email/code")
-                || req_url.includes("/authenticate/login/email")
-                || req_url.includes("/authenticate/statusToken")
-                || req_url.includes("/authenticate/forget/pw")
-                || req_url.includes("/authenticate/refreshToken")
-                || req_url.includes("/cart")
-                || (req_url.includes("/thuonghieu/list")  && !req_url.includes("/admin/thuonghieu/list"))
-                || (req_url.includes("/thuonghieu/listAll")  && !req_url.includes("/admin/thuonghieu/listAll"))
-                || (req_url.includes("/product/") && !req_url.includes("/admin/product/"))
-                || req_url.includes("/listcategories")
-    
-                || req_url.includes("/admin/authenticate/refreshToken") 
-                || req_url.includes("/admin/authenticate/login/local")
-                || req_url.includes("/admin/authenticate/statusToken")
-                || req_url.includes("/admin/authenticate/forget/pw")
+                //login,register
+                req_url.includes("/authenticate/register/local") 
+            || req_url.includes("/authenticate/login/local")
+            //login phone
+            || req_url.includes("/authenticate/login/phone/code")
+            || req_url.includes("/authenticate/login/phone")
+            //email
+            || req_url.includes("/authenticate/login/email/code")
+            || req_url.includes("/authenticate/login/email")
+            //forget pw,token
+            || req_url.includes("/authenticate/statusToken")
+            || req_url.includes("/authenticate/forget/pw")
+            || req_url.includes("/authenticate/refreshToken")
+            //google 
+            || req_url.includes("/auth/google")
+            || req_url.includes("/auth/google/callback")
+            || req_url.includes("/auth/google/success")
+            || req_url.includes("/auth/google/logout")
+            || req_url.includes("/auth/google/error")
+            //client router
+            || req_url.includes("/cart")
+            || (req_url.includes("/thuonghieu/list")  && !req_url.includes("/admin/thuonghieu/list"))
+            || (req_url.includes("/thuonghieu/listAll")  && !req_url.includes("/admin/thuonghieu/listAll"))
+            || (req_url.includes("/product/") && !req_url.includes("/admin/product/"))
+            || req_url.includes("/listcategories")
+            //admin
+            || req_url.includes("/admin/authenticate/refreshToken") 
+            || req_url.includes("/admin/authenticate/login/local")
+            || req_url.includes("/admin/authenticate/statusToken")
+            || req_url.includes("/admin/authenticate/forget/pw")
             ){
                 next();
             }else{

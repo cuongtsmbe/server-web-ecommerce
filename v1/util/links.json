@@ -1,5 +1,15 @@
 {
     "CLIENT": {
+        "AUTHENTICATE_GOOGLE_LOGIN":"/auth/google",
+
+        "AUTHENTICATE_GOOGLE_CALLBACK":"/auth/google/callback",
+
+        "AUTHENTICATE_GOOGLE_SUCCESS":"/auth/google/success",
+
+        "AUTHENTICATE_GOOGLE_LOGOUT":"/auth/google/logout",
+
+        "AUTHENTICATE_GOOGLE_ERROR":"/auth/google/error",
+
         "AUTHENTICATE_REGISTER_LOCAL":"/authenticate/register/local" ,
 
         "AUTHENTICATE_LOGIN_LOCAL"   :"/authenticate/login/local",
