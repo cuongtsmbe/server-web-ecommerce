@@ -127,7 +127,7 @@ module.exports = {
             return false;
         }else{
             //2
-            crypto.pbkdf2(req.body.password, salt, 310000, 32, 'sha256',async function(err, hashedPassword) {
+            crypto.pbkdf2(req.body.mat_khau, salt, 310000, 32, 'sha256',async function(err, hashedPassword) {
                 value.mat_khau=hashedPassword.toString("hex");
                 var result=await customerModel.add(value);
                 if(result.affectedRows!=0){
