@@ -109,7 +109,7 @@ module.exports = {
        
     },
     Oauth2Fail: function(req, res){
-        res.json({status:205,message:"error logging in"});
+        res.json({status:205,message:"error login"});
     },
     //1.setting validate password
     //2.validate password
@@ -864,5 +864,5 @@ module.exports = {
     https://www.codementor.io/@manashkumarchakrobortty/authentication-and-authorization-in-node-js-19brdvhsyw
     https://viblo.asia/q/cau-hoi-ve-cach-luu-refresh-token-va-quy-trinh-cua-token-va-refresh-token-eVKBMWVd5kW
     https://medium.com/free-code-camp/how-to-set-up-twitter-oauth-using-passport-js-and-reactjs-9ffa6f49ef0
-    
+
 ****/

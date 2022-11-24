@@ -110,7 +110,7 @@ module.exports = {
        
     },
     Oauth2Fail: function(req, res){
-        res.json({status:205,message:"error logging in"});
+        res.json({status:205,message:"error login"});
     },
     //1.setting validate password
     //2.validate password
