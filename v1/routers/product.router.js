@@ -73,7 +73,8 @@ module.exports = {
 
         var response={
             status:201,
-            message:""
+            message:"",
+            id:null
         };
         var [NCC,TheLoai]=await Promise.all([
              supplierModel.getOneByID({id:value.id_nha_cc}),
@@ -89,6 +90,7 @@ module.exports = {
         }else{
             var result=await productModel.add(value);
             if(result.affectedRows!=0){
+                response.id=result.insertId;
                 response.message=`Them san pham thanh cong . insertId: ${result.insertId}`;
             }else{
                 response.message=`Them san pham khong thanh cong . failed`;
