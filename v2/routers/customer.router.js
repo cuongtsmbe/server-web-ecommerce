@@ -114,13 +114,14 @@ module.exports = {
             
         //email đã tồn tại
         if(customerInfo.length!=0){
-            
+            response.status=150;
             response.message="Email đã tồn tại.";
             return res.json(response);
 
         }
 
         if(customer.length==1){
+            response.status=121;
             response.message="username da ton tai.";
             res.json(response);
             return false;
@@ -131,9 +132,11 @@ module.exports = {
                 var result=await customerModel.add(value);
                 if(result.affectedRows!=0){
                     //3
+                    response.status=200;
                     req.session.user = value.ten_dangnhap;
                     response.message=`Them thanh cong . insertId: ${result.insertId}`;
                 }else{
+                    response.status=500;
                     response.message=`Them khong thanh cong . `;
                 }
                 res.json(response);
