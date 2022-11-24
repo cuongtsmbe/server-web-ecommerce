@@ -43,6 +43,10 @@ module.exports={
 
 
 
+/*
+    https://blog.loginradius.com/engineering/google-authentication-with-nodejs-and-passportjs/
+    https://viblo.asia/p/authentication-with-google-oauth-using-nodejs-passportjs-mongodb-gAm5yqAV5db
+*/ 
 
 
 
