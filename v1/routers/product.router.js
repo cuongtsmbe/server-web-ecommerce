@@ -67,8 +67,8 @@ module.exports = {
             id_thuong_hieu :req.body.Id_thuong_hieu,
             id_nha_cc   :req.body.Id_nha_cung_cap,
             so_luong    :req.body.So_luong,
-            sl_da_ban   :req.body.So_luong_da_ban,
-            trangthai   :req.body.Status
+            sl_da_ban   :req.body.So_luong_da_ban||0,
+            trangthai   :req.body.Status||1
         };
 
         var response={
