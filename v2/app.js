@@ -56,11 +56,12 @@ try{
       next();
     });
 
-
+    app.use('/public',express.static('public'))
+    
     //Authorization middleware 
     app.use(auth_mdw.loggedIn);
 
-    app.use('/public',express.static('public'))
+   
 
     //admin routers
     require("./routers/order.router").orderRouters(app);
