@@ -30,7 +30,7 @@ try{
     app.use('/public',express.static('public'))
     
     //Authorization middleware 
-    //app.use(auth_mdw.loggedIn);
+    app.use(auth_mdw.loggedIn);
 
    
 
