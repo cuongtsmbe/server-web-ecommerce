@@ -78,7 +78,7 @@ module.exports = {
         if(req.body.email==undefined || req.body.email==''){empty=1;}
     
         if(empty==1){
-            response.message=210;
+            response.status=210;
             response.message="Du lieu khong day du.";
             return res.json(response);
         }else{
