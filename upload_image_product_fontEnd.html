@@ -37,7 +37,7 @@ function send_file() {
     console.log(bodyFormData);
     axios({
             method: "post",
-            url: "http://localhost:3002/admin/upload/add/60",
+            url: "http://localhost:3001/admin/product/upload/add/60",
             data: bodyFormData, //data: {  } nếu dùng dạng này truyền form thì sẽ bị lỗi 
             headers: {
                 'Content-Type': 'multipart/form-data' //cho form dạng "multipart/form-data" thì mới upload đc file lên server
