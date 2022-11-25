@@ -82,17 +82,22 @@ module.exports = {
             ]);
         
         if(NCC.length==0 && TheLoai.length==0){
+            response.status=220;
             response.message="ID nha cung cap va ID the loai khong ton tai."
         }else if(NCC.length==0){
+            response.status=210;
             response.message="ID nha cung cap khong ton tai.";
         }else if(TheLoai.length==0){
+            response.status=190;
             response.message="ID the loai khong ton tai.";
         }else{
             var result=await productModel.add(value);
             if(result.affectedRows!=0){
                 response.id=result.insertId;
+                response.status=200;
                 response.message=`Them san pham thanh cong . insertId: ${result.insertId}`;
             }else{
+                response.status=205;
                 response.message=`Them san pham khong thanh cong . failed`;
             }
         }
