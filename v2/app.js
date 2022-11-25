@@ -23,7 +23,7 @@ try{
     app.use(bodyParser.json())
 
     app.use(cors({
-      origin: config.corsLink,
+      origin: [config.corsLinkClientUI,config.corsLinkAdminUI],
       methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD','DELETE'],
       credentials: true
     }));
