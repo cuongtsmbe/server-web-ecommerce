@@ -815,7 +815,7 @@ module.exports = {
                 iat: Math.floor(Date.now() / 1000),
             };
             const AccessToken = jwt.sign(payload, process.env.TOKEN_SECRET_ACCESSTOKEN,{ expiresIn: "1h"});
-            
+            console.log("tra ve accesstoken");
             //send accessToken
             res.status(200).json({
                 AccessToken:AccessToken

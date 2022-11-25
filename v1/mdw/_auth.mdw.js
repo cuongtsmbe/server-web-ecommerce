@@ -45,7 +45,7 @@ module.exports={
             next();
             return ;
         }
-        if (!token) return res.status(401).send("Access Denied");
+        if (!token) return res.status(400).send("Access Denied");
     
         try {
             if (token.startsWith('Bearer ')) {
@@ -63,22 +63,22 @@ module.exports={
                 
                 //không được vào trang admin 
                 if(req_url.includes("/admin/")){
-                    return res.status(401).send("Unauthorized!");
+                    return res.status(401).send("Unauthorized!1");
                 }
 
                 //status is login : không được gọi đến register Or login
                 if(req_url.includes("/authenticate/register/local") || req_url.includes("/authenticate/login/local") ){
-                    return res.json({message: "is login"});
+                    return res.status(200).json({message: "is login"});
                 }
 
             }
             if( verified.user_type === 'ADMIN' ){ 
                 if(!req_url.includes("/admin/") ){
-                    return res.status(401).send("Unauthorized!");
+                    return res.status(401).send("Unauthorized!2");
                 }
                 //khong thể vào trang login hay yêu cầu refreshToken khi đang login
                 if(req_url.includes("/admin/authenticate/refreshToken") || req_url.includes("/admin/authenticate/login/local") ){
-                    return res.json({message: "is login"});
+                    return res.status(200).json({message: "is login"});
                 }
 
                 //lấy danh sách các thư mục mà quyền đó có thể truy cập 
@@ -109,19 +109,22 @@ module.exports={
                 if(req_url.includes("/admin/customer/") ){
                     IDDanhMuc=9; 
                 }
+                if(req_url.includes("/admin/phieunhap") ){
+                    IDDanhMuc=10; 
+                }
                 if(req_url.includes("/admin/permission/") ){
                     IDDanhMuc=11; 
                 }
 
                 //kiểm tra account có quyền truy cập không
                 if(ListIDcategory.length==0){
-                    return res.status(401).send("Unauthorized!");
+                    return res.status(401).send("Unauthorized!3");
                 }
                 const result = ListIDcategory.filter(obj => {
                     return obj.id_danhmuc==IDDanhMuc;
                 });
                 if(result.length==0){
-                    return res.status(401).send("Unauthorized!");
+                    return res.status(401).send("Unauthorized!4");
                 }
 
             }
@@ -165,6 +168,7 @@ module.exports={
             ){
                 next();
             }else{
+                console.log(err);
                 res.status(400).send("Invalid Token");
             }
         }

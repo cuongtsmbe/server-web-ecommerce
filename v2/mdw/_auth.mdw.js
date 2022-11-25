@@ -44,7 +44,7 @@ module.exports={
             next();
             return ;
         }
-        if (!token) return res.status(401).send("Access Denied");
+        if (!token) return res.status(400).send("Access Denied");
     
         try {
             if (token.startsWith('Bearer ')) {
@@ -107,6 +107,9 @@ module.exports={
                 }
                 if(req_url.includes("/admin/customer/") ){
                     IDDanhMuc=9; 
+                }
+                if(req_url.includes("/admin/phieunhap") ){
+                    IDDanhMuc=10; 
                 }
                 if(req_url.includes("/admin/permission/") ){
                     IDDanhMuc=11; 
