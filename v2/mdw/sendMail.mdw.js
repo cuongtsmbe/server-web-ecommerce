@@ -23,7 +23,7 @@ module.exports={
             oauth2Client.getAccessToken((err, token) => {
                 if (err) {
                    
-                    reject("Failed to create access token :" + err);
+                    reject("Failed to create access token(có thể do Resfresh token hết hạn) :" + err);
 
                 }
                 resolve(token);
