@@ -4,10 +4,6 @@
 /node_modules
 /v1/node_modules
 /v2/node_modules
-/v2/readme.txt
-/v2/package-lock.json
-/v2/Dockerfile
-/v1/package-lock.json
 /.pnp
 .pnp.js
 # testing

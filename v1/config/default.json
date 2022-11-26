@@ -1,7 +1,7 @@
 {
     "corsLinkClientUI":"http://localhost:3006",
     "corsLinkAdminUI":"http://localhost:3000",
-    "CLIENT_HOME_PAGE_URL":"http://localhost:3000",
+    "CLIENT_HOME_PAGE_URL":"http://localhost:3006",
     "hash": 8,
     "limitOrders":10,
     "limitSuppliers":10,
