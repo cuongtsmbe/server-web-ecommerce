@@ -49,6 +49,8 @@ khi không dùng redis thì DB sẽ bán ra 2 sp ) , ...
 //tool tự động tạo map google 
 //bán server (api) để người khác chỉ cần viết trang
 client là có thể bán hàng(hoặc cấp trang client mẫu mặc định) 
+https://online-hung.mysapo.net/admin/products
+https://startupill.com/101-best-web-apps-startups-worth-a-follow-in-2021/
 
 
 
