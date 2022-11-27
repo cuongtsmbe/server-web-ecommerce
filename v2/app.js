@@ -12,6 +12,9 @@ const redis = require('redis')
 const rejson = require('redis-rejson');
 const checkSession =require('./mdw/checkSession.mdw');
 const RedisServices =require('./services/RedisServices');
+const contentType = require('content-type');
+const getRawBody = require('raw-body');
+const toobusy = require('toobusy-js');
 
 require('express-async-errors');
 
@@ -27,6 +30,37 @@ try{
       methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD','DELETE'],
       credentials: true
     }));
+
+     //Set request size limits
+     app.use(function (req, res, next) {
+      if (!['POST', 'PUT', 'DELETE'].includes(req.method)) {
+        next()
+        return
+      }
+    
+      getRawBody(req, {
+        length: req.headers['content-length'],
+        limit: '1kb',
+        encoding: contentType.parse(req).parameters.charset
+      }, function (err, string) {
+        if (err) return next(err)
+        req.text = string
+        next()
+      })
+    })
+
+    app.use(express.urlencoded({ extended: true, limit: "1kb" }));
+    app.use(express.json({ limit: "1kb" }));
+    
+    //Monitor the event loop
+    app.use(function(req, res, next) {
+      if (toobusy()) {
+          // log if you see necessary
+          res.send(503, "Server Too Busy");
+      } else {
+      next();
+      }
+    });
 
     app.use(session({
       secret: process.env.SESSION_SECRET,
