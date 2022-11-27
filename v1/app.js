@@ -109,3 +109,12 @@ try{
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+
+
+
+/** 
+ * -security-
+ * https://hn.algolia.com/?q=nodejs
+ * https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html
+ * https://cheatsheetseries.owasp.org/cheatsheets/Nodejs_Security_Cheat_Sheet.html#perform-application-activity-logging
+ * **/
